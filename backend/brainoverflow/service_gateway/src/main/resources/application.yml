@@ -1,0 +1,36 @@
+server:
+  port: 10900
+
+spring:
+  application:
+    name: service-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: service-ucenter
+          uri: lb://service-ucenter
+          predicates:
+            - Path=/service-ucenter/**
+          filters:
+            - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:ss981124@47.74.84.224:8761/eureka/
+      register-with-eureka: true
+      fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port} #:${random.long(1,100)}
+
+knife4j:
+  gateway:
+    enabled: true
+    strategy: discover
+    discover:
+      enabled: true
+      version: openapi3

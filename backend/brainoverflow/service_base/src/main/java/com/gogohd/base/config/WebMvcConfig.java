@@ -11,11 +11,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private JwtInterceptor jwtInterceptor;
 
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/ucenter/**")
-                .excludePathPatterns("/ucenter/register")
-                .excludePathPatterns("/ucenter/login");
+                .excludePathPatterns("/ucenter/login")
+                .excludePathPatterns("/ucenter/register");
     }
 }

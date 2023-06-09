@@ -118,6 +118,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserInfoVo userInfoVo = new UserInfoVo();
         userInfoVo.setUsername(user.getUsername());
         userInfoVo.setEmail(user.getEmail());
+        userInfoVo.setAvatar(user.getAvatar());
 
         return userInfoVo;
     }
