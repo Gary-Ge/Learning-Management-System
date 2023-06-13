@@ -18,4 +18,10 @@
 .layout {
   background-color: #EFF1F6;
 }
-  
+.layout .fixed-tabs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
