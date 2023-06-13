@@ -1,5 +1,6 @@
 package com.gogohd.base.utils;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -8,12 +9,16 @@ import java.util.Map;
 @Data
 public class R {
 
+    @Schema(description = "The request is success or not")
     private boolean success;
 
+    @Schema(description = "The status code")
     private Integer code;
 
+    @Schema(description = "Error or Success message, frontend can display it directly")
     private String message;
 
+    @Schema(description = "Data returned, the data returned by API would be in this data object")
     private Map<String, Object> data = new HashMap<>();
 
     private R() {}

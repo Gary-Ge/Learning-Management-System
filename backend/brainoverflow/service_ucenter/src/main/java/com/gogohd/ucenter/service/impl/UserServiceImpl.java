@@ -9,15 +9,16 @@ import com.gogohd.base.utils.ResultCode;
 import com.gogohd.ucenter.entity.User;
 import com.gogohd.ucenter.entity.vo.LoginVo;
 import com.gogohd.ucenter.entity.vo.RegisterVo;
-import com.gogohd.ucenter.entity.vo.UserInfoVo;
+import com.gogohd.ucenter.entity.vo.UpdateVo;
 import com.gogohd.ucenter.mapper.UserMapper;
 import com.gogohd.ucenter.service.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -112,14 +113,66 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserInfoVo getUserById(String userId) {
+    public HashMap<String, String> getUserById(String userId) {
+        // Check the validity of userId
         User user = baseMapper.selectById(userId);
 
-        UserInfoVo userInfoVo = new UserInfoVo();
-        userInfoVo.setUsername(user.getUsername());
-        userInfoVo.setEmail(user.getEmail());
-        userInfoVo.setAvatar(user.getAvatar());
+        if (user == null) {
+            throw new BrainException(ResultCode.ERROR, "User not exist");
+        }
 
-        return userInfoVo;
+        HashMap<String, String> result = new HashMap<>();
+        result.put("username", user.getUsername());
+        result.put("email", user.getEmail());
+        result.put("avatar", user.getAvatar());
+
+        return result;
+    }
+
+    @Override
+    public void updateUserById(UpdateVo updateVo, String userId) {
+        String email = updateVo.getEmail();
+        String password = updateVo.getPassword();
+
+        // Check the validity of userId
+        User user = baseMapper.selectById(userId);
+        if (user == null) {
+            throw new BrainException(ResultCode.ERROR, "User not exist");
+        }
+
+        // Check the validity of not null value
+        if (!ObjectUtils.isEmpty(email)) {
+            if (!ArgsValidator.isValidEmail(email)) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "Invalid email address");
+            }
+            // If the new email address is not equal to the old one, check if the new email address is exist
+            if (!email.equals(user.getEmail())) {
+                LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+                wrapper.eq(User::getEmail, email);
+                if (baseMapper.selectCount(wrapper) > 0) {
+                    throw new BrainException(ResultCode.ERROR, "Email address already registered");
+                }
+            }
+        }
+
+        String encrypt = null;
+        if (!ObjectUtils.isEmpty(password)) {
+            if (!ArgsValidator.isValidPassword(password)) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "Password should be at least 8 characters long, " +
+                        "with 1 uppercase letter, 1 lowercase letter and 1 number");
+            }
+            encrypt = DigestUtils.sha256Hex(password);
+            if (encrypt.equals(user.getPassword())) {
+                throw new BrainException(ResultCode.ERROR, "The new password cannot be same as the old one");
+            }
+        }
+
+        user = new User();
+        BeanUtils.copyProperties(updateVo, user);
+        user.setUserId(userId);
+        if (encrypt != null) {
+            user.setPassword(encrypt);
+        }
+        baseMapper.updateById(user);
     }
 }

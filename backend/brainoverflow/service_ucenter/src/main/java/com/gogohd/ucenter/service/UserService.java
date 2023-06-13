@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.gogohd.ucenter.entity.User;
 import com.gogohd.ucenter.entity.vo.LoginVo;
 import com.gogohd.ucenter.entity.vo.RegisterVo;
-import com.gogohd.ucenter.entity.vo.UserInfoVo;
+import com.gogohd.ucenter.entity.vo.UpdateVo;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 public interface UserService extends IService<User> {
     String register(RegisterVo registerVo);
 
     String login(LoginVo loginVo);
 
-    UserInfoVo getUserById(String userId);
+    HashMap<String, String> getUserById(String userId);
+
+    void updateUserById(UpdateVo updateVo, String userId);
 }

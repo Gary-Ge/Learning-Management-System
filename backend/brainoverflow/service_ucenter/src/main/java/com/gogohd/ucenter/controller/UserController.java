@@ -3,6 +3,7 @@ package com.gogohd.ucenter.controller;
 import com.gogohd.base.utils.R;
 import com.gogohd.ucenter.entity.vo.LoginVo;
 import com.gogohd.ucenter.entity.vo.RegisterVo;
+import com.gogohd.ucenter.entity.vo.UpdateVo;
 import com.gogohd.ucenter.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,10 +34,18 @@ public class UserController {
     }
 
     @Operation(summary = "Get user information, including username, email address and avatar link")
-    @GetMapping("getUser")
+    @GetMapping("user")
     public R user(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
-        return R.success().message("Get user info success").data("user", userService.getUserById(userId));
+        return R.success().message("Get user information success").data("user", userService.getUserById(userId));
+    }
+
+    @Operation(summary = "Update user information")
+    @PutMapping("user")
+    public R user(HttpServletRequest request, @RequestBody UpdateVo updateVo) {
+        String userId = (String) request.getAttribute("userId");
+        userService.updateUserById(updateVo, userId);
+        return R.success().message("Update user information success");
     }
 
 }
