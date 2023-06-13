@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Tabs, Typography, Avatar, Modal, Button } from 'antd';
 import type { TabsProps } from 'antd';
-import './TeacherDashboard.css'; // 引入自定义样式文件
+import './Dashboard.css'; // 引入自定义样式文件
 import { LogoutOutlined } from '@ant-design/icons';
 // import { useHistory } from 'react-router-dom'; // 导入路由相关的依赖
 
@@ -14,16 +14,17 @@ const StudentDashboardContent: React.FC = () => {
   return (
     <div>
       学生仪表板内容
-      
     </div>
   );
 };
 
+const { TabPane } = Tabs;
+
 const StaffDashboardContent: React.FC = () => {
   return (
-    <div>
+    <Layout.Content className="dashboard-content">
       员工仪表板内容
-    </div>
+    </Layout.Content>
   );
 };
 
@@ -61,7 +62,7 @@ const TimeDisplay: React.FC = () => {
   );
 };
 
-const TeacherDashboard: React.FC = () => {
+const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('1');
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -148,12 +149,14 @@ const TeacherDashboard: React.FC = () => {
           </div>
         </div>
       </Header>
-      <Content style={{ padding: '0 50px' }}>
-        {activeTab === '1' ? <StudentDashboardContent /> : <StaffDashboardContent />}
+      <Content style={{ padding: '0 50px', position: 'relative' }}>
+        <div>
+          {activeTab === '1' ? <StudentDashboardContent /> : <StaffDashboardContent />}
+        </div>
       </Content>
       {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
     </Layout>
   );
 };
 
-export default TeacherDashboard;
+export default Dashboard;
