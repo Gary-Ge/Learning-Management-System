@@ -1,0 +1,21 @@
+.custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: white !important;
+}  
+.custom-tabs .ant-tabs-nav .ant-tabs-tab-active {
+    background-color: #484E56;
+    padding: 0px 10px 0px 10px;
+    height: 63px;
+
+}
+.custom-tabs .ant-tabs-ink-bar {
+    display: none;
+}
+
+.dashboard-content {
+  position: relative;
+  border: 1px solid blue;
+}
+.layout {
+  background-color: #EFF1F6;
+}
+  
