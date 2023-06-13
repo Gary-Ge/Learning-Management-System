@@ -147,11 +147,6 @@ const TeacherDashboard: React.FC = () => {
             <LogoutOutlined style={{ fontSize: '20px', color: '#6D64FF', marginLeft: '15px' }} />
           </div>
         </div>
-        {/* <IconButton
-          // icon={<PoweroffOutlined />}
-          onClick={handleLogout}
-          style={{ marginLeft: '10px' }}
-        /> */}
       </Header>
       <Content style={{ padding: '0 50px' }}>
         {activeTab === '1' ? <StudentDashboardContent /> : <StaffDashboardContent />}
