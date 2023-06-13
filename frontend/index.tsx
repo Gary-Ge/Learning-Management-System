@@ -4,6 +4,7 @@ import type { TabsProps } from 'antd';
 import './Dashboard.css'; // 引入自定义样式文件
 import { LogoutOutlined } from '@ant-design/icons';
 // import { useHistory } from 'react-router-dom'; // 导入路由相关的依赖
+import StaffDashboardContent from './StaffDashboardContent';
 
 const { Title, Text } = Typography;
 
@@ -12,21 +13,13 @@ const { Header, Content } = Layout;
 
 const StudentDashboardContent: React.FC = () => {
   return (
-    <div>
+    <div style={{ border: '1px solid blue', margin: '100px' }}>
       学生仪表板内容
     </div>
   );
 };
 
 const { TabPane } = Tabs;
-
-const StaffDashboardContent: React.FC = () => {
-  return (
-    <Layout.Content className="dashboard-content">
-      员工仪表板内容
-    </Layout.Content>
-  );
-};
 
 const TimeDisplay: React.FC = () => {
   const [currentDate, setCurrentDate] = useState('');
@@ -110,11 +103,11 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout className="layout">
-      <Header style={{ display: 'flex', alignItems: 'center' }}>
+      <Header className="fixed-tabs" style={{ display: 'flex', alignItems: 'center', }}>
         <img 
           src={"../logo.svg"} 
           alt="LogoSVG" 
-          style={{ width: '50px', height: 'auto', position: 'absolute', top: '1%', left: '1%' }} 
+          style={{ width: '50px', height: 'auto', position: 'absolute', top: '10%', left: '1%' }} 
         />
         <Title level={4} style={{ color: '#fff', margin: '25px', fontFamily: 'Comic Sans MS', }}>Brainoverflow</Title>
         <Tabs    
