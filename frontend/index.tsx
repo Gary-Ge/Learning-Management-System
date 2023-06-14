@@ -19,8 +19,6 @@ const StudentDashboardContent: React.FC = () => {
   );
 };
 
-const { TabPane } = Tabs;
-
 const TimeDisplay: React.FC = () => {
   const [currentDate, setCurrentDate] = useState('');
   const [currentTime, setCurrentTime] = useState('');
@@ -56,17 +54,6 @@ const TimeDisplay: React.FC = () => {
 };
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('1');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const handleAvatarClick = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
-
   const tabStyle: React.CSSProperties = {
     color: 'white',               // Tab文字颜色
     fontSize: '18px',           // Tab文字大小
@@ -79,6 +66,9 @@ const Dashboard: React.FC = () => {
     // border: '1px solid blue',    // Tab边框样式和大小
     // borderRadius: '8px'         // Tab边框圆角大小
   };
+
+  // Tab
+  const [activeTab, setActiveTab] = useState('1');
   const onChange = (key: string) => {
     setActiveTab(key);
   };
@@ -94,6 +84,16 @@ const Dashboard: React.FC = () => {
       // children: <StaffDashboardContent />,
     }
   ];
+
+  // 头像
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handleAvatarClick = () => {
+    setIsModalVisible(true);
+  };
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+  
   // const history = useHistory(); // 创建路由实例
   const handleLogout = () => {
     // 执行退出登录的逻辑，例如清除用户信息、重置状态等
@@ -103,7 +103,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout className="layout">
-      <Header className="fixed-tabs" style={{ display: 'flex', alignItems: 'center', }}>
+      <Header className="fixed-tabs" style={{ display: 'flex', alignItems: 'center', position: 'sticky', }}>
         <img 
           src={"../logo.svg"} 
           alt="LogoSVG" 
@@ -117,7 +117,6 @@ const Dashboard: React.FC = () => {
           onChange={onChange}
           className="custom-tabs" // 添加自定义CSS类名
           tabBarStyle={tabStyle}       
-          
         />
         <div style={{ marginLeft: 'auto', marginRight: '-10px', display: 'flex', alignItems: 'center' }}>
           <TimeDisplay />
@@ -147,7 +146,6 @@ const Dashboard: React.FC = () => {
           {activeTab === '1' ? <StudentDashboardContent /> : <StaffDashboardContent />}
         </div>
       </Content>
-      {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
     </Layout>
   );
 };
