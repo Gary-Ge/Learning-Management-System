@@ -217,7 +217,7 @@ export default function Dashboard() {
           alt="LogoSVG" 
           style={{ width: '50px', height: 'auto', position: 'absolute', top: '10%', left: '1%' }} 
         />
-        <Title level={4} style={{ color: '#fff', margin: '25px', fontFamily: 'Comic Sans MS', }}>Brainoverflow</Title>
+        <Title className="custom-title" level={4} style={{ color: '#fff', margin: '25px', fontFamily: 'Comic Sans MS', }}>Brainoverflow</Title>
         <Tabs    
           defaultActiveKey="1"
           activeKey={activeTab}
@@ -228,7 +228,9 @@ export default function Dashboard() {
           
         />
         <div style={{ marginLeft: 'auto', marginRight: '-10px', display: 'flex', alignItems: 'center' }}>
-        <TimeDisplay />
+          <div className='TimeDisplay'>
+            <TimeDisplay />
+          </div>
           <Avatar
             icon={<UserOutlined />} 
             onClick={handleAvatarClick}
