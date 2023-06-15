@@ -10,6 +10,7 @@
         <module name="service_gateway" />
         <module name="service_ucenter" />
         <module name="service_base" />
+        <module name="service_eureka" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -20,6 +21,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="service-doc" options="-parameters" />
       <module name="service_base" options="-parameters" />
+      <module name="service_eureka" options="-parameters" />
       <module name="service_gateway" options="-parameters" />
       <module name="service_ucenter" options="-parameters" />
     </option>

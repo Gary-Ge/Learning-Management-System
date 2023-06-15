@@ -3,6 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/brainoverflow/service-doc/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/brainoverflow/service_base/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/brainoverflow/service_eureka/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/brainoverflow/service_gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/brainoverflow/service_ucenter/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/brainoverflow/src/main/java" charset="UTF-8" />
