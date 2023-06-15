@@ -28,7 +28,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/ucenter/**")
                 .excludePathPatterns("/ucenter/login")
                 .excludePathPatterns("/ucenter/register")
-                .excludePathPatterns("/ucenter/email/**");
+                .excludePathPatterns("/ucenter/email/**")
+                .excludePathPatterns("/ucenter/code")
+                .excludePathPatterns("/ucenter/password");
     }
 
     @Override

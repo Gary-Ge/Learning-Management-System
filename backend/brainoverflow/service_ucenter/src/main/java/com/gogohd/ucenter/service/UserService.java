@@ -2,9 +2,8 @@ package com.gogohd.ucenter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gogohd.ucenter.entity.User;
-import com.gogohd.ucenter.entity.vo.LoginVo;
-import com.gogohd.ucenter.entity.vo.RegisterVo;
-import com.gogohd.ucenter.entity.vo.UpdateVo;
+import com.gogohd.ucenter.entity.vo.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 
@@ -18,4 +17,10 @@ public interface UserService extends IService<User> {
     void updateUserById(UpdateVo updateVo, String userId);
 
     void checkEmailAddress(String email);
+
+    void updatePassword(UpdatePasswordVo updatePasswordVo);
+
+    void verifyCode(VerifyCodeVo verifyCodeVo);
+
+    String uploadAvatar(String userId, MultipartFile file);
 }
