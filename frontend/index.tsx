@@ -46,9 +46,7 @@ const TimeDisplay: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <Text style={{ color: 'white', display: 'block', fontFamily: 'Comic Sans MS' }}><div style={{ height='10px' }}>{currentDate}</div>{currentTime}</Text>
-    </div>
+    <Text style={{ color: 'white', display: 'block', fontFamily: 'Comic Sans MS' }}><div style={{ height='10px' }}>{currentDate}</div>{currentTime}</Text>
   );
 };
 
