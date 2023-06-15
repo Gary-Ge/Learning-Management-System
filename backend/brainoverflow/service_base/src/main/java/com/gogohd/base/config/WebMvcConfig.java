@@ -27,7 +27,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/ucenter/**")
                 .excludePathPatterns("/ucenter/login")
-                .excludePathPatterns("/ucenter/register");
+                .excludePathPatterns("/ucenter/register")
+                .excludePathPatterns("/ucenter/email/**");
     }
 
     @Override

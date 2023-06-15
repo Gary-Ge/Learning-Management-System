@@ -48,4 +48,11 @@ public class UserController {
         return R.success().message("Update user information success");
     }
 
+    @Operation(summary = "Check if the given email address exists and send the verification code")
+    @GetMapping("email/{email}")
+    public R checkEmail(@PathVariable String email) {
+        userService.checkEmailAddress(email);
+        return R.success().message("Verification has been sent to " + email);
+    }
+
 }

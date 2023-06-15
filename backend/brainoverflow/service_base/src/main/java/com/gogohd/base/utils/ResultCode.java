@@ -11,4 +11,6 @@ public interface ResultCode {
     public static Integer INVALID_OR_EXPIRED_TOKEN = 20003;
 
     public static Integer NO_TOKEN = 20004;
+
+    public static Integer TOO_MANY_REQUESTS = 20005;
 }

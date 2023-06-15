@@ -16,4 +16,6 @@ public interface UserService extends IService<User> {
     HashMap<String, String> getUserById(String userId);
 
     void updateUserById(UpdateVo updateVo, String userId);
+
+    void checkEmailAddress(String email);
 }

@@ -3,9 +3,7 @@ package com.gogohd.ucenter.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
-import com.gogohd.base.utils.ArgsValidator;
-import com.gogohd.base.utils.JwtUtils;
-import com.gogohd.base.utils.ResultCode;
+import com.gogohd.base.utils.*;
 import com.gogohd.ucenter.entity.User;
 import com.gogohd.ucenter.entity.vo.LoginVo;
 import com.gogohd.ucenter.entity.vo.RegisterVo;
@@ -15,16 +13,21 @@ import com.gogohd.ucenter.service.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public String register(RegisterVo registerVo) {
@@ -174,5 +177,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setPassword(encrypt);
         }
         baseMapper.updateById(user);
+    }
+
+    @Override
+    public void checkEmailAddress(String email) {
+        // Check if the email address is empty
+        if (ObjectUtils.isEmpty(email)) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Please input an email address");
+        }
+
+        // Check if the email address has a bad format
+        if (!ArgsValidator.isValidEmail(email)) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Invalid email address");
+        }
+
+        // Check if the email address exists
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getEmail, email);
+        if (baseMapper.selectCount(wrapper) == 0) {
+            throw new BrainException(ResultCode.ERROR, "Email address not exist");
+        }
+
+        // If there is an active verification code, do not send again
+        if (stringRedisTemplate.opsForValue().get(email) != null) {
+            throw new BrainException(ResultCode.TOO_MANY_REQUESTS, "Your requests are too frequent. " +
+                    "Please wait for 60 seconds before trying again.");
+        }
+
+        // Generate a verification code
+        String code = VerificationCodeUtils.generate();
+        System.out.println(code);
+        // Save the code to redis
+        stringRedisTemplate.opsForValue().set(email, code, 60, TimeUnit.SECONDS);
+        // Send verification code
+        SendEmailUtils.sendVerificationCode(email, code);
     }
 }

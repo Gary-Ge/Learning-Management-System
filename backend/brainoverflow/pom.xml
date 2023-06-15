@@ -32,6 +32,8 @@
         <commons-codec.version>1.15</commons-codec.version>
         <jwt.version>0.9.1</jwt.version>
         <knife4j.version>4.1.0</knife4j.version>
+        <aliyun-core.version>4.6.3</aliyun-core.version>
+        <aliyun-dm.version>3.3.2</aliyun-dm.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +97,16 @@
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-openapi3-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-core</artifactId>
+                <version>${aliyun-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-dm</artifactId>
+                <version>${aliyun-dm.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
