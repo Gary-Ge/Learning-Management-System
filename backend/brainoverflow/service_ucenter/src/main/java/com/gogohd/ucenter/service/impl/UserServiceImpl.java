@@ -17,7 +17,10 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -133,6 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         HashMap<String, String> result = new HashMap<>();
+        result.put("userId", user.getUserId());
         result.put("username", user.getUsername());
         result.put("email", user.getEmail());
         result.put("avatar", user.getAvatar());
@@ -305,5 +309,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The avatar " +
                     "should be jpg, png, bmp or svg");
         }
+    }
+
+    @Override
+    public List<Map<String, String>> getUserListByIds(List<String> userIds) {
+        return baseMapper.selectBatchIds(userIds).stream()
+                .map(user -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("userId", user.getUserId());
+                    map.put("username", user.getUsername());
+                    map.put("email", user.getEmail());
+                    map.put("avatar", user.getAvatar());
+                    return map;
+                }).collect(Collectors.toList());
     }
 }

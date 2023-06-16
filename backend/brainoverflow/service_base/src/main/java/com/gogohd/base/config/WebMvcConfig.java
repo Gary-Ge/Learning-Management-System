@@ -30,7 +30,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/ucenter/register")
                 .excludePathPatterns("/ucenter/email/**")
                 .excludePathPatterns("/ucenter/code")
-                .excludePathPatterns("/ucenter/password");
+                .excludePathPatterns("/ucenter/password")
+                .addPathPatterns("/edu-course/**");
     }
 
     @Override

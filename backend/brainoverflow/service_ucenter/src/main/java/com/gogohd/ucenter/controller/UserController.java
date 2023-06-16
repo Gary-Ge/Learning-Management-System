@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("ucenter")
@@ -32,11 +33,23 @@ public class UserController {
         return R.success().message("Login success").data("token", userService.login(loginVo));
     }
 
-    @Operation(summary = "Get user information, including username, email address and avatar link")
+    @Operation(summary = "Get current user's information, including username, email address and avatar link")
     @GetMapping("user")
     public R getUser(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
         return R.success().message("Get user information success").data("user", userService.getUserById(userId));
+    }
+
+    @Operation(summary = "Get other user's information, including username, email address and avatar link")
+    @GetMapping("user/{userId}")
+    public R getUser(@PathVariable String userId) {
+        return R.success().message("Get user information success").data("user", userService.getUserById(userId));
+    }
+
+    @Operation(summary = "Get a list of user information, by using a list of user IDs")
+    @GetMapping("users/{userIds}")
+    public R getUsers(@PathVariable List<String> userIds) {
+        return R.success().message("Get users information success").data("users", userService.getUserListByIds(userIds));
     }
 
     @Operation(summary = "Update user information")

@@ -16,6 +16,7 @@
         <module>service_base</module>
         <module>service_gateway</module>
         <module>service_eureka</module>
+        <module>service_edu</module>
     </modules>
     <version>0.0.1-SNAPSHOT</version>
     <name>brainoverflow</name>

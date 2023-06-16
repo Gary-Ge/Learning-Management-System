@@ -1,11 +1,11 @@
 server:
-  port: 10910
+  port: 10920
 
 spring:
   profiles:
     active: dev
   application:
-    name: service-ucenter
+    name: service-edu
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -39,9 +39,17 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.gogohd.ucenter.controller
+      packages-to-scan: com.gogohd.edu.controller
 
 knife4j:
   enable: true
   setting:
     language: zh_cn
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        logger-level: full
