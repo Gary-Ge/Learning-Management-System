@@ -11,13 +11,14 @@
 .custom-tabs .ant-tabs-ink-bar {
     display: none;
 }
-
 .dashboard-content {
   position: relative;
   border: 1px solid blue;
 }
-.layout {
-  background-color: #EFF1F6;
+.layout{
+  background-color: black;
+  margin-left: -70%;
+  background-color: transparent;
 }
 .layout .fixed-tabs {
   position: fixed;
@@ -25,6 +26,11 @@
   left: 0;
   width: 100%;
   z-index: 1;
+}
+@media screen and (max-width: 900px) {
+  .layout{
+    margin-left: -30%;
+  }
 }
 @media screen and (max-width: 375px) {
   .custom-title {

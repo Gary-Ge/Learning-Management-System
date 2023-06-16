@@ -18,8 +18,11 @@ const { Header, Content } = Layout;
 
 const StudentDashboardContent: React.FC = () => {
   return (
-    <div style={{ border: '1px solid blue', margin: '100px' }}>
-      学生仪表板内容
+    <div style={{ margin: '100px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'blue'}}>
+      <div>
+      Hi,<br />
+      Welcome to our website ~~
+      </div>
     </div>
   );
 };
@@ -127,12 +130,10 @@ export default function Dashboard() {
 
   const handleAvatarClick = () => {
     setIsModalVisible(true);
-    window.history.pushState(null, '', '/user');
   };
 
   const handleModalClose = () => {
     setIsModalVisible(false);
-    window.history.pushState(null, '', '/');
   };
   const handleSubmit = () => {
     if (!validNotNull(username)) {
