@@ -8,12 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("edu-course")
-@CrossOrigin
 @Tag(name = "Course related APIs")
 public class CourseController {
 
@@ -51,5 +51,13 @@ public class CourseController {
         String token = request.getHeader("Authorization");
         return R.success().message("Get staffs information success").data("staffs",
                 courseService.getStaffListByCourseId(courseId, token));
+    }
+
+    @Operation(summary = "Upload a course cover")
+    @PostMapping("course/{courseId}/cover")
+    public R uploadCover(HttpServletRequest request, @PathVariable String courseId, MultipartFile file) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Upload cover success").data("cover",
+                courseService.uploadCover(userId, courseId, file));
     }
 }

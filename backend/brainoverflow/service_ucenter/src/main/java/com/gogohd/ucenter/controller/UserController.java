@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("ucenter")
-@CrossOrigin
 @Tag(name = "User Center")
 public class UserController {
 

@@ -123,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BrainException(ResultCode.ERROR, "Incorrect email address or incorrect password");
         }
 
-        return jwtUtils.getTokenFromUserId(user.getUserId());
+        return jwtUtils.generateJwtToken(user.getUserId());
     }
 
     @Override

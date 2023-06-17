@@ -3,7 +3,9 @@ package com.gogohd.edu.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
+import com.gogohd.base.utils.FileUploadUtils;
 import com.gogohd.base.utils.R;
+import com.gogohd.base.utils.RandomUtils;
 import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.client.OpenFeignClient;
 import com.gogohd.edu.entity.Category;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -176,6 +179,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         // Check if this user has the authority to update the course information
         LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
         staffWrapper.eq(Staff::getUserId, userId);
+        staffWrapper.eq(Staff::getCourseId, courseId);
         if (!staffMapper.exists(staffWrapper)) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to update this course");
         }
@@ -220,6 +224,35 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         // Update course
         if (!updateById(course)) {
             throw new BrainException(ResultCode.ERROR, "Update course information failed");
+        }
+    }
+
+    @Override
+    public String uploadCover(String userId, String courseId, MultipartFile file) {
+        // Check if this user has the right to upload cover image for this course
+        LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
+        staffWrapper.eq(Staff::getUserId, userId);
+        staffWrapper.eq(Staff::getCourseId, courseId);
+        if (!staffMapper.exists(staffWrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to upload cover for this course");
+        }
+
+        String filename = file.getOriginalFilename();
+        if (filename == null) {
+            throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
+        }
+        if (filename.endsWith(".bmp") || filename.endsWith(".jpg") || filename.endsWith(".jpeg") ||
+                filename.endsWith("png")) {
+            // Generate a UUID for each cover and use the UUID as filename, pretending file overwriting
+            String extension = filename.substring(filename.lastIndexOf("."));
+            String objectName = "cover/" + courseId + "/" + RandomUtils.generateUUID() + extension;
+            // Upload the avatar
+            FileUploadUtils.uploadFile(file, objectName, filename, true);
+            // Return the avatar URL
+            return "https://brainoverflow/" + objectName;
+        } else {
+            throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The cover " +
+                    "should be jpg, jpeg, bmp or png");
         }
     }
 }
