@@ -1,3 +1,16 @@
+.custom-tabs{
+  display: inline-block;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-family:Comic Sans MS;
+  margin: 0;
+  padding: 2px;
+  background: transparent;
+  height: 64px;
+  
+}
 .custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
     color: white !important;
 }  
@@ -7,9 +20,30 @@
     height: 63px;
 
 }
+.ant-tabs-tab{
+  margin: 0!important;
+  padding: 0px 10px 0px 10px;
+}
 
 .custom-tabs .ant-tabs-ink-bar {
     display: none;
+}
+.ant-tabs-nav-operations{
+  display: none!important;
+}
+.hearder-logo-l{
+    width: 180px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    margin-right: 20px;
+    display: inline-block;
+}
+.hearder-logo-s{
+  width: 30px;
+  margin-left: 20px;
+  margin-bottom: 10px;
+  margin-right: 20px;
+  display: none;
 }
 
 .dashboard-content {
@@ -18,25 +52,52 @@
 }
 .layout {
   background-color: #EFF1F6;
+  width: 100%;
 }
 .layout .fixed-tabs {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
+  padding: 0;
+  height: 64px;
+  min-width: 375px;
+}
+.avatar{
+  width: 32px;
+}
+.header-right{
+  float: right;
+  margin-right: 20px;
+}
+.hear-right-inner{
+  display: flex;
+  align-items: center;
+  height: 64px;
+}
+.time-wrap{
+  margin: 0;
+  padding: 0px; 
+  color: white;
+  display: block; 
+  font-family: Comic Sans MS; 
+  min-width: 80px;
+}
+.time-inner{
+  height: 25px; 
+  margin-right: 10px;
 }
 @media screen and (max-width: 375px) {
-  .custom-title {
-    display: none;
-  }
   .TimeDisplay {
     display: none;
   }
-  .custom-tabs {
-    margin: 0 0 0 3%;
-    width: 200px;
-    font-size: 1px;
-    padding: 0;
+}
+@media screen and (max-width: 800px) {
+  .hearder-logo-l{
+    display: none;
   }
+  .hearder-logo-s{
+    display: inline-block;
+  }
+}
+@media screen and (max-width: 630px) {
+    .TimeDisplay {
+      display: none;
+    }
 }

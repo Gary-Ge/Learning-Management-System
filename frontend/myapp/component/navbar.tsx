@@ -9,20 +9,22 @@ import AlertDialog from '../component/alert';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { ChangeUserDTO } from '../src/utils/entities';
+import { useMediaPredicate } from "react-media-hook";
 
+
+import logo_l from '../../images/logo_l.png';
+import logo_s from '../../images/logo_s.png';
 
 const { Title, Text } = Typography;
-
-const url = 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg';
 const { Header, Content } = Layout;
 
-const StudentDashboardContent: React.FC = () => {
-  return (
-    <div style={{ border: '1px solid blue', margin: '100px' }}>
-      学生仪表板内容
-    </div>
-  );
-};
+// const StudentDashboardContent: React.FC = () => {
+//   return (
+//     <div style={{ border: '1px solid blue', margin: '100px' }}>
+//       学生仪表板内容
+//     </div>
+//   );
+// };
 
 const { TabPane } = Tabs;
 
@@ -53,9 +55,10 @@ const TimeDisplay: React.FC = () => {
     }, []);
   
     return (
-      <Text style={{ margin: '0px', padding: '0px', color: 'white', display: 'block', fontFamily: 'Comic Sans MS', minWidth: '80px' }}><div style={{ height: '25px', marginRight: '10px' }}>{currentDate}</div>{currentTime}</Text>
+      <Text className='time-wrap'>
+        <div className='time-inner'>{currentDate}</div>{currentTime}</Text>
     );
-  };
+};
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('1');
@@ -72,7 +75,7 @@ export default function Dashboard() {
   const [showMessage, setShowMessage] = useState(false);
   const [alertDialogContent, setAlertDialogContent] = useState("");
 
-
+  const biggerThan540 = useMediaPredicate("(min-width: 540px)");
   const getBase64 = (img: RcFile, callback: (url: string) => void) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result as string));
@@ -173,34 +176,22 @@ export default function Dashboard() {
     history.push('/login'); // redirect to login page, adjust as needed
   })
   .catch(error => {
-    console.log(error.message)
+    // console.log(error.message) // todo something wrong shows unexpected value
   });  
 
-
-  const tabStyle: React.CSSProperties = {
-    color: 'white',               // Tab文字颜色
-    fontSize: '18px',           // Tab文字大小
-    fontWeight: 'bold',         // Tab文字粗细
-    textTransform: 'uppercase', // Tab文字格式（大写）
-    fontFamily: 'Comic Sans MS',
-    margin: '0',    // Tab文字与标签边框的间距
-    padding: '2px',            // Tab文字内边距
-    background: 'transparent',
-    // border: '1px solid blue',    // Tab边框样式和大小
-    // borderRadius: '8px'         // Tab边框圆角大小
-  };
   const onChange = (key: string) => {
     setActiveTab(key);
+    console.log(key);
   };
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: `Student Dashboard`,
+      label: biggerThan540 ? `Student Dashboard`: `Student`,
       // children: <StudentDashboardContent />,
     },
     {
       key: '2',
-      label: `Staff Dashboard`,
+      label: biggerThan540 ?`Staff Dashboard` : `Staff`,
       // children: <StaffDashboardContent />,
     }
   ];
@@ -211,130 +202,137 @@ export default function Dashboard() {
 
   return (
     <Layout className="layout">
-      <Header className="fixed-tabs" style={{ display: 'flex', alignItems: 'center', }}>
+      <Header className="fixed-tabs">
         <img
-          src={url}
+          src={logo_l}
           alt="LogoSVG" 
-          style={{ width: '50px', height: 'auto', position: 'absolute', top: '10%', left: '1%' }} 
+          className="hearder-logo-l"
         />
-        <Title className="custom-title" level={4} style={{ color: '#fff', margin: '25px', fontFamily: 'Comic Sans MS', }}>Brainoverflow</Title>
+        <img
+          src={logo_s}
+          alt="LogoSVG" 
+          className="hearder-logo-s"
+        />
         <Tabs    
           defaultActiveKey="1"
           activeKey={activeTab}
           items={items}
           onChange={onChange}
-          className="custom-tabs" 
-          tabBarStyle={tabStyle}       
-          
+          className="custom-tabs"
         />
-        <div style={{ marginLeft: 'auto', marginRight: '-10px', display: 'flex', alignItems: 'center' }}>
-          <div className='TimeDisplay'>
-            <TimeDisplay />
-          </div>
-          <Avatar
-            icon={<UserOutlined />} 
-            onClick={handleAvatarClick}
-          />
-          <Modal title="My Profile" visible={isModalVisible} onCancel={handleModalClose} footer={[
-            <Button key="cancel" onClick={handleModalClose}>
-              Cancel
-            </Button>,
-            <Button key="submit" type="primary" onClick={handleSubmit}>
-              Save
-            </Button>,
-          ]}>
-            <div className="avatar" style={{display: 'flex',justifyContent:"center",alignItems:"center",paddingLeft: '37%'}}>
-      <Upload
-        name="avatar"
-        listType="picture-card"
-        className="avatar-uploader"
-        showUploadList={false}
-        beforeUpload={beforeUpload}
-        onChange={handleChange}
-      >
-        {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-      </Upload>
-      </div>
-            <Form
-      name="basic"
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600, paddingTop: "30px" }}
-      initialValues={{ remember: true }}
-      autoComplete="off"
-    >
-      <Form.Item
-        label="Username"
-        name="username"
-        rules={[{ required: true, message: 'Please input your Username!' }]}
-      >
-        <Input placeholder="Please input your username" value={username} onChange={handleUsernameChange} />
-      </Form.Item>
+        <div className='header-right'>
+          <div className='hear-right-inner'>
+            <div className='TimeDisplay'>
+              <TimeDisplay />
+            </div>
+            <div className="avatar">
+            <Avatar
+              icon={<UserOutlined />} 
+              onClick={handleAvatarClick}
+            />
+            </div>
 
-      <Form.Item
-        label="Email Address"
-        name="Email Address"
-        rules={[{ required: true, message: 'Please input your Email Address!' }]}
-      >
-         <Input placeholder="Please input your email address" value={email} onChange={handleEmailChange} />
-      </Form.Item>
-  
-      <Form.Item
-        label="Password"
-        name="password"
-        rules={[{ required: true, message: 'Please input your Password!' }]}
-      >
-         <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
-      </Form.Item>
-  
-        </Form>
-        {showAlertUsername && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please input a valid username" 
-              onClose={() => setShowUsername(false)}
-            />
-          </div>
-        }
-        {showAlertEmail && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please input a valid email" 
-              onClose={() => setShowEmail(false)}
-            />
-          </div>
-        }
-        {showAlertPassword && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please enter a password with at least 8 digits, including uppercase and lowercase numbers" 
-              onClose={() => setShowPassword(false)}
-            />
-          </div>
-        }
-        {showMessage && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description={alertDialogContent}
-              onClose={() => setShowMessage(false)}
-            />
-          </div>
-        }
-          </Modal>
-          <div onClick={handleLogout} style={{ cursor: 'pointer' }}>
-            <LogoutOutlined style={{ fontSize: '20px', color: '#6D64FF', marginLeft: '15px' }} />
+            <Modal title="My Profile" visible={isModalVisible} onCancel={handleModalClose} footer={[
+              <Button key="cancel" onClick={handleModalClose}>
+                Cancel
+              </Button>,
+              <Button key="submit" type="primary" onClick={handleSubmit}>
+                Save
+              </Button>,
+            ]}>
+            <div className="avatar" style={{display: 'flex',justifyContent:"center",alignItems:"center",paddingLeft: '37%'}}>
+              <Upload
+                name="avatar"
+                listType="picture-card"
+                className="avatar-uploader"
+                showUploadList={false}
+                beforeUpload={beforeUpload}
+                onChange={handleChange}
+              >
+                {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+              </Upload>
+            </div>
+              <Form
+                name="basic"
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 16 }}
+                style={{ maxWidth: 600, paddingTop: "30px" }}
+                initialValues={{ remember: true }}
+                autoComplete="off"
+              >
+                <Form.Item
+                  label="Username"
+                  name="username"
+                  rules={[{ required: true, message: 'Please input your Username!' }]}
+                >
+                  <Input placeholder="Please input your username" value={username} onChange={handleUsernameChange} />
+                </Form.Item>
+
+                <Form.Item
+                  label="Email Address"
+                  name="Email Address"
+                  rules={[{ required: true, message: 'Please input your Email Address!' }]}
+                >
+                  <Input placeholder="Please input your email address" value={email} onChange={handleEmailChange} />
+                </Form.Item>
+            
+                <Form.Item
+                  label="Password"
+                  name="password"
+                  rules={[{ required: true, message: 'Please input your Password!' }]}
+                >
+                  <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
+                </Form.Item>
+    
+              </Form>
+          {showAlertUsername && 
+            <div className="alert-dialog-container">
+              <AlertDialog
+                message="Error"
+                description="Please input a valid username" 
+                onClose={() => setShowUsername(false)}
+              />
+            </div>
+          }
+          {showAlertEmail && 
+            <div className="alert-dialog-container">
+              <AlertDialog
+                message="Error"
+                description="Please input a valid email" 
+                onClose={() => setShowEmail(false)}
+              />
+            </div>
+          }
+          {showAlertPassword && 
+            <div className="alert-dialog-container">
+              <AlertDialog
+                message="Error"
+                description="Please enter a password with at least 8 digits, including uppercase and lowercase numbers" 
+                onClose={() => setShowPassword(false)}
+              />
+            </div>
+          }
+          {showMessage && 
+            <div className="alert-dialog-container">
+              <AlertDialog
+                message="Error"
+                description={alertDialogContent}
+                onClose={() => setShowMessage(false)}
+              />
+            </div>
+          }
+            </Modal>
+            <div onClick={handleLogout} style={{ cursor: 'pointer' }}>
+              <LogoutOutlined style={{ fontSize: '20px', color: '#6D64FF', marginLeft: '15px' }} />
+            </div>
           </div>
         </div>
       </Header>
-      <Content style={{ padding: '0 50px', position: 'relative' }}>
+      {/* <Content style={{ padding: '0 50px', position: 'relative' }}>
         <div>
           {<StudentDashboardContent />}
         </div>
-      </Content>
+      </Content> */}
       {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
     </Layout>
   );
