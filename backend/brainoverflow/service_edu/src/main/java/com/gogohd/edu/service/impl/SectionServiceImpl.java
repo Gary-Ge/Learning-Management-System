@@ -71,7 +71,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
 
         // Update the section
         Section section = new Section();
-        BeanUtils.copyProperties(updateTextSectionVo, sectionId);
+        BeanUtils.copyProperties(updateTextSectionVo, section);
         section.setSectionId(sectionId);
         section.setUpdatedBy(userId);
         if (baseMapper.updateById(section) != 1) {
