@@ -130,12 +130,10 @@ export default function Dashboard() {
 
   const handleAvatarClick = () => {
     setIsModalVisible(true);
-    window.history.pushState(null, '', '/user');
   };
 
   const handleModalClose = () => {
     setIsModalVisible(false);
-    window.history.pushState(null, '', '/');
   };
   const handleSubmit = () => {
     if (!validNotNull(username)) {

@@ -13,4 +13,10 @@ public interface ResultCode {
     public static Integer NO_TOKEN = 20004;
 
     public static Integer TOO_MANY_REQUESTS = 20005;
+
+    public static Integer SEND_EMAIL_ERROR = 20006;
+
+    public static Integer UPLOAD_FILE_ERROR = 20007;
+
+    public static Integer NO_AUTHORITY = 20008;
 }

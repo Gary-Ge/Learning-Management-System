@@ -18,6 +18,12 @@ spring:
             - Path=/service-ucenter/**
           filters:
             - StripPrefix=1
+        - id: service-edu
+          uri: lb://service-edu
+          predicates:
+              - Path=/service-edu/**
+          filters:
+              - StripPrefix=1
 
 knife4j:
   gateway:
