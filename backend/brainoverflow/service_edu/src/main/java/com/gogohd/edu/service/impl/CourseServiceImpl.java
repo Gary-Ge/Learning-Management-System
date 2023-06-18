@@ -3,7 +3,7 @@ package com.gogohd.edu.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
-import com.gogohd.base.utils.FileUploadUtils;
+import com.gogohd.base.utils.OssUtils;
 import com.gogohd.base.utils.R;
 import com.gogohd.base.utils.RandomUtils;
 import com.gogohd.base.utils.ResultCode;
@@ -241,13 +241,14 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         if (filename == null) {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
         }
-        if (filename.endsWith(".bmp") || filename.endsWith(".jpg") || filename.endsWith(".jpeg") ||
-                filename.endsWith("png")) {
+        String filenameLower = filename.toLowerCase();
+        if (filenameLower.endsWith(".bmp") || filenameLower.endsWith(".jpg") || filenameLower.endsWith(".jpeg") ||
+                filenameLower.endsWith("png")) {
             // Generate a UUID for each cover and use the UUID as filename, pretending file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "cover/" + courseId + "/" + RandomUtils.generateUUID() + extension;
             // Upload the avatar
-            FileUploadUtils.uploadFile(file, objectName, filename, true);
+            OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL
             return "https://brainoverflow/" + objectName;
         } else {

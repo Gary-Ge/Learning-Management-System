@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("edu-resource")
@@ -24,5 +25,21 @@ public class ResourceController {
         String userId = (String) request.getAttribute("userId");
         resourceService.uploadResources(userId, sectionId, files);
         return R.success().message("Upload resources success");
+    }
+
+    @Operation(summary = "Upload video")
+    @PostMapping("/video/{sectionId}")
+    public R uploadVideo(HttpServletRequest request, @PathVariable String sectionId, MultipartFile file) {
+        String userId = (String) request.getAttribute("userId");
+        resourceService.uploadVideo(userId, sectionId, file);
+        return R.success().message("Upload video success");
+    }
+
+    @Operation(summary = "Download file resource")
+    @GetMapping("/resource/{resourceId}")
+    public void downloadResource(HttpServletRequest request, HttpServletResponse response,
+                              @PathVariable String resourceId) {
+        String userId = (String) request.getAttribute("userId");
+        resourceService.downloadResource(userId, response, resourceId);
     }
 }

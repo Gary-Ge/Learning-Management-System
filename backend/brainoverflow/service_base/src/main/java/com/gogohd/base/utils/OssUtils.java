@@ -1,18 +1,18 @@
 package com.gogohd.base.utils;
 
-import com.aliyun.oss.ClientException;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.OSSException;
+import com.aliyun.oss.*;
 import com.aliyun.oss.internal.OSSHeaders;
 import com.aliyun.oss.model.*;
 import com.gogohd.base.exception.BrainException;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
-public class FileUploadUtils {
+public class OssUtils {
 
     private static final String ACCESS_KEY_ID = "LTAI5tNyMm84sbENvLhPikRs";
     private static final String ACCESS_KEY_SECRET = "yhojBvza5DbUfcdKObl9xCDO3mMUVN";
@@ -37,6 +37,48 @@ public class FileUploadUtils {
             if (ossClient != null) {
                 ossClient.shutdown();
             }
+        }
+    }
+
+    public static void downloadFile(HttpServletResponse response, String objectName, String downloadName) {
+        BufferedInputStream input = null;
+        OutputStream outputStream = null;
+
+        OSS ossClient = new OSSClientBuilder().build(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+        OSSObject ossObject = ossClient.getObject(BUCKET_NAME, objectName);
+
+        try {
+            response.reset();
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("application/octet-stream");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + downloadName);
+
+            input = new BufferedInputStream(ossObject.getObjectContent());
+            byte[] buffBytes = new byte[1024];
+            outputStream = response.getOutputStream();
+            int read = 0;
+            while ((read = input.read(buffBytes)) != -1) {
+                outputStream.write(buffBytes, 0, read);
+            }
+            outputStream.flush();
+
+            ossObject.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new BrainException(ResultCode.ERROR, "Download file failed");
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+                if (input != null) {
+                    input.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ossClient.shutdown();
         }
     }
 }

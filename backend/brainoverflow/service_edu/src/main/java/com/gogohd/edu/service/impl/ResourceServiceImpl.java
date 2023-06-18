@@ -1,9 +1,12 @@
 package com.gogohd.edu.service.impl;
 
+import com.aliyun.vod.upload.impl.UploadVideoImpl;
+import com.aliyun.vod.upload.req.UploadStreamRequest;
+import com.aliyun.vod.upload.resp.UploadStreamResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
-import com.gogohd.base.utils.FileUploadUtils;
+import com.gogohd.base.utils.OssUtils;
 import com.gogohd.base.utils.RandomUtils;
 import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.entity.Resource;
@@ -18,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+
 @Service
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
 
@@ -26,6 +32,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Autowired
     private StaffMapper staffMapper;
+
+    private final String ACCESS_KEY_ID = "LTAI5t5rn1iCNgUgUxbLMBzB";
+    private final String ACCESS_KEY_SECRET = "2fbQ2PYOl5EDjBfFOnxvDB5wqMhvNB";
 
     @Override
     @Transactional
@@ -54,7 +63,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "resource/" + sectionId + "/" + RandomUtils.generateUUID() + extension;
             // Upload the avatar
-            FileUploadUtils.uploadFile(file, objectName, filename, false);
+            OssUtils.uploadFile(file, objectName, filename, false);
 
             // Insert resource record
             Resource resource = new Resource();
@@ -67,5 +76,63 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 throw new BrainException(ResultCode.ERROR, "Upload resources failed");
             }
         }
+    }
+
+    @Override
+    public void uploadVideo(String userId, String sectionId, MultipartFile file) {
+        // Check if this section exists
+        Section section = sectionMapper.selectById(sectionId);
+        if (section == null) {
+            throw new BrainException(ResultCode.ERROR, "Section not exist");
+        }
+
+        // Check if this user has authority to upload files for this section
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, section.getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to upload video for this section");
+        }
+
+        // Upload video
+        String filename = file.getOriginalFilename();
+
+        if (filename == null) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Filename cannot be empty");
+        }
+
+        try {
+            InputStream inputStream = file.getInputStream();
+            UploadStreamRequest request = new UploadStreamRequest(ACCESS_KEY_ID, ACCESS_KEY_SECRET,
+                    filename, filename, inputStream);
+            request.setApiRegionId("ap-southeast-1");
+            UploadVideoImpl uploader = new UploadVideoImpl();
+            UploadStreamResponse response = uploader.uploadStream(request);
+
+            String videoId = response.getVideoId();
+
+            // Save this resource to data table
+            Resource resource = new Resource();
+            resource.setTitle(filename);
+            resource.setSource("vod://" + videoId);
+            resource.setType(1);
+            resource.setSectionId(sectionId);
+            resource.setCreatedBy(userId);
+            if (!save(resource)) {
+                throw new BrainException(ResultCode.ERROR, "Upload video failed");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BrainException(ResultCode.ERROR, "Upload video failed");
+        }
+    }
+
+    @Override
+    public void downloadResource(String userId, HttpServletResponse response, String resourceId) {
+        Resource resource = baseMapper.selectById(resourceId);
+        String source = resource.getSource();
+        String downloadName = resource.getTitle();
+        String objectName = source.substring(6);
+        OssUtils.downloadFile(response, objectName, downloadName);
     }
 }
