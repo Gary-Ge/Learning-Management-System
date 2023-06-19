@@ -19,4 +19,6 @@ public interface CourseService extends IService<Course> {
     void updateCourseById(String userId, String courseId, UpdateCourseVo updateCourseVo);
 
     String uploadCover(String userId, String courseId, MultipartFile file);
+
+    Object getStudentListByCourseId(String courseId, String token);
 }

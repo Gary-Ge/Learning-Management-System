@@ -12,9 +12,11 @@ import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.entity.Resource;
 import com.gogohd.edu.entity.Section;
 import com.gogohd.edu.entity.Staff;
+import com.gogohd.edu.entity.Student;
 import com.gogohd.edu.mapper.ResourceMapper;
 import com.gogohd.edu.mapper.SectionMapper;
 import com.gogohd.edu.mapper.StaffMapper;
+import com.gogohd.edu.mapper.StudentMapper;
 import com.gogohd.edu.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Autowired
     private StaffMapper staffMapper;
 
+    @Autowired
+    private StudentMapper studentMapper;
+
     private final String ACCESS_KEY_ID = "LTAI5t5rn1iCNgUgUxbLMBzB";
     private final String ACCESS_KEY_SECRET = "2fbQ2PYOl5EDjBfFOnxvDB5wqMhvNB";
 
@@ -42,7 +47,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         // Check if this section exists
         Section section = sectionMapper.selectById(sectionId);
         if (section == null) {
-            throw new BrainException(ResultCode.ERROR, "Section not exist");
+            throw new BrainException(ResultCode.NOT_FOUND, "Section not exist");
         }
 
         // Check if this user has authority to upload files for this section
@@ -83,7 +88,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         // Check if this section exists
         Section section = sectionMapper.selectById(sectionId);
         if (section == null) {
-            throw new BrainException(ResultCode.ERROR, "Section not exist");
+            throw new BrainException(ResultCode.NOT_FOUND, "Section not exist");
         }
 
         // Check if this user has authority to upload files for this section
@@ -129,7 +134,31 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     public void downloadResource(String userId, HttpServletResponse response, String resourceId) {
+        // Check if this resource exists
         Resource resource = baseMapper.selectById(resourceId);
+        if (resource == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Resource not exists");
+        }
+
+        // Get the section of this resource
+        String courseId = sectionMapper.selectById(resource.getSectionId()).getCourseId();
+
+        // Check if this user has the authority to download this file
+        LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
+        staffWrapper.eq(Staff::getUserId, userId);
+        staffWrapper.eq(Staff::getCourseId, courseId);
+        if (!staffMapper.exists(staffWrapper)) {
+            // If this user is not a staff, check if this user is a student
+            LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+            studentWrapper.eq(Student::getUserId, userId);
+            studentWrapper.eq(Student::getCourseId, courseId);
+            if (!studentMapper.exists(studentWrapper)) {
+                // If this user is neither a staff nor a student, then refuse to download this file
+                throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to download this file");
+            }
+        }
+
+        // Download the file
         String source = resource.getSource();
         String downloadName = resource.getTitle();
         String objectName = source.substring(6);

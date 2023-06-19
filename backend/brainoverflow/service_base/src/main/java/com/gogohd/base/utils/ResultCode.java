@@ -19,4 +19,6 @@ public interface ResultCode {
     public static Integer UPLOAD_FILE_ERROR = 20007;
 
     public static Integer NO_AUTHORITY = 20008;
+
+    public static Integer NOT_FOUND = 20009;
 }

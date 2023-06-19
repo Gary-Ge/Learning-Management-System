@@ -11,11 +11,13 @@ import com.gogohd.edu.client.OpenFeignClient;
 import com.gogohd.edu.entity.Category;
 import com.gogohd.edu.entity.Course;
 import com.gogohd.edu.entity.Staff;
+import com.gogohd.edu.entity.Student;
 import com.gogohd.edu.entity.vo.CreateCourseVo;
 import com.gogohd.edu.entity.vo.UpdateCourseVo;
 import com.gogohd.edu.mapper.CategoryMapper;
 import com.gogohd.edu.mapper.CourseMapper;
 import com.gogohd.edu.mapper.StaffMapper;
+import com.gogohd.edu.mapper.StudentMapper;
 import com.gogohd.edu.service.CourseService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Autowired
     private OpenFeignClient openFeignClient;
+
+    @Autowired
+    private StudentMapper studentMapper;
 
     private final String TITLE_EXISTS = "Course title has been used, please change the course title";
 
@@ -123,7 +128,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     public Map<String, Object> getCourseById(String courseId, String token) {
         Course course = baseMapper.selectById(courseId);
         if (course == null) {
-            throw new BrainException(ResultCode.ERROR, "Course not exist");
+            throw new BrainException(ResultCode.NOT_FOUND, "Course not exist");
         }
 
         // Construct the result
@@ -154,6 +159,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Override
     public Object getStaffListByCourseId(String courseId, String token) {
+        Course course = baseMapper.selectById(courseId);
+        if (course == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course not exist");
+        }
+
         // Get the staff Ids
         LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Staff::getCourseId, courseId);
@@ -255,5 +265,30 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The cover " +
                     "should be jpg, jpeg, bmp or png");
         }
+    }
+
+    @Override
+    public Object getStudentListByCourseId(String courseId, String token) {
+        Course course = baseMapper.selectById(courseId);
+        if (course == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course not exist");
+        }
+        // Get the student ids
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getCourseId, courseId);
+        List<String> userIdsList = studentMapper.selectList(wrapper).stream()
+                .map(Student::getUserId)
+                .collect(Collectors.toList());
+
+        // Fetch user information of these students
+        String userIds = String.join(",", userIdsList);
+        R staffsResponse;
+        try {
+            staffsResponse = openFeignClient.getUsers(userIds, token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BrainException(ResultCode.ERROR, "Fetch students information failed");
+        }
+        return staffsResponse.getData().get("users");
     }
 }

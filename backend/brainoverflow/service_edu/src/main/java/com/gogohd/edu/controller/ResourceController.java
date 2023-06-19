@@ -35,7 +35,7 @@ public class ResourceController {
         return R.success().message("Upload video success");
     }
 
-    @Operation(summary = "Download file resource")
+    @Operation(summary = "Download the file")
     @GetMapping("/resource/{resourceId}")
     public void downloadResource(HttpServletRequest request, HttpServletResponse response,
                               @PathVariable String resourceId) {

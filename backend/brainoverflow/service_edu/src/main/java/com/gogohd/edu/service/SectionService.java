@@ -8,6 +8,7 @@ import com.gogohd.edu.entity.vo.UpdateTextSectionVo;
 import com.gogohd.edu.entity.vo.UpdateVideoSectionVo;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface SectionService extends IService<Section> {
@@ -17,11 +18,17 @@ public interface SectionService extends IService<Section> {
 
     void deleteSection(String userId, String sectionId);
 
-    Map<String, Object> getTextSectionById(String userId, String sectionId);
+    Map<String, Object> getSectionById(String userId, String sectionId);
 
     String createVideoSection(String userId, String courseId, CreateVideoSectionVo createVideoSectionVo);
 
     void updateVideoSectionById(String userId, String sectionId, UpdateVideoSectionVo updateVideoSectionVo);
 
     String uploadVideoCover(String userId, String courseId, MultipartFile file);
+
+    List<Map<String, Object>> getTextSectionListByCourseId(String userId, String courseId);
+
+    List<Map<String, Object>> getVideoSectionListByCourseId(String userId, String courseId);
+
+    List<Map<String, Object>> getSectionListByCourseId(String userId, String courseId);
 }

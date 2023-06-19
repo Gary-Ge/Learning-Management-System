@@ -31,7 +31,6 @@ public class JwtUtils {
                     .setSigningKey(APP_SECRET)
                     .parseClaimsJws(token)
                     .getBody();
-            System.out.println((String) claims.get("id"));
             return (String) claims.get("id");
         } catch (ExpiredJwtException e) {
             throw new BrainException(ResultCode.INVALID_OR_EXPIRED_TOKEN, "Expired token");

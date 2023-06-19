@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,14 +38,6 @@ public class SectionController {
         String userId = (String) request.getAttribute("userId");
         sectionService.updateTextSectionById(userId, sectionId, updateTextSectionVo);
         return R.success().message("Update text section success");
-    }
-
-    @Operation(summary = "Get one text section info")
-    @GetMapping("textSection/{sectionId}")
-    public R getTextSection(HttpServletRequest request, @PathVariable String sectionId) {
-        String userId = (String) request.getAttribute("userId");
-        return R.success().message("Get text section information success").data("section",
-                sectionService.getTextSectionById(userId, sectionId));
     }
 
     @Operation(summary = "Delete a section")
@@ -82,5 +73,37 @@ public class SectionController {
         String userId = (String) request.getAttribute("userId");
         return R.success().message("Upload video cover success").data("videoCover",
                 sectionService.uploadVideoCover(userId, courseId, file));
+    }
+
+    @Operation(summary = "Get one section info")
+    @GetMapping("section/{sectionId}")
+    public R getSection(HttpServletRequest request, @PathVariable String sectionId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get section information success").data("section",
+                sectionService.getSectionById(userId, sectionId));
+    }
+
+    @Operation(summary = "Get all the text sections of a course")
+    @GetMapping("textSections/{courseId}")
+    public R getTextSections(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get text sections information success").data("sections",
+                sectionService.getTextSectionListByCourseId(userId, courseId));
+    }
+
+    @Operation(summary = "Get all the video sections of a course")
+    @GetMapping("videoSections/{courseId}")
+    public R getVideoSections(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get video sections information success").data("sections",
+                sectionService.getVideoSectionListByCourseId(userId, courseId));
+    }
+
+    @Operation(summary = "Get all the sections of a course")
+    @GetMapping("sections/{courseId}")
+    public R getSections(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get sections information success").data("sections",
+                sectionService.getSectionListByCourseId(userId, courseId));
     }
 }
