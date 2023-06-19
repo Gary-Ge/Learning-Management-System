@@ -1,5 +1,16 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.6.20
+
+- 创建/更新/删除小节相关的接口可用
+- 学生注册和退出课程的接口可用
+- 上传文件资源和视频资源的接口可用
+- 下载文件资源的接口可用
+  - 该接口如果调用成功返回一个文件流（Content-Type=application/octet-stream），该接口如果调用失败返回json数据（Content-Type=application/x-www-form-urlencoded）前端需要首先判断返回类型再做对应处理
+  - 返回的文件流不会被浏览器自动下载，需要封装成blob格式再手动生成一个下载链接，模拟点击进行下载
+- 上传视频的接口最好限制只上传mp4格式
+- 不要上传过大的视频
+
 ## Update 2023.6.18
 
 - 不再使用Redis存储token和userId之间的对应关系，现在token将被直接解析。token现在不会自动续期了，每一个token将在它生成的30天后过期
