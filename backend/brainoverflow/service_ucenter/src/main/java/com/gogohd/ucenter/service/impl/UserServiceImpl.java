@@ -292,6 +292,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public String uploadAvatar(String userId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
+        }
+
         String filename = file.getOriginalFilename();
         if (filename == null) {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");

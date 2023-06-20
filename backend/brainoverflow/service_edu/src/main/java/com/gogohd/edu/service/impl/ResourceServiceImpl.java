@@ -48,13 +48,16 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Autowired
     private StudentMapper studentMapper;
 
-    private final String VOD_ACCESS_KEY_ID = "LTAI5t5rn1iCNgUgUxbLMBzB";
-    private final String VOD_ACCESS_KEY_SECRET = "2fbQ2PYOl5EDjBfFOnxvDB5wqMhvNB";
+    private final String VOD_ACCESS_KEY_ID = "LTAI5tPZyXsoayWRe6FPKFQQ";
+    private final String VOD_ACCESS_KEY_SECRET = "iGrS87JBIEOXPYRpQ7UnpUIbR7Os9i";
     private final String VOD_REGION_ID = "ap-southeast-1";
 
     @Override
     @Transactional
     public void uploadResources(String userId, String sectionId, MultipartFile[] files) {
+        if (files == null) {
+            throw new BrainException(ResultCode.ERROR, "No files");
+        }
         // Check if this section exists
         Section section = sectionMapper.selectById(sectionId);
         if (section == null) {
@@ -96,6 +99,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     @Override
     public void uploadVideo(String userId, String sectionId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
+        }
+
         // Check if this section exists
         Section section = sectionMapper.selectById(sectionId);
         if (section == null) {

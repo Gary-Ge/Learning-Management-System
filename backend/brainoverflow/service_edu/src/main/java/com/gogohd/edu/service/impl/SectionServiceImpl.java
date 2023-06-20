@@ -254,6 +254,10 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
 
     @Override
     public String uploadVideoCover(String userId, String courseId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
+        }
+
         // Check if this user has the authority to upload video cover for this section
         LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
         staffWrapper.eq(Staff::getUserId, userId);

@@ -62,10 +62,10 @@ public class CourseController {
     }
 
     @Operation(summary = "Upload a course cover")
-    @PostMapping("course/{courseId}/cover")
-    public R uploadCover(HttpServletRequest request, @PathVariable String courseId, MultipartFile file) {
+    @PostMapping("course/cover")
+    public R uploadCover(HttpServletRequest request, MultipartFile file) {
         String userId = (String) request.getAttribute("userId");
         return R.success().message("Upload cover success").data("cover",
-                courseService.uploadCover(userId, courseId, file));
+                courseService.uploadCover(userId, file));
     }
 }
