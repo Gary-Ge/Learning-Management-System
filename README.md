@@ -1,5 +1,73 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.6.20 #3
+
+- 关于图片的上传，可以在antd组件的beforeUpload事件里将文件封装为formData对象，并调用接口上传，如下（我也不知道为什么如果在onChange事件里执行上传逻辑会导致上传3次，很怪）
+
+```react
+import { useState } from 'react';
+import { Upload } from 'antd';
+import { PlusOutlined, LoadingOutlined } from '@ant-design/icons';
+
+const App = () => {
+
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODYyMTQ5MzIsImV4cCI6MTY4NzUxMDkzMiwiaWQiOiIzNDFlYjU0ZTI4ZTcxMTYwMjU3YjlmYmNjMzAwMjJmNiJ9.r92a9jku4abEhoNAIETBNaKxlOyQvth4lmt_1Mz9KOY`);
+
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <Upload
+        name="avatar"
+        listType="picture-card"
+        className="avatar-uploader"
+        showUploadList={false}
+        multiple={false}
+        maxCount={1}
+        beforeUpload={(file) => {
+          console.log(file)
+          const formData = new FormData();
+          formData.append("file", file);
+          setLoading(true);
+
+          fetch('http://175.45.180.201:10900/service-ucenter/ucenter/avatar', {
+            method: 'POST',
+            headers: headers,
+            body: formData
+          }).then(res => res.json()).then(res => {
+            console.log(res)
+            setLoading(false);
+            setImageUrl(res.data.avatar);
+          })
+
+          return false;
+        }}
+      >
+        {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+      </Upload>
+    </>
+  );
+}
+export default App;
+```
+
+
+
 ## Update 2023.6.20 #2
 
 - 获取课程信息的所有接口现在都会返回课程的创建和更新时间

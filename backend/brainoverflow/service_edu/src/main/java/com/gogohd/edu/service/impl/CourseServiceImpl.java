@@ -258,7 +258,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             // Upload the avatar
             OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL
-            return "https://brainoverflow/" + objectName;
+            return "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/" + objectName;
         } else {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The cover " +
                     "should be jpg, jpeg, bmp or png");
