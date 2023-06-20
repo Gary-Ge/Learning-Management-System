@@ -35,11 +35,18 @@ public class ResourceController {
         return R.success().message("Upload video success");
     }
 
-    @Operation(summary = "Download the file")
+    @Operation(summary = "Download file")
     @GetMapping("/resource/{resourceId}")
     public void downloadResource(HttpServletRequest request, HttpServletResponse response,
                               @PathVariable String resourceId) {
         String userId = (String) request.getAttribute("userId");
         resourceService.downloadResource(userId, response, resourceId);
+    }
+
+    @Operation(summary = "Play video")
+    @GetMapping("/video/{resourceId}")
+    public R playVideo(HttpServletRequest request, @PathVariable String resourceId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Play video success").data("auth", resourceService.playVideo(userId, resourceId));
     }
 }

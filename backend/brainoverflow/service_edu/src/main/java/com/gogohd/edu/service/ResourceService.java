@@ -5,6 +5,7 @@ import com.gogohd.edu.entity.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public interface ResourceService extends IService<Resource> {
     void uploadResources(String userId, String sectionId, MultipartFile[] files);
@@ -12,4 +13,6 @@ public interface ResourceService extends IService<Resource> {
     void uploadVideo(String userId, String sectionId, MultipartFile file);
 
     void downloadResource(String userId, HttpServletResponse response, String resourceId);
+
+    Map<String, String> playVideo(String userId, String resourceId);
 }

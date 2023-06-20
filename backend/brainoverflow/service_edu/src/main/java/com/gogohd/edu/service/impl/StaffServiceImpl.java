@@ -38,6 +38,8 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                     map.put("cover", record.get("cover"));
                     map.put("hasForum", record.get("has_forum"));
                     map.put("category", record.get("category_name"));
+                    map.put("createdAt", record.get("created_at"));
+                    map.put("updatedAt", record.get("updated_at"));
 
                     Map<String, Object> creator = new HashMap<>();
                     creator.put("userId", record.get("user_id"));

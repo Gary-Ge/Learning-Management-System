@@ -3,6 +3,10 @@ package com.gogohd.edu.service.impl;
 import com.aliyun.vod.upload.impl.UploadVideoImpl;
 import com.aliyun.vod.upload.req.UploadStreamRequest;
 import com.aliyun.vod.upload.resp.UploadStreamResponse;
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.profile.DefaultProfile;
+import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthRequest;
+import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
@@ -25,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
@@ -38,8 +44,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Autowired
     private StudentMapper studentMapper;
 
-    private final String ACCESS_KEY_ID = "LTAI5t5rn1iCNgUgUxbLMBzB";
-    private final String ACCESS_KEY_SECRET = "2fbQ2PYOl5EDjBfFOnxvDB5wqMhvNB";
+    private final String VOD_ACCESS_KEY_ID = "LTAI5t5rn1iCNgUgUxbLMBzB";
+    private final String VOD_ACCESS_KEY_SECRET = "2fbQ2PYOl5EDjBfFOnxvDB5wqMhvNB";
+    private final String VOD_REGION_ID = "ap-southeast-1";
 
     @Override
     @Transactional
@@ -108,9 +115,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
         try {
             InputStream inputStream = file.getInputStream();
-            UploadStreamRequest request = new UploadStreamRequest(ACCESS_KEY_ID, ACCESS_KEY_SECRET,
+            UploadStreamRequest request = new UploadStreamRequest(VOD_ACCESS_KEY_ID, VOD_ACCESS_KEY_SECRET,
                     filename, filename, inputStream);
-            request.setApiRegionId("ap-southeast-1");
+            request.setApiRegionId(VOD_REGION_ID);
             UploadVideoImpl uploader = new UploadVideoImpl();
             UploadStreamResponse response = uploader.uploadStream(request);
 
@@ -132,16 +139,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         }
     }
 
-    @Override
-    public void downloadResource(String userId, HttpServletResponse response, String resourceId) {
-        // Check if this resource exists
-        Resource resource = baseMapper.selectById(resourceId);
-        if (resource == null) {
-            throw new BrainException(ResultCode.NOT_FOUND, "Resource not exists");
-        }
-
+    private void isStaffOrStudent(String userId, String sectionId, String noAuthority) {
         // Get the section of this resource
-        String courseId = sectionMapper.selectById(resource.getSectionId()).getCourseId();
+        String courseId = sectionMapper.selectById(sectionId).getCourseId();
 
         // Check if this user has the authority to download this file
         LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
@@ -154,14 +154,62 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             studentWrapper.eq(Student::getCourseId, courseId);
             if (!studentMapper.exists(studentWrapper)) {
                 // If this user is neither a staff nor a student, then refuse to download this file
-                throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to download this file");
+                throw new BrainException(ResultCode.NO_AUTHORITY, noAuthority);
             }
         }
+    }
+
+    @Override
+    public void downloadResource(String userId, HttpServletResponse response, String resourceId) {
+        // Check if this resource exists
+        Resource resource = baseMapper.selectById(resourceId);
+        if (resource == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Resource not exists");
+        }
+
+        // Check if this user has the authority to access this file
+        isStaffOrStudent(userId, resource.getSectionId(), "You have no authority to download this file");
 
         // Download the file
         String source = resource.getSource();
         String downloadName = resource.getTitle();
         String objectName = source.substring(6);
         OssUtils.downloadFile(response, objectName, downloadName);
+    }
+
+    @Override
+    public Map<String, String> playVideo(String userId, String resourceId) {
+        // Check if this resource exists
+        Resource resource = baseMapper.selectById(resourceId);
+        if (resource == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Resource not exists");
+        }
+        // Check if this resource is a video
+        if (resource.getType() != 1) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "This resource is not a video");
+        }
+
+        // Check if this user has the authority to play this video
+        isStaffOrStudent(userId, resource.getSectionId(), "You have no authority to play this video");
+
+        // Init the vod client
+        DefaultProfile profile = DefaultProfile.getProfile(VOD_REGION_ID, VOD_ACCESS_KEY_ID, VOD_ACCESS_KEY_SECRET);
+        DefaultAcsClient client = new DefaultAcsClient(profile);
+
+        // Get play video response
+        String videoId = resource.getSource().substring(6);
+        GetVideoPlayAuthRequest request = new GetVideoPlayAuthRequest();
+        request.setVideoId(videoId);
+        try {
+            GetVideoPlayAuthResponse response = client.getAcsResponse(request);
+            Map<String, String> result = new HashMap<>();
+            result.put("playAuth", response.getPlayAuth());
+            result.put("videoId", videoId);
+
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BrainException(ResultCode.ERROR, "Play video failed");
+        }
     }
 }

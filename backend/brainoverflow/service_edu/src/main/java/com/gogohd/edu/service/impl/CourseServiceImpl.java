@@ -138,6 +138,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         result.put("description", course.getDescription());
         result.put("cover", course.getCover());
         result.put("hasForum", course.isHasForum());
+        result.put("createdAt", course.getCreatedAt());
+        result.put("updatedAt", course.getUpdatedAt());
 
         // Fetch the information of course category
         Category category = categoryMapper.selectById(course.getCategoryId());
