@@ -5,6 +5,8 @@ import com.aliyun.vod.upload.req.UploadStreamRequest;
 import com.aliyun.vod.upload.resp.UploadStreamResponse;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.profile.DefaultProfile;
+import com.aliyuncs.vod.model.v20170321.GetPlayInfoRequest;
+import com.aliyuncs.vod.model.v20170321.GetPlayInfoResponse;
 import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthRequest;
 import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -30,7 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
@@ -111,6 +115,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
         if (filename == null) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Filename cannot be empty");
+        }
+        if (!filename.toLowerCase().endsWith(".mp4")) {
+            throw new BrainException(ResultCode.ERROR, "Only mp4 videos are supported now");
         }
 
         try {
@@ -196,16 +203,21 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         DefaultProfile profile = DefaultProfile.getProfile(VOD_REGION_ID, VOD_ACCESS_KEY_ID, VOD_ACCESS_KEY_SECRET);
         DefaultAcsClient client = new DefaultAcsClient(profile);
 
-        // Get play video response
+        // Get video URL
         String videoId = resource.getSource().substring(6);
-        GetVideoPlayAuthRequest request = new GetVideoPlayAuthRequest();
+        GetPlayInfoRequest request = new GetPlayInfoRequest();
         request.setVideoId(videoId);
+        request.setAuthTimeout(7200L);
         try {
-            GetVideoPlayAuthResponse response = client.getAcsResponse(request);
-            Map<String, String> result = new HashMap<>();
-            result.put("playAuth", response.getPlayAuth());
-            result.put("videoId", videoId);
+            GetPlayInfoResponse response = client.getAcsResponse(request);
+            List<GetPlayInfoResponse.PlayInfo> playInfoList = response.getPlayInfoList();
 
+            Map<String, String> result = new HashMap<>();
+            for (GetPlayInfoResponse.PlayInfo playInfo : playInfoList) {
+                if (Objects.equals(playInfo.getSpecification(), "Original")) {
+                    result.put("playURL", playInfo.getPlayURL());
+                }
+            }
             return result;
         } catch (Exception e) {
             e.printStackTrace();

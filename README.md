@@ -15,70 +15,17 @@
       "message": "Play video success",
       "data": {
         "auth": {
-          "videoId": "0d0a12100eb471eebfd186c6360c0102",
-          "playAuth": "eyJTZWN1cml0eVRva2VuIjoiQ0FJU2h3TjFxNkZ0NUIyeWZTaklyNWJtQS9MbG1LcFkwNmVNZG12MXZFSVdUK29kaTdEN3NqejJJSDFFZm5sb0FPa2FzUHd6bFd0UjZmd2Vsck1xRjhNZkh4ZWJONWNoc01zUHIxei9KcExGc3QySjZyOEpqc1Zzd3RCRzdrZXBzdlhKYXNEVkVmbDJFNVhFTWlJUi8wMGU2TC8rY2lyWXBUWEhWYlNDbFo5Z2FQa09Rd0M4ZGtBb0xkeEtKd3hrMnQxNFVtWFdPYVNDUHdMU2htUEJMVXhtdldnR2wyUnp1NHV5M3ZPZDVoZlpwMXI4eE80YXhlTDBQb1AyVjgxbExacGxlc3FwM0k0U2M3YmFnaFpVNGdscjhxbHg3c3BCNVN5Vmt0eVdHVWhKL3phTElvaXQ3TnBqZmlCMGVvUUFQb3BGcC9YNmp2QWF3UExVbTliWXhncGhCOFIrWGo3RFpZYXV4N0d6ZW9XVE84MCthS3p3TmxuVXo5bUxMZU9WaVE0L1ptOEJQdzQ0RUxoSWFGMElVRXh6Rm1xQ2QvWDRvZ3lRTzE3eUdwTG9pdjltamNCSHFIeno1c2VQS2xTMVJMR1U3RDBWSUpkVWJUbHphazVNalRTNEsvTllLMUFkS0FvNFhlcVBNYXgzYlFGRHI1M3ZzVGJiWHpaYjBtcHR1UG56ZDFRSUNGZk1sRWVVR29BQk41QU41QkhRaHQycmhzQkVjNUFZNTlRMlcxUmJCWkdjWUpGNlR5TmFBMUVneThzR0x2aVF0WU12TDJGRDhobTNLNVg1eHoyVmNvVHNUaHRYeFpJYzRVVEZRQktDa29xd3NpR1pXMldpQjFhQkNSOFhNV0R1V0FKRC9UTFgvSndVcWsxOWFKQUxRbXM1QitSRUsybmJmV3NTUmNQb2ZqeEc0VWtKYTg5RVlTWT0iLCJBdXRoSW5mbyI6IntcIkNJXCI6XCI1OTFFWmpBODhROUQ3QjYySlFJTytpTkg1cFk5WXhURTJxU1RIMzRJalhDT0gwNjEyNDZlTnBHVTN2R3lBdXNLXCIsXCJDYWxsZXJcIjpcIjNBcVdtK0NyTXJOdHpNaHU2VWxBbFl4V1FZWSs3YTYrZG1CUmlmNXB4TGs9XCIsXCJFeHBpcmVUaW1lXCI6XCIyMDIzLTA2LTIwVDA2OjM4OjAyWlwiLFwiTWVkaWFJZFwiOlwiMGQwYTEyMTAwZWI0NzFlZWJmZDE4NmM2MzYwYzAxMDJcIixcIlNpZ25hdHVyZVwiOlwiMUVXcnVNa3ZLV09XUlVwcm0wa09NZWt5dEI0PVwifSIsIlZpZGVvTWV0YSI6eyJTdGF0dXMiOiJOb3JtYWwiLCJWaWRlb0lkIjoiMGQwYTEyMTAwZWI0NzFlZWJmZDE4NmM2MzYwYzAxMDIiLCJUaXRsZSI6IjYgLSBXaGF0IElmIEkgV2FudCB0byBNb3ZlIEZhc3Rlci5tcDQiLCJDb3ZlclVSTCI6Imh0dHA6Ly9vdXRpbi04N2RlMmUwNjBkYzQxMWVlYjFiYjAwMTYzZTAwMDY3Ny5vc3MtYXAtc291dGhlYXN0LTEuYWxpeXVuY3MuY29tLzBkMGExMjEwMGViNDcxZWViZmQxODZjNjM2MGMwMTAyL3NuYXBzaG90cy8zMTBiOGMwYWE5NTI0YzE5OTI3ZGNmOWI3NDU4YjQ5YS0wMDAwMS5qcGc/RXhwaXJlcz0xNjg3MjQ2NTgyJk9TU0FjY2Vzc0tleUlkPUxUQUkzRGt4dHNiVXlOWVYmU2lnbmF0dXJlPWRKTmR6dDAzNVUlMkI1WUxESyUyRmNXYmUwQm1oWU0lM0QiLCJEdXJhdGlvbiI6MTYuMjc2N30sIkFjY2Vzc0tleUlkIjoiU1RTLk5VU0hIUXV1eWRlZ3RNRFhCQ0NlMWR1UFAiLCJBY2Nlc3NLZXlTZWNyZXQiOiJEWjdDZDdTWGhid3laaVZaZER6MVhtRktpUW1oODl5ZWZxeUJBSFNGYVZaWSIsIlJlZ2lvbiI6ImFwLXNvdXRoZWFzdC0xIiwiQ3VzdG9tZXJJZCI6MTQ0MjIzNzI0OTY3MDY3Nn0="
+          "playURL": "https://outin-87de2e060dc411eeb1bb00163e000677.oss-ap-southeast-1.aliyuncs.com/sv/5ca632a3-188d4392d8f/5ca632a3-188d4392d8f.mp4?Expires=1687250324&OSSAccessKeyId=LTAI3DkxtsbUyNYV&Signature=JFG9n8pR2IQkRp8Ox9VgZTxIOkg%3D"
         }
       }
     }
     ```
-
-    其中videoId为视频ID，playAuth为视频播放凭证
-
-  - 前端需要引入阿里云视频播放器，在react项目的`public/index.html`中引入：
-
-    ```html
-    <head>
-      <link rel="stylesheet" href="https://g.alicdn.com/de/prismplayer/2.15.2/skins/default/aliplayer-min.css" />  //（必须）H5模式播放器，需引用此css文件。
-      <script charset="utf-8" type="text/javascript" src="https://g.alicdn.com/de/prismplayer/2.15.2/aliplayer-h5-min.js"></script>  //（必须）引入H5模式的js文件。
-    </head>
-    ```
-
-  - 将上面的videoId和playAuth两个参数提供给阿里云播放器即可开始播放，示例如下：
-
-    ```react
-    import { useEffect, useRef } from 'react';
-    const App = () => {
-    
-      const playerContainerRef = useRef(null);
-    
-      const headers = new Headers();
-      headers.append('Authorization', `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODYyMTQ5MzIsImV4cCI6MTY4NzUxMDkzMiwiaWQiOiIzNDFlYjU0ZTI4ZTcxMTYwMjU3YjlmYmNjMzAwMjJmNiJ9.r92a9jku4abEhoNAIETBNaKxlOyQvth4lmt_1Mz9KOY`);
-    
-      useEffect(() => {
-        let player
-        fetch('http://localhost:10900/service-edu/edu-resource/video/53584fb5c4261511f0fe5f0e8271f271', {
-          method: 'GET',
-          headers: headers
-        }).then(res => res.json()).then(res => {
-          player = new window.Aliplayer({
-            id: playerContainerRef.current.id,
-            width: '100%',
-            height: '500px',
-            autoplay: false,
-            vid: res.data.auth.videoId,
-            playauth: res.data.auth.playAuth
-          })
-        })
-    
-        return () => {
-          if (player) {
-            player.dispose()
-          }
-        }
-      })
-    
-      return (
-        <>
-          <div id="J_prismPlayer" ref={playerContainerRef}></div>
-        </>
-      );
-    }
-    export default App;
-    ```
+  
+  其中playURL为视频播放地址，有效期为两小时，使用任意播放器播放该地址即可
 
 ## Update 2023.6.20
 
-- 创建/更新/删除小节相关的接口可用
+- 创建/更新/获取/删除小节相关的接口可用
 - 学生注册和退出课程的接口可用
 - 上传文件资源和视频资源的接口可用
 - 下载文件资源的接口可用
@@ -86,6 +33,11 @@
   - 返回的文件流不会被浏览器自动下载，需要封装成blob格式再手动生成一个下载链接，模拟点击进行下载
 - 上传视频的接口最好限制只上传mp4格式（理论上所有视频格式都受到支持，但我还没测试播放其他格式的视频）
 - 不要上传过大的视频（因为有点慢）
+- 创建/更新/获取课程的接口可用
+- 获取Staff教授的所有课程的接口可用
+- 获取Student参加的所有的课程的接口可用
+- 获取全部Staff列表的接口可用
+- 获取全部Student列表的接口可用
 
 ## Update 2023.6.18
 
