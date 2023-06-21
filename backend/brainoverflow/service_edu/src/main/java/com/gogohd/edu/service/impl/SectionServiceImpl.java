@@ -45,7 +45,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
     private final String NO_AUTHORITY_CREATE = "You have no authority to create section for this course";
     private final String NO_AUTHORITY_UPDATE = "You have no authority to update this section";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this section";
-    private final String NO_AUTHORITY_GET = "You have no authority to get this section's information";
+    private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
     private final String EMPTY_TITLE = "Section title cannot be empty";
     private final String EMPTY_CONTENT = "Section content cannot be empty";
     private final String EMPTY_TYPE = "Type cannot be empty";
@@ -254,6 +254,10 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
 
     @Override
     public String uploadVideoCover(String userId, String courseId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
+        }
+
         // Check if this user has the authority to upload video cover for this section
         LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
         staffWrapper.eq(Staff::getUserId, userId);
@@ -276,7 +280,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
             // Upload the avatar
             OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL
-            return "https://brainoverflow/" + objectName;
+            return "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/" + objectName;
         } else {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The cover " +
                     "should be jpg, jpeg, bmp or png");
@@ -301,7 +305,8 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
             studentWrapper.eq(Student::getCourseId, section.getCourseId());
             studentWrapper.eq(Student::getUserId, userId);
             if (!studentMapper.exists(studentWrapper)) {
-                throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
+                throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get this " +
+                        "section's information");
             }
         }
 

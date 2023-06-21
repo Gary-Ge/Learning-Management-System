@@ -292,6 +292,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public String uploadAvatar(String userId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
+        }
+
         String filename = file.getOriginalFilename();
         if (filename == null) {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
@@ -305,7 +309,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // Upload the avatar
             OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL
-            return "https://brainoverflow/" + objectName;
+            return "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/" + objectName;
         } else {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The avatar " +
                     "should be jpg, jpeg, png or bmp");

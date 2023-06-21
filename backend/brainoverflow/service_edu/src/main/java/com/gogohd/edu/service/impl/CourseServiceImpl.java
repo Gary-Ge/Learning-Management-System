@@ -138,6 +138,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         result.put("description", course.getDescription());
         result.put("cover", course.getCover());
         result.put("hasForum", course.isHasForum());
+        result.put("createdAt", course.getCreatedAt());
+        result.put("updatedAt", course.getUpdatedAt());
 
         // Fetch the information of course category
         Category category = categoryMapper.selectById(course.getCategoryId());
@@ -238,13 +240,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     }
 
     @Override
-    public String uploadCover(String userId, String courseId, MultipartFile file) {
-        // Check if this user has the right to upload cover image for this course
-        LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
-        staffWrapper.eq(Staff::getUserId, userId);
-        staffWrapper.eq(Staff::getCourseId, courseId);
-        if (!staffMapper.exists(staffWrapper)) {
-            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to upload cover for this course");
+    public String uploadCover(String userId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
         }
 
         String filename = file.getOriginalFilename();
@@ -256,11 +254,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
                 filenameLower.endsWith("png")) {
             // Generate a UUID for each cover and use the UUID as filename, pretending file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
-            String objectName = "cover/" + courseId + "/" + RandomUtils.generateUUID() + extension;
+            String objectName = "cover/" + userId + "/" + RandomUtils.generateUUID() + extension;
             // Upload the avatar
             OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL
-            return "https://brainoverflow/" + objectName;
+            return "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/" + objectName;
         } else {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The cover " +
                     "should be jpg, jpeg, bmp or png");
