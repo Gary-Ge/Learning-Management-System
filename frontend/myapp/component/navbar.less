@@ -11,6 +11,9 @@
   height: 64px;
   
 }
+.ant-layout-content{
+  display: none;
+}
 .custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
     color: white !important;
 }  
@@ -51,7 +54,7 @@
   border: 1px solid blue;
 }
 .layout {
-  background-color: #EFF1F6;
+  background-color: transparent;
   width: 100%;
 }
 .layout .fixed-tabs {
@@ -83,6 +86,25 @@
   height: 25px; 
   margin-right: 10px;
 }
+.welcome {
+  align-self: flex-start;
+  position: relative;
+  left: -10%;
+}
+.welcome_div {
+  max-width: 100%;
+}
+.welcome_container {
+  background: transparent;
+  padding: 20px;
+  border-radius: 5px;
+  width: 1275px;
+  height: 300px;
+  max-width: 100%;
+  margin: auto;
+  box-shadow: 0px 0px 10px transparent;
+}
+
 
 @media screen and (max-width: 375px) {
   .TimeDisplay {
@@ -102,8 +124,37 @@
       display: none;
     }
 }
-// @media screen and (max-width: 900px) {
-//   .layout{
-//     margin-left: -30%;
-//   }
-// }
+@media screen and (max-width: 1200px) {
+  .welcome_container {
+    width: 725px;
+    max-width: 100%;
+  }
+.welcome {
+  left: -15%;
+  }
+}
+@media screen and (max-width: 769px) {
+  .welcome_container {
+    width: 405px;
+    max-width: 100%;
+  }
+.welcome {
+  left: -30%;
+  }
+}
+@media screen and (max-width: 505px) {
+.welcome {
+  left: -130%;
+  top:-20%;
+  }
+  .welcome_container {
+    width: 200px;
+    max-width: 100%;
+  }
+}
+@media screen and (max-width: 400px) {
+  .welcome {
+    left: -110%;
+    top:-40%;
+    }
+}
