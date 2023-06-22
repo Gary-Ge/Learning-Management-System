@@ -211,6 +211,10 @@ export default function Dashboard() {
   const onChange = (key: string) => {
     setActiveTab(key);
     console.log(key);
+    if (key == '1') {
+      history.push('/')
+    }else{
+    }
   };
   const items: TabsProps['items'] = [
     {
@@ -245,7 +249,7 @@ export default function Dashboard() {
           defaultActiveKey="1"
           activeKey={activeTab}
           items={items}
-          onChange={onChange}
+          onTabClick={onChange}
           className="custom-tabs"
         />
         <div className='header-right'>
