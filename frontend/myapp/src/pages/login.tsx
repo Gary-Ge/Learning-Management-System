@@ -4,8 +4,7 @@ import { Button, Form, Input, Radio } from 'antd';
 import { Link,useHistory } from 'umi'; 
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { LoginDTO } from '../utils/entities';
-import { validEmail, validNotNull, HOST, LOGIN_URL, saveToken, HEADER, getToken } from '../utils/utils';
-import AlertDialog from '../../component/alert';
+import { validEmail, validNotNull, HOST, LOGIN_URL, saveToken, HEADER } from '../utils/utils';
 
 export default function LoginPage() {
 
@@ -13,13 +12,7 @@ export default function LoginPage() {
   const [size, setSize] = useState<SizeType>('small');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [validEmailState, setValidEmail] = useState(true);
-  const [validPassword, setValidPassword] = useState(true);
-  const [showAlertEmail, setShowEmail] = useState(false);
-  const [showAlertPassword, setShowPassword] = useState(false);
   const history = useHistory();
-  const [showMessage, setShowMessage] = useState(false);
-  const [alertDialogContent, setAlertDialogContent] = useState("");
   
 
 
@@ -33,21 +26,14 @@ export default function LoginPage() {
 
   const handleSubmit = () => {
     if (!validEmail(email)) {
-      setValidEmail(false);
-      setShowEmail(true);
+      alert('please input a valid Email')
       return
-    } else {
-      setValidEmail(true);
-    }
+    } 
     if (!validNotNull(password)) {
-      setValidPassword(false);
-      setShowPassword(true);
+      alert('please input a password')
       return
-    } else {
-      setValidPassword(true);
     }
     const dto = new LoginDTO(email,password);
-    console.log(dto)
     fetch(`${HOST}${LOGIN_URL}`, {
       method: 'POST',
       body: JSON.stringify(dto),
@@ -58,23 +44,25 @@ export default function LoginPage() {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log(res.data.token)
       saveToken(res.data.token)
       history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      setShowMessage(true);
-      setAlertDialogContent(error.message);
+     alert(error.message)
     });  
   }
 
   return (
     <div className="body_login_register">
+       <div className="icon-container">
+                <img src="/assert/logo_l.png" alt="icon" /> 
+            </div>
         <div className="container_login_register">
         <Form
       form={form}
       layout="vertical"
       initialValues={{ remember: true }}
+      style={{fontFamily: 'Comic Sans MS'}}
     >
       <Form.Item style={{ marginTop: '30px' }}>
         <Radio.Group value={size} onChange={(e) => setSize(e.target.value)}>
@@ -101,40 +89,13 @@ export default function LoginPage() {
         <Input.Password placeholder="please input your password" value={password} onChange={handlePasswordChange}/>
       </Form.Item>
       <Form.Item>
-        <Link to="/">Forgot password?</Link>
+        <Link to="/forgetpassword">Forgot password?</Link>
       </Form.Item>
 
       <Form.Item className="Submit">
         <Button type="primary" onClick={handleSubmit}>Submit</Button>
       </Form.Item>
     </Form>
-    {showAlertEmail && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please input a valid email" 
-              onClose={() => setShowEmail(false)}
-            />
-          </div>
-        }
-        {showAlertPassword && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please input a password " 
-              onClose={() => setShowPassword(false)}
-            />
-          </div>
-        }
-        {showMessage && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description={alertDialogContent}
-              onClose={() => setShowMessage(false)}
-            />
-          </div>
-        }
         </div>
     </div>
   );

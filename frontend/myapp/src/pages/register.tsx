@@ -5,7 +5,6 @@ import { Button, Form, Input, Radio } from 'antd';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { validEmail, validNotNull,  ValidPassword, HOST, REGISTER_URL, saveToken, HEADER } from '../utils/utils';
 import { RegisterDTO } from '../utils/entities';
-import AlertDialog from '../../component/alert';
 
 export default function LoginPage() {
   const [form] = Form.useForm();
@@ -13,15 +12,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [validUsername, setValidUsename] = useState(true);
-  const [validEmailState, setValidEmail] = useState(true);
-  const [validPassword, setValidPassword] = useState(true);
-  const [showAlertUsername, setShowUsername] = useState(false);
-  const [showAlertEmail, setShowEmail] = useState(false);
-  const [showAlertPassword, setShowPassword] = useState(false);
   const history = useHistory();
-  const [showMessage, setShowMessage] = useState(false);
-  const [alertDialogContent, setAlertDialogContent] = useState("");
 
   const handleUsernameChange = (e:any) => {
     setUsername(e.target.value);
@@ -37,26 +28,13 @@ export default function LoginPage() {
 
   const handleSubmit = () => {
     if (!validNotNull(username)) {
-      setValidUsename(false);
-      setShowUsername(true);
+      alert('Please input a username')
       return
-    } else {
-      setValidUsename(true);
     }
     if (!validEmail(email)) {
-      setValidEmail(false);
-      setShowEmail(true);
+      alert('Please input a valid email')
       return
-    } else {
-      setValidEmail(true);
-    }
-    if (!ValidPassword(password)) {
-      setValidPassword(false);
-      setShowPassword(true);
-      return
-    } else {
-      setValidPassword(true);
-    }
+    } 
     const dto = new RegisterDTO(username,password,email);
     console.log(dto); 
     console.log(dto.username); 
@@ -76,18 +54,21 @@ export default function LoginPage() {
       history.push('/login'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      setShowMessage(true);
-      setAlertDialogContent(error.message);
+      alert(error.message)
     });  
   };
 
   return (
     <div className="body_login_register">
+      <div className="icon-container">
+                <img src="/assert/logo_l.png" alt="icon" /> 
+            </div>
       <div className="container_signin">
         <Form
           form={form}
           layout="vertical"
           initialValues={{ remember: true }}
+          style={{fontFamily: 'Comic Sans MS'}}
         >
           <Form.Item style={{ marginTop: '30px' }}>
             <Radio.Group value={size} onChange={(e) => setSize(e.target.value)}>
@@ -124,42 +105,6 @@ export default function LoginPage() {
             <Button type="primary" onClick={handleSubmit}>Submit</Button>
           </Form.Item>
         </Form>
-        {showAlertUsername && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please input a valid username" 
-              onClose={() => setShowUsername(false)}
-            />
-          </div>
-        }
-        {showAlertEmail && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please input a valid email" 
-              onClose={() => setShowEmail(false)}
-            />
-          </div>
-        }
-        {showAlertPassword && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description="Please enter a password with at least 8 digits, including uppercase and lowercase numbers" 
-              onClose={() => setShowPassword(false)}
-            />
-          </div>
-        }
-        {showMessage && 
-          <div className="alert-dialog-container">
-            <AlertDialog
-              message="Error"
-              description={alertDialogContent}
-              onClose={() => setShowMessage(false)}
-            />
-          </div>
-        }
       </div>
     </div>
   );
