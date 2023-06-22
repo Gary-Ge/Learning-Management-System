@@ -7,7 +7,8 @@ export default defineConfig({
   routes: [
     { path: '/', component: '@/pages/index' },
     { path: '/login', component: '@/pages/login' },
-    { path: '/register', component: '@/pages/register' }
+    { path: '/register', component: '@/pages/register' },
+    { path: '/studentcourse', component: '@/pages/studentcourse' }
   ],
   fastRefresh: {},
   proxy: {
