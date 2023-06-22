@@ -266,7 +266,7 @@ export default function Dashboard() {
             </div>
 
 
-            <Modal title="My Profile" visible={isModalVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
+            <Modal title="My Profile" open={isModalVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
               <Button key="cancel" onClick={handleModalClose}>
                 Cancel
               </Button>,
