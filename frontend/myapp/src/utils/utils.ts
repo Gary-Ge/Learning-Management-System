@@ -31,4 +31,7 @@ export const HOST = `/service-ucenter/ucenter`
 export const REGISTER_URL = '/register'
 export const LOGIN_URL = '/login'
 export const CHANGEFILE_URL = '/user'
+export const EMAIL_URL = '/email'
+export const CODE_URL = '/code'
+export const PASSWORD_URL = '/password'
 

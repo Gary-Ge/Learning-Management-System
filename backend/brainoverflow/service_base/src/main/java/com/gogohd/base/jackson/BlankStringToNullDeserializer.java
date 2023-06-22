@@ -1,4 +1,4 @@
-package com.gogohd.base.utils;
+package com.gogohd.base.jackson;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;

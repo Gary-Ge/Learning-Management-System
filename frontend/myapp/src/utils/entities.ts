@@ -30,3 +30,12 @@ export class RegisterDTO {
       this.avatar = avatar;
     }
   }
+  export class CaptachaDTO {
+    email: any;
+    code: any;
+    constructor(email: any,code: any) {
+      this.email =email;
+      this.code = code;
+    }
+  }
+  

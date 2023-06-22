@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,message, Upload } from 'antd';
+import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,Upload } from 'antd';
 import type { TabsProps } from 'antd';
 import './navbar.less'; 
-import { validEmail, validNotNull, ValidPassword,HOST, CHANGEFILE_URL, HEADER} from '../src/utils/utils';
+import { validEmail, validNotNull, ValidPassword,HOST, CHANGEFILE_URL,getToken} from '../src/utils/utils';
 import { UserOutlined,LogoutOutlined,PlusOutlined,LoadingOutlined } from '@ant-design/icons';
 import { useHistory } from 'umi';
-import AlertDialog from '../component/alert';
-import type { UploadChangeParam } from 'antd/es/upload';
-import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { ChangeUserDTO } from '../src/utils/entities';
 import { useMediaPredicate } from "react-media-hook";
 
@@ -18,13 +15,30 @@ import logo_s from '../../images/logo_s.png';
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
-// const StudentDashboardContent: React.FC = () => {
-//   return (
-//     <div style={{ border: '1px solid blue', margin: '100px' }}>
-//       学生仪表板内容
-//     </div>
-//   );
-// };
+const userDataString = localStorage.getItem('userData');
+const userDataName = userDataString ? JSON.parse(userDataString) : null;
+function updateUserData(newUserData:any) {
+  localStorage.setItem('userData', JSON.stringify(newUserData));
+}
+const StudentDashboardContent: React.FC = () => {
+  return (
+    <div style={{ margin: '100px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
+      <div>
+      {userDataName ? (
+                <>
+                    Hi, {userDataName.username}
+                    <br />
+                    Welcome to our website ~~
+                </>
+            ) : (
+                <>Hi,
+                <br />
+                Welcome to our website ~~</>
+            )}
+      </div>
+    </div>
+  );
+};
 
 const { TabPane } = Tabs;
 
@@ -66,48 +80,38 @@ export default function Dashboard() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [validUsername, setValidUsename] = useState(true);
-  const [validEmailState, setValidEmail] = useState(true);
-  const [validPassword, setValidPassword] = useState(true);
-  const [showAlertUsername, setShowUsername] = useState(false);
-  const [showAlertEmail, setShowEmail] = useState(false);
-  const [showAlertPassword, setShowPassword] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
-  const [alertDialogContent, setAlertDialogContent] = useState("");
+  const [tempFile, setTempFile] = useState<File | null>(null);
+  let avatarURL:any;
+  let userData = localStorage.getItem('userData');
+  if (userData) {
+    let parsedData = JSON.parse(userData);
+    if (parsedData) {
+      avatarURL = parsedData.avatar;
+    }
+  }
+  function getUserData() {
+    const userData = localStorage.getItem('userData');
+    let parsedData = JSON.parse(userData || '{}');
+    if (parsedData) {
+      setImageUrl(parsedData.avatar || '');
+      setUsername(parsedData.username || '');
+      setEmail(parsedData.email || '');
+    }
+  }
+  useEffect(() => {
+    getUserData();
+    updateUserData(userDataName);
+  }, []);
+  
 
   const biggerThan540 = useMediaPredicate("(min-width: 540px)");
-  const getBase64 = (img: RcFile, callback: (url: string) => void) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result as string));
-    reader.readAsDataURL(img);
-  };
   
-  const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
-  };
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>();
+  const [imageUrl, setImageUrl] = useState("");
 
-  const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
-    if (info.file.status === 'uploading') {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj as RcFile, (url) => {
-        setLoading(false);
-        setImageUrl(url);
-      });
-    }
+  const beforeUpload = (file: any) => {
+    setTempFile(file); // Save the file
+    return false;  // Stop the upload
   };
 
   const uploadButton = (
@@ -133,49 +137,76 @@ export default function Dashboard() {
   };
 
   const handleModalClose = () => {
-    setIsModalVisible(false);
+    setIsModalVisible(false);  
   };
   const handleSubmit = () => {
+    if (!tempFile) {
+      alert('Please select an image file');
+      return;
+    }
+    const token = getToken();
     if (!validNotNull(username)) {
-      setValidUsename(false);
-      setShowUsername(true);
-      return
-    } else {
-      setValidUsename(true);
+      alert('Please input a username');
+      return;
     }
     if (!validEmail(email)) {
-      setValidEmail(false);
-      setShowEmail(true);
-      return
-    } else {
-      setValidEmail(true);
+      alert('Please input a valid email');
+      return;
     }
     if (!ValidPassword(password)) {
-      setValidPassword(false);
-      setShowPassword(true);
-      return
-    } else {
-      setValidPassword(true);
+      alert('Please input a valid password');
+      return;
     }
-    console.log("success")
+    const formData = new FormData();
+    formData.append("file", tempFile);
+  
+    fetch (`${HOST}/avatar`,{
+      method: 'POST',
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message);
+      }
+      const newAvatar = res.data.avatar;
+      setImageUrl(newAvatar);
+      let userData = localStorage.getItem('userData');
+      let parsedData = JSON.parse(userData || '{}');
+      parsedData.avatar = newAvatar; // update the avatar
+      localStorage.setItem('userData', JSON.stringify(parsedData));
+  
+      const dto = new ChangeUserDTO(username,password,email,newAvatar);
+      fetch(`${HOST}${CHANGEFILE_URL}`, {
+        method: "Put",
+        body: JSON.stringify(dto),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message);
+        }
+        alert("User information updated successfully");
+        handleModalClose();
+        getUserData();
+        updateUserData(userDataName);
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    })
+    .catch(error => {
+      alert(error.message);
+    });
   }
-  const dto = new ChangeUserDTO(username,password,email,imageUrl);
-  fetch(`${HOST}${CHANGEFILE_URL}`, {
-    method: 'POST',
-    body: JSON.stringify(dto),
-    headers: HEADER
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.code !== 20000) {
-      throw new Error(res.message)
-    }
-    console.log(res.data.token)
-    history.push('/login'); // redirect to login page, adjust as needed
-  })
-  .catch(error => {
-    // console.log(error.message) // todo something wrong shows unexpected value
-  });  
+  
 
   const onChange = (key: string) => {
     setActiveTab(key);
@@ -197,7 +228,6 @@ export default function Dashboard() {
   const handleLogout = () => {
     history.push('/login');
   };
-
   return (
     <Layout className="layout">
       <Header className="fixed-tabs">
@@ -224,13 +254,15 @@ export default function Dashboard() {
               <TimeDisplay />
             </div>
             <div className="avatar">
-            <Avatar
-              icon={<UserOutlined />} 
-              onClick={handleAvatarClick}
-            />
+            {
+                userData && avatarURL
+                ? <img src={avatarURL} style={{ width: '37px', height: '37px',borderRadius: '50%' }} onClick={handleAvatarClick} />
+                : <Avatar icon={<UserOutlined />} onClick={handleAvatarClick} />
+            }
             </div>
 
-            <Modal title="My Profile" visible={isModalVisible} onCancel={handleModalClose} footer={[
+
+            <Modal title="My Profile" visible={isModalVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
               <Button key="cancel" onClick={handleModalClose}>
                 Cancel
               </Button>,
@@ -239,22 +271,23 @@ export default function Dashboard() {
               </Button>,
             ]}>
             <div className="avatar" style={{display: 'flex',justifyContent:"center",alignItems:"center",paddingLeft: '37%'}}>
-              <Upload
-                name="avatar"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                beforeUpload={beforeUpload}
-                onChange={handleChange}
-              >
-                {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-              </Upload>
+            <Upload
+            name="avatar"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            multiple={false}
+            maxCount={1}
+            beforeUpload={beforeUpload}
+          >
+            {tempFile ? <img src={URL.createObjectURL(tempFile)} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+          </Upload>
             </div>
               <Form
                 name="basic"
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
-                style={{ maxWidth: 600, paddingTop: "30px" }}
+                style={{ maxWidth: 600, paddingTop: "30px",fontFamily: 'Comic Sans MS' }}
                 initialValues={{ remember: true }}
                 autoComplete="off"
               >
@@ -281,44 +314,7 @@ export default function Dashboard() {
                 >
                   <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
                 </Form.Item>
-    
               </Form>
-          {showAlertUsername && 
-            <div className="alert-dialog-container">
-              <AlertDialog
-                message="Error"
-                description="Please input a valid username" 
-                onClose={() => setShowUsername(false)}
-              />
-            </div>
-          }
-          {showAlertEmail && 
-            <div className="alert-dialog-container">
-              <AlertDialog
-                message="Error"
-                description="Please input a valid email" 
-                onClose={() => setShowEmail(false)}
-              />
-            </div>
-          }
-          {showAlertPassword && 
-            <div className="alert-dialog-container">
-              <AlertDialog
-                message="Error"
-                description="Please enter a password with at least 8 digits, including uppercase and lowercase numbers" 
-                onClose={() => setShowPassword(false)}
-              />
-            </div>
-          }
-          {showMessage && 
-            <div className="alert-dialog-container">
-              <AlertDialog
-                message="Error"
-                description={alertDialogContent}
-                onClose={() => setShowMessage(false)}
-              />
-            </div>
-          }
             </Modal>
             <div onClick={handleLogout} style={{ cursor: 'pointer' }}>
               <LogoutOutlined style={{ fontSize: '20px', color: '#6D64FF', marginLeft: '15px' }} />
@@ -326,11 +322,15 @@ export default function Dashboard() {
           </div>
         </div>
       </Header>
-      {/* <Content style={{ padding: '0 50px', position: 'relative' }}>
-        <div>
+       <Content style={{ padding: '0 50px', position: 'relative' }}>
+        <div className='welcome_div'>
+        <div className='welcome_container'>
+        <div className='welcome'>
           {<StudentDashboardContent />}
         </div>
-      </Content> */}
+        </div>
+        </div>
+      </Content> 
       {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
     </Layout>
   );

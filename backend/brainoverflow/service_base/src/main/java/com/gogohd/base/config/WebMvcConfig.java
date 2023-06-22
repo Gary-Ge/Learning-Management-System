@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.gogohd.base.interceptor.JwtInterceptor;
-import com.gogohd.base.utils.BlankStringToNullDeserializer;
+import com.gogohd.base.jackson.BlankStringToNullDeserializer;
+import com.gogohd.base.jackson.LocalDateTimeSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Configuration
@@ -31,7 +33,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/ucenter/email/**")
                 .excludePathPatterns("/ucenter/code")
                 .excludePathPatterns("/ucenter/password")
-                .addPathPatterns("/edu-course/**");
+                .addPathPatterns("/edu-course/**")
+                .addPathPatterns("/edu-section/**")
+                .addPathPatterns("/edu-resource/**")
+                .addPathPatterns("/edu-student/**")
+                .addPathPatterns("/edu-staff/**");
     }
 
     @Override
@@ -48,6 +54,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         SimpleModule module = new SimpleModule();
         module.addDeserializer(String.class, new BlankStringToNullDeserializer());
+        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
         mapper.registerModule(module);
 
         converter.setObjectMapper(mapper);

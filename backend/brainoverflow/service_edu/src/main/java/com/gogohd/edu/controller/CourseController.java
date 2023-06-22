@@ -8,12 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("edu-course")
-@CrossOrigin
 @Tag(name = "Course related APIs")
 public class CourseController {
 
@@ -46,10 +46,26 @@ public class CourseController {
     }
 
     @Operation(summary = "Get a list of all the staffs of this course")
-    @GetMapping("course/{courseId}/staff")
+    @GetMapping("course/{courseId}/staffs")
     public R getStaffList(HttpServletRequest request, @PathVariable String courseId) {
         String token = request.getHeader("Authorization");
         return R.success().message("Get staffs information success").data("staffs",
                 courseService.getStaffListByCourseId(courseId, token));
+    }
+
+    @Operation(summary = "Get a list of all the students of this course")
+    @GetMapping("course/{courseId}/students")
+    public R getStudentList(HttpServletRequest request, @PathVariable String courseId) {
+        String token = request.getHeader("Authorization");
+        return R.success().message("Get students information success").data("students",
+                courseService.getStudentListByCourseId(courseId, token));
+    }
+
+    @Operation(summary = "Upload a course cover")
+    @PostMapping("course/cover")
+    public R uploadCover(HttpServletRequest request, MultipartFile file) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Upload cover success").data("cover",
+                courseService.uploadCover(userId, file));
     }
 }

@@ -13,4 +13,10 @@ public class ArgsValidator {
                 "(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
         return Pattern.matches(regex, email);
     }
+
+    public static boolean isValidYoutubeLink(String youtubeLink) {
+        String regex = "^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed" +
+                "\\/|v\\/)?)([\\w\\-]+)(\\S+)?$";
+        return Pattern.matches(regex, youtubeLink);
+    }
 }

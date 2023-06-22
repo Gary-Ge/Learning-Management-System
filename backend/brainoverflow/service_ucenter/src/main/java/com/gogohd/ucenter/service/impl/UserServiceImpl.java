@@ -123,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BrainException(ResultCode.ERROR, "Incorrect email address or incorrect password");
         }
 
-        return jwtUtils.getTokenFromUserId(user.getUserId());
+        return jwtUtils.generateJwtToken(user.getUserId());
     }
 
     @Override
@@ -292,22 +292,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public String uploadAvatar(String userId, MultipartFile file) {
+        if (file == null) {
+            throw new BrainException(ResultCode.ERROR, "No file");
+        }
+
         String filename = file.getOriginalFilename();
         if (filename == null) {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
         }
-        if (filename.endsWith(".bmp") || filename.endsWith(".jpg") || filename.endsWith(".jpeg") ||
-                filename.endsWith("png") || filename.endsWith("svg")) {
+        String filenameLower = filename.toLowerCase();
+        if (filenameLower.endsWith(".bmp") || filenameLower.endsWith(".jpg") || filenameLower.endsWith(".jpeg") ||
+                filenameLower.endsWith("png")) {
             // Generate a UUID for each avatar and use the UUID as filename, pretending file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "avatar/" + userId + "/" + RandomUtils.generateUUID() + extension;
             // Upload the avatar
-            FileUploadUtils.uploadFile(file, objectName, filename, true);
+            OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL
-            return "https://brainoverflow/" + objectName;
+            return "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/" + objectName;
         } else {
             throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "Unsupported file format. The avatar " +
-                    "should be jpg, png, bmp or svg");
+                    "should be jpg, jpeg, png or bmp");
         }
     }
 

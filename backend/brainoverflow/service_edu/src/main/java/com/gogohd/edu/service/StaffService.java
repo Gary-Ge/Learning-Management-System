@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface StaffService extends IService<Staff> {
     void createStaff(String userId, String courseId);
+
+    Object getStaffedCourseListByUserId(String userId);
 }
