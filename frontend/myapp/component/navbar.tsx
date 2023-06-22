@@ -325,9 +325,9 @@ export default function Dashboard() {
        <Content style={{ padding: '0 50px', position: 'relative' }}>
         <div className='welcome_div'>
         <div className='welcome_container'>
-        <div className='welcome'>
+        {/* <div className='welcome'>
           {<StudentDashboardContent />}
-        </div>
+        </div> */}
         </div>
         </div>
       </Content> 

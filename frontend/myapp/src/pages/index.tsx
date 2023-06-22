@@ -88,6 +88,7 @@ export default function IndexPage() {
   return (
       <div className='body_user'>
       <Navbar />
+      <div>welcome</div>
       <div className='biggest-box'  style = {{fontFamily:'Comic Sans MS'}}>
       <ConfigProvider renderEmpty={customize ? customizeRenderEmpty : undefined}>
       <div className='timeline'>
