@@ -1,5 +1,6 @@
 import'./index.less';
 import { useState,useEffect } from "react";
+import { useHistory } from 'umi'; 
 import Navbar from "../../component/navbar"
 import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button} from 'antd';
 import { SmileOutlined} from '@ant-design/icons';
@@ -10,6 +11,7 @@ const customizeRenderEmpty = () => (
     <p>Data Not Found</p>
   </div>
 );
+
 const data = [
   {
     title: 'Ant Design Title 1',
@@ -54,6 +56,16 @@ const courses = [
 ];
 
 export default function IndexPage() {
+  const history = useHistory();
+  const gotostudent = (e:any) => {
+    // console.log(e.target);
+    
+    console.log(e.target.id);
+    history.push(`/studentcourse?courseid=${e.target.id}`);
+    // history.push({pathname: '/studentcourse', search: 'test=22222'});
+  }
+
+
   const [customize, setCustomize] = useState(true);
   const [userData, setUserData] = useState({});
   const token = getToken()
@@ -96,7 +108,7 @@ export default function IndexPage() {
       <Meta className='intro-card'
           avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" className="square-avatar"
           style={{  width: '100%', height: '100%', objectFit: 'cover'  }} />}
-          title={<span className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
+          title={<span  onClick={gotostudent} id="9fc5ed0e31166ccb19a4d0e7a9f2b1b6" className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
           description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
         />
       </div>
