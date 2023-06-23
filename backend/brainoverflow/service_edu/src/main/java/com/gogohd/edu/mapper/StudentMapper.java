@@ -17,4 +17,7 @@ public interface StudentMapper extends BaseMapper<Student> {
             "left join USERS on COURSES.created_by=USERS.user_id where course_id in " +
             "(select course_id from STUDENTS where STUDENTS.user_id=#{userId})")
     List<Map<String, Object>> selectCoursesWithCreators(@Param("userId") String userId);
+
+    @Select("SELECT COUNT(*) FROM STUDENTS WHERE user_id = #{userId} AND course_id = #{courseId}")
+    int countByUserIdAndCourseId(@Param("userId") String userId, @Param("courseId") String courseId);
 }
