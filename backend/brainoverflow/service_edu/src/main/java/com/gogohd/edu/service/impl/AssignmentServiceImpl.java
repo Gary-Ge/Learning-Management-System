@@ -7,10 +7,7 @@ import com.gogohd.base.utils.DateTimeUtils;
 import com.gogohd.base.utils.R;
 import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.client.OpenFeignClient;
-import com.gogohd.edu.entity.Assignment;
-import com.gogohd.edu.entity.Course;
-import com.gogohd.edu.entity.Staff;
-import com.gogohd.edu.entity.Student;
+import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
 import com.gogohd.edu.mapper.*;
@@ -19,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
+import com.gogohd.base.utils.OssUtils;
+import com.gogohd.base.utils.RandomUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +41,12 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     @Autowired
     private StudentMapper studentMapper;
 
+    @Autowired
+    private AssFilesMapper assFilesMapper;
+
     private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this section";
+    private final String NO_AUTHORITY_DOWNLOAD = "You have no authority to download this section";
 
     @Override
     public String createAssignment(String userId, String courseId, CreateAssignmentVo createAssignmentVo) {
@@ -205,5 +210,78 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         if (result == 0) {
             throw new BrainException(ResultCode.ERROR, "Failed to update the assignment");
         }
+    }
+
+    @Override
+    @Transactional
+    public void uploadAssignment(String userId, String assignmentId, MultipartFile[] files) {
+        if (files == null) {
+            throw new BrainException(ResultCode.ERROR, "No files");
+        }
+        // Check if this assignment exists
+        Assignment assignment = baseMapper.selectById(assignmentId);
+        if (assignment == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exist");
+        }
+
+        // Check if this user has authority to upload files for this assignment
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, assignment.getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to upload file for this assignment");
+        }
+
+        // Upload files
+        for (MultipartFile file: files) {
+            String filename = file.getOriginalFilename();
+            if (filename == null) {
+                throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
+            }
+            // Generate a UUID for each file and use the UUID as filename, preventing file overwriting
+            String extension = filename.substring(filename.lastIndexOf("."));
+            String objectName = "assignment/" + assignmentId + "/" + RandomUtils.generateUUID() + extension;
+            // Upload the file
+            OssUtils.uploadFile(file, objectName, filename, false);
+
+            // Insert assignment record
+            AssFiles assFile = new AssFiles();
+            assFile.setTitle(filename);
+            assFile.setSource("oss://" + objectName);
+            assFile.setAssignmentId(assignmentId);
+            assFile.setType(0);
+            try {
+                if (assFilesMapper.insert(assFile) < 1) {
+                    throw new BrainException(ResultCode.ERROR, "Insert record failed");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new BrainException(ResultCode.ERROR, "Database operation failed");
+            }
+        }
+    }
+
+    @Override
+    public void downloadAssignment(String userId, HttpServletResponse response, String assignmentId, String fileId) {
+        // Check if this assignment exists
+        Assignment assignment = baseMapper.selectById(assignmentId);
+        if (assignment == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exists");
+        }
+
+        // Check if this user has the authority to access this file
+        checkAssignmentValidity(userId, assignment.getAssignmentId(), NO_AUTHORITY_DOWNLOAD);
+
+        // Fetch the specified file
+        AssFiles fileToDownload = assFilesMapper.selectById(fileId);
+        if (fileToDownload == null || !fileToDownload.getAssignmentId().equals(assignmentId)) {
+            throw new BrainException(ResultCode.NOT_FOUND, "No file found for this assignment");
+        }
+
+        // Download the file
+        String source = fileToDownload.getSource();
+        String downloadName = fileToDownload.getTitle();
+        String objectName = source.substring(6);
+        OssUtils.downloadFile(response, objectName, downloadName);
     }
 }
