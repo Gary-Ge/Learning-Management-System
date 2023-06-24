@@ -84,6 +84,7 @@ export default function Dashboard() {
     updateUserData(userDataName);
   }, []);
   
+  
 
   const biggerThan540 = useMediaPredicate("(min-width: 540px)");
   
@@ -240,7 +241,7 @@ export default function Dashboard() {
             <div className='TimeDisplay'>
               <TimeDisplay />
             </div>
-            <div className="avatar">
+            <div className="avatar" style={{cursor:'pointer'}}>
             {
                 userData && avatarURL
                 ? <img src={avatarURL} style={{ width: '30px', height: '30px',borderRadius: '50%' }} onClick={handleAvatarClick} />
@@ -289,6 +290,7 @@ export default function Dashboard() {
                 <Form.Item
                   label="Email Address"
                   name="Email Address"
+                  initialValue={username}
                   rules={[{ required: true, message: 'Please input your Email Address!' }]}
                 >
                   <Input placeholder="Please input your email address" value={email} onChange={handleEmailChange} />

@@ -54,7 +54,6 @@ export default function IndexPage() {
   const gotostudent = (e:any) => {
     // console.log(e.target);
     
-    console.log(e.target.id);
     history.push(`/studentcourse?courseid=${e.target.id}`);
     // history.push({pathname: '/studentcourse', search: 'test=22222'});
   }
@@ -68,9 +67,10 @@ export default function IndexPage() {
   const [courseId, setCourseId] = useState<string[]>([]);
   const [courseDetails, setCourseDetails] = useState<Array<any>>([]);
   const courses = courseDetails.map(detail => ({
-    src: detail.course.creator.avatar,
+    src: detail.course.cover,
     title: detail.course.title,
     date: detail.course.createdAt,
+    id: detail.course.courseId,
   }));
 
 
@@ -95,7 +95,7 @@ export default function IndexPage() {
       localStorage.setItem('userData', JSON.stringify(res.data.user));
     })
     .catch(error => {
-      console.log(error.message);
+      alert(error.message);
     });  
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
@@ -171,7 +171,7 @@ useEffect(() => {
       <Meta className='intro-card'
           avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" className="square-avatar"
           style={{  width: '100%', height: '100%', objectFit: 'cover'  }} />}
-          title={<span  onClick={gotostudent} id="9fc5ed0e31166ccb19a4d0e7a9f2b1b6" className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
+          title={<span  onClick={gotostudent} id="4abc97bd11992e728ff3a7576c3b7548" className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
           description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
         />
       </div>
@@ -197,7 +197,7 @@ useEffect(() => {
       </div>
       <div className='course-container'>
       {courses.map((course, index) => (
-        <div className='course-card' key={index}>
+        <div className='course-card' key={index} onClick={gotostudent} id={course.id} style={{cursor:'pointer'}}>
           <Avatar src={course.src} className="square-avatar-course"></Avatar>
           {course.title && (
             <div className="overlay">
