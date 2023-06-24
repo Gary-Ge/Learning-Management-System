@@ -168,7 +168,7 @@ useEffect(() => {
       <Meta className='intro-card'
           avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" className="square-avatar"
           style={{  width: '100%', height: '100%', objectFit: 'cover'  }} />}
-          title={<span  onClick={gotostudent} id="4abc97bd11992e728ff3a7576c3b7548" className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
+          title={<span className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
           description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
         />
       </div>
