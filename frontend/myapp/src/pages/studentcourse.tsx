@@ -2,7 +2,7 @@ import'./studentcourse.less';
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
-import { Input } from 'antd';
+import { Input, Button } from 'antd';
 import { useLocation } from 'umi';
 import ReactPlayer from 'react-player'
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE } from '../utils/utils';
@@ -68,7 +68,7 @@ let materials_list = [
     key: '1', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },{
-    key: '2', title: 'Week3 course slide', time: '10/06/2023', content: "",
+    key: '2', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },
 ];
@@ -95,6 +95,12 @@ export default function IndexPage() {
   // 
   const token = getToken(); // todo 
   useEffect(() => {
+    getcourseinfo(courseid.toString()); // get course outline
+    // getallcourse -> tabs title
+
+  },[]);
+  // get course list
+  const getallcourse = (viewtitle:any) => {
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
       headers: {
@@ -121,9 +127,10 @@ export default function IndexPage() {
         data.push({
           key : '0',
           id: courseid,
-          title: "xxx",
+          title: viewtitle,
           is_selected: true
         });
+        console.log('data', data);
         courselist.map((item: any, index: number) => {
           console.log(item.title, item.courseId);
           data.push({
@@ -133,6 +140,10 @@ export default function IndexPage() {
             is_selected: false
           });
         });
+        setdataLists([...data]);
+        setfunLists([{
+          key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
+        }])
       } else {
         courselist.map((item: any, index: number) => {
           console.log(item.title, item.courseId);
@@ -142,21 +153,15 @@ export default function IndexPage() {
             title: item.title,
             is_selected: courseid == item.courseId ? true : false
           })
-          // courseidlist.push(item.courseId)
-          // if (courseid != item.courseId) {
-  
-          // }
         })
+        setdataLists([...data]);
+        getallsections(courseid.toString()); // get all sections
       }
-
-      setdataLists([...data]);
-      getcourseinfo(courseid.toString()); // get course outline
-      getallsections(courseid.toString()); // get all sections
     })
     .catch(error => {
       console.log(error.message);
     });  
-  },[]);
+  }
   // get course outline
   const getcourseinfo = (courseid:string) => {
     fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}/${courseid}`, {
@@ -182,19 +187,8 @@ export default function IndexPage() {
       outline[0].courseid = res_data.courseId;
       outline[0].outline_content = res_data.description;
       setcourseoutline([...outline]);
-      // let courselist = []
-      // courselist = res.data.courses;
-      // data = [];
-      // courselist.map((item: any, index: number) => {
-      //   console.log(item.title, item.courseId);
-      //   data.push({
-      //     key : index.toString(),
-      //     id: item.courseId,
-      //     title: item.title,
-      //     is_selected: courseid == item.courseId ? true : false
-      //   }) 
-      // })
-      // setdataLists([...data]);
+      // console.log("setviewtitle",res_data.title);
+      getallcourse(res_data.title);
     })
     .catch(error => {
       console.log(error.message);
@@ -337,11 +331,15 @@ export default function IndexPage() {
             funlist.map(item => <div className={item.is_selected ? 'stu_active': ''} onClick={onclicklist} id={item.key} key={item.key}>
             <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
           }
-          <div className='stu_icon_last_list'>
-            <img src={stu_icon_7} className="stu_icon_list"/>
-            <img src={stu_icon_8} className="stu_icon_list"/>
-            <img src={stu_icon_9} className="stu_icon_list"/>
-          </div>
+          {
+            isviewflag ?           
+            <div className='stu_icon_last_list'>
+              <img src={stu_icon_7} className="stu_icon_list"/>
+              <img src={stu_icon_8} className="stu_icon_list"/>
+              <img src={stu_icon_9} className="stu_icon_list"/>
+            </div> : <Button type="primary" className='btn'>Join</Button>
+          }
+
         </div>
         <div className={funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
           <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
@@ -355,43 +353,48 @@ export default function IndexPage() {
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
         </div>
-        <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
-            online stream class features are being developed...
-        </div>
-        <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
-          {
-            materialslist.map(item => <div className='materials_wrap' key={item.key}>
-            <div className='materials_title'>{item.title}</div>
-            <div className='materials_time'>{item.time}</div>
-            <div className='materials_img'><img src={item.cover}/></div>
-            {item.type == 'Text Section' ? <div className='materials_content'>{item.content}</div> : ''}
-            { item.file_list.map((itm:any, idx:number) => 
-              <div key={idx.toString()}>
-                {itm.type == 'File' ? <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>Download file : {itm.title}
-                <img src={downloadicon} className="downloadicon"/></div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
-              </div>
-            )}
-            {item.type == 'Custom Video Section' ? <div className='materials_content'>{item.content}</div> : ''}
-            <div className='dashline'></div>
-
-          </div>)
-          }
-        </div>
-        <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
-            Forum features are being developed...
-        </div>
-        <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
-            Online Quiz features are being developed...
-        </div>
-        <div className={funlist[5].is_selected ? 'stu_right_content': 'display_non'}>
-            <div className='ass_title'>Week1 Assignment: learning system</div>
-            <div className='ass_title_second'><img className='stu_timeicon' src={time_icon}/>Left Time: 3 days 1 hour 59 minutes</div>
-            <div className='ass_content'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-            <div className='downloadfile' onClick={downLoadAss} id="1">Download file
-              <img src={downloadicon} className="downloadicon"/>
+        { 
+          isviewflag ? 
+          <template>
+            <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
+              online stream class features are being developed...
             </div>
-            <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
-        </div>
+            <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
+              {
+                materialslist.map(item => <div className='materials_wrap' key={item.key}>
+                <div className='materials_title'>{item.title}</div>
+                <div className='materials_time'>{item.time}</div>
+                <div className='materials_img'><img src={item.cover}/></div>
+                {item.type == 'Text Section' ? <div className='materials_content'>{item.content}</div> : ''}
+                { item.file_list.map((itm:any, idx:number) => 
+                  <div key={idx.toString()}>
+                    {itm.type == 'File' ? <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>Download file : {itm.title}
+                    <img src={downloadicon} className="downloadicon"/></div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
+                  </div>
+                )}
+                {item.type == 'Custom Video Section' ? <div className='materials_content'>{item.content}</div> : ''}
+                <div className='dashline'></div>
+
+              </div>)
+              }
+            </div>
+            <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
+                Forum features are being developed...
+            </div>
+            <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
+                Online Quiz features are being developed...
+            </div>
+            <div className={funlist[5].is_selected ? 'stu_right_content': 'display_non'}>
+                <div className='ass_title'>Week1 Assignment: learning system</div>
+                <div className='ass_title_second'><img className='stu_timeicon' src={time_icon}/>Left Time: 3 days 1 hour 59 minutes</div>
+                <div className='ass_content'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+                <div className='downloadfile' onClick={downLoadAss} id="1">Download file
+                  <img src={downloadicon} className="downloadicon"/>
+                </div>
+                <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
+            </div>
+          </template> : ''
+        }
       </div>
       <Footer />
     </div>
