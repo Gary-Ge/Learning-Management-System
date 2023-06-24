@@ -20,25 +20,6 @@ const userDataName = userDataString ? JSON.parse(userDataString) : null;
 function updateUserData(newUserData:any) {
   localStorage.setItem('userData', JSON.stringify(newUserData));
 }
-const StudentDashboardContent: React.FC = () => {
-  return (
-    <div style={{ margin: '100px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
-      <div>
-      {userDataName ? (
-                <>
-                    Hi, {userDataName.username}
-                    <br />
-                    Welcome to our website ~~
-                </>
-            ) : (
-                <>Hi,
-                <br />
-                Welcome to our website ~~</>
-            )}
-      </div>
-    </div>
-  );
-};
 
 const { TabPane } = Tabs;
 
@@ -137,7 +118,8 @@ export default function Dashboard() {
   };
 
   const handleModalClose = () => {
-    setIsModalVisible(false);  
+    setIsModalVisible(false);
+    setTempFile(null);
   };
   const handleSubmit = () => {
     if (!tempFile) {
@@ -230,6 +212,7 @@ export default function Dashboard() {
   ];
   const history = useHistory(); 
   const handleLogout = () => {
+    localStorage.clear();
     history.push('/login');
   };
   return (
@@ -260,7 +243,7 @@ export default function Dashboard() {
             <div className="avatar">
             {
                 userData && avatarURL
-                ? <img src={avatarURL} style={{ width: '37px', height: '37px',borderRadius: '50%' }} onClick={handleAvatarClick} />
+                ? <img src={avatarURL} style={{ width: '30px', height: '30px',borderRadius: '50%' }} onClick={handleAvatarClick} />
                 : <Avatar icon={<UserOutlined />} onClick={handleAvatarClick} />
             }
             </div>
@@ -284,7 +267,7 @@ export default function Dashboard() {
             maxCount={1}
             beforeUpload={beforeUpload}
           >
-            {tempFile ? <img src={URL.createObjectURL(tempFile)} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+            {tempFile ? <img src={URL.createObjectURL(tempFile)} alt="avatar" style={{ width: '100%' }} /> : (imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton)}
           </Upload>
             </div>
               <Form
@@ -327,13 +310,9 @@ export default function Dashboard() {
         </div>
       </Header>
        <Content style={{ padding: '0 50px', position: 'relative' }}>
-        <div className='welcome_div'>
-        <div className='welcome_container'>
         {/* <div className='welcome'>
           {<StudentDashboardContent />}
         </div> */}
-        </div>
-        </div>
       </Content> 
       {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
     </Layout>

@@ -2,16 +2,37 @@ import'./index.less';
 import { useState,useEffect } from "react";
 import { useHistory } from 'umi'; 
 import Navbar from "../../component/navbar"
-import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button} from 'antd';
+import Footer from "../../component/footer"
+import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button,Pagination } from 'antd';
 import { SmileOutlined} from '@ant-design/icons';
-import {  HOST,CHANGEFILE_URL,getToken} from '../utils/utils';
+import {  HOST,CHANGEFILE_URL,getToken, HOST_STUDENT,COURSE_URL,HOST_COURSE} from '../utils/utils';
 const customizeRenderEmpty = () => (
   <div style={{ textAlign: 'center' }}>
     <SmileOutlined style={{ fontSize: 20 }} />
     <p>Data Not Found</p>
   </div>
 );
-
+const userDataString = localStorage.getItem('userData');
+const userDataName = userDataString ? JSON.parse(userDataString) : null;
+const StudentDashboardContent: React.FC = () => {
+  return (
+    <div style={{ margin: '100px',marginTop: '50px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
+      <div>
+      {userDataName ? (
+                <>
+                    Hi, {userDataName.username}
+                    <br />
+                    Welcome to our website ~~
+                </>
+            ) : (
+                <>Hi,
+                <br />
+                Welcome to our website ~~</>
+            )}
+      </div>
+    </div>
+  );
+};
 const data = [
   {
     title: 'Ant Design Title 1',
@@ -26,34 +47,7 @@ const data = [
 const onSearch = (value: string) => console.log(value);
 const { Search } = Input;
 const { Meta } = Card;
-const courses = [
-  { 
-    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1", 
-    title: "Computer System", 
-    date: "11/01/2022" 
-  },
-  { 
-    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1", 
-    title: "Computer System", 
-    date: "11/01/2022" 
-  },{ 
-    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1", 
-    title: "Computer System", 
-    date: "11/01/2022" 
-  },{ 
-    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1", 
-    title: "Computer System", 
-    date: "11/01/2022" 
-  },{ 
-    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1", 
-    title: "Computer System", 
-    date: "11/01/2022" 
-  },{ 
-    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1", 
-    title: "Computer System", 
-    date: "11/01/2022" 
-  },
-];
+
 
 export default function IndexPage() {
   const history = useHistory();
@@ -70,6 +64,15 @@ export default function IndexPage() {
   const [userData, setUserData] = useState({});
   const token = getToken()
   const [hovered, setHovered] = useState(false);
+  const [curriculum, setCurriculum] = useState([]);
+  const [courseId, setCourseId] = useState<string[]>([]);
+  const [courseDetails, setCourseDetails] = useState<Array<any>>([]);
+  const courses = courseDetails.map(detail => ({
+    src: detail.course.creator.avatar,
+    title: detail.course.title,
+    date: detail.course.createdAt,
+  }));
+
 
   function updateUserData(newUserData:any) {
     localStorage.setItem('userData', JSON.stringify(newUserData));
@@ -94,13 +97,73 @@ export default function IndexPage() {
     .catch(error => {
       console.log(error.message);
     });  
+    fetch(`${HOST_STUDENT}${COURSE_URL}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      setCurriculum(res.data.courses);
+      let courseIds = [];
+      if(res.data.courses.length > 0){
+        for(let i = 0; i < res.data.courses.length; i++){
+          courseIds.push(res.data.courses[i].courseId);
+        }
+        setCourseId(courseIds);
+      }
+    })
+    .catch(error => {
+      alert(error.message);
+    });  
   },[]);
   updateUserData(userData);
+
+// ...
+
+useEffect(() => {
+  const fetchCourseDetails = async (id: string) => {
+    const response = await fetch(`/service-edu/edu-course/course/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+    const data = await response.json();
+    if (data.success) {
+      return data.data;
+    } else {
+      throw new Error(data.message);
+    }
+  };
+
+  const allCourseDetails = courseId.map(id => fetchCourseDetails(id));
+  Promise.all(allCourseDetails)
+    .then(details => setCourseDetails(details))
+    .catch(error => console.error(error));
+}, [courseId, token]);
+
+
+  useEffect(() => {
+    console.log(courseDetails);
+}, [courseDetails]);
 
   return (
       <div className='body_user'>
       <Navbar />
-      <div>welcome</div>
+      <div className='welcome_div'>
+        <div className='welcome_container'>
+        <div className='welcome'>
+          {<StudentDashboardContent />}
+        </div>
+        </div>
+        </div>
       <div className='biggest-box'  style = {{fontFamily:'Comic Sans MS'}}>
       <ConfigProvider renderEmpty={customize ? customizeRenderEmpty : undefined}>
       <div className='timeline'>
@@ -129,7 +192,7 @@ export default function IndexPage() {
   </div>
       </div>
       </ConfigProvider>
-      <div className="recently_select_course" style={{ margin: '100px',fontSize:'20px',color: 'rgb(25,121,254)'}}>
+      <div className="recently_select_course" style={{ margin: '100px',marginTop: '50px',marginBottom: '50px',fontSize:'20px',color: 'rgb(25,121,254)'}}>
         Recently accessed courses
       </div>
       <div className='course-container'>
@@ -191,11 +254,15 @@ export default function IndexPage() {
           description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
         />
       </Card>
+      <div className='course-Page'>
+      <Pagination defaultCurrent={1} defaultPageSize={3} total={1000} />
+      </div>
       </div>
     <div className='calendar'>
       <Calendar fullscreen={false}/>
     </div>
     </div>
+    <Footer />
     </div>
     </div>
   </div>

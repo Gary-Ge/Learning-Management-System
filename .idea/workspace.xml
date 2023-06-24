@@ -5,34 +5,91 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a3d9c95-25fd-443a-9e5f-9eab7d9e6da9" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/d8142923-0794-4341-9c13-f43bcbc463b8.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/d8142923-0794-4341-9c13-f43bcbc463b8.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/controller/StudentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/controller/StudentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/mapper/CourseMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/mapper/CourseMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/mapper/StudentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/mapper/StudentMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/service/StudentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/service/StudentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/service/impl/StudentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/service/impl/StudentServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="ProjectId" id="2RDaBM1BUpAoc0JQHInMrHVoXKX" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="mysql" />
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="Spring Boot.GatewayApplication">
+  <component name="RunManager" selected="Spring Boot.EduApplication">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EduApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="service_edu" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.gogohd.edu.EduApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EurekaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="service_eureka" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.gogohd.eureka.EurekaApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="GatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="service_gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.gogohd.gateway.GatewayApplication" />
@@ -57,11 +114,72 @@
       <option name="presentableId" value="Default" />
       <updated>1686786972465</updated>
       <workItem from="1686786995607" duration="4487000" />
-      <workItem from="1687389924000" duration="329000" />
+      <workItem from="1687389924000" duration="28154000" />
+      <workItem from="1687433867905" duration="45000" />
+      <workItem from="1687433955784" duration="23386000" />
     </task>
+    <task id="LOCAL-00001" summary="Synchronize">
+      <created>1687390494929</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1687390494930</updated>
+    </task>
+    <task id="LOCAL-00002" summary="The api of CreateAssignment, CreateQuiz, CreateQuestion Initialize">
+      <created>1687436155205</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1687436155205</updated>
+    </task>
+    <task id="LOCAL-00003" summary="The api of updateAssignment, deleteAssignment, getAssignmentById, getAssignmentListByCourseId">
+      <created>1687498816110</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1687498816110</updated>
+    </task>
+    <task id="LOCAL-00004" summary="UpdateAssignmentVo">
+      <created>1687498845413</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1687498845413</updated>
+    </task>
+    <task id="LOCAL-00005" summary="The api of upload assignment and download assignment finished">
+      <created>1687504255783</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1687504255783</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.kt" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Synchronize" />
+    <MESSAGE value="The api of CreateAssignment, CreateQuiz, CreateQuestion Initialize" />
+    <MESSAGE value="The api of updateAssignment, deleteAssignment, getAssignmentById, getAssignmentListByCourseId" />
+    <MESSAGE value="UpdateAssignmentVo" />
+    <MESSAGE value="The api of upload assignment and download assignment finished" />
+    <option name="LAST_COMMIT_MESSAGE" value="The api of upload assignment and download assignment finished" />
   </component>
 </project>

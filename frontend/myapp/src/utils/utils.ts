@@ -28,6 +28,8 @@ export function ValidPassword (password:any) {
 export const HEADER = { 'Content-Type': 'application/json' }
 
 export const HOST = `/service-ucenter/ucenter`
+// export const HOST_STUDENT = '/service-edu/edu-student'
+// export const HOST_COURSE = '/service-edu/edu-course'
 export const REGISTER_URL = '/register'
 export const LOGIN_URL = '/login'
 export const CHANGEFILE_URL = '/user'
