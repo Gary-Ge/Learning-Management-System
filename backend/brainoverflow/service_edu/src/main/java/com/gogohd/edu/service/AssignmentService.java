@@ -13,9 +13,9 @@ import java.util.Map;
 public interface AssignmentService extends IService<Assignment> {
     String createAssignment(String userId, String courseId, CreateAssignmentVo createAssignmentVo);
 
-    Map<String, Object> getAssignmentById(String assignmentId, String token);
+    Map<String, Object> getAssignmentById(String assignmentId, String userId);
 
-    List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId, String token);
+    List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId);
 
     void deleteAssignment(String userId, String assignmentId);
 
@@ -23,5 +23,7 @@ public interface AssignmentService extends IService<Assignment> {
 
     void uploadAssignment(String userId, String assignmentId, MultipartFile[] files);
 
-    void downloadAssignment(String userId, HttpServletResponse response, String assignmentId, String fileId);
+    String downloadAssignment(String userId, String assFileId);
+
+    void deleteAssignmentFile(String userId, String assFileId);
 }

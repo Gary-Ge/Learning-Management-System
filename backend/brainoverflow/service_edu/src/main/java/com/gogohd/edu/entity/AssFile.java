@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @TableName("ASSFILES")
-public class AssFiles {
+public class AssFile {
     private static final long serialVersionUID = 13L;
 
     @TableId(value = "file_id", type = IdType.ASSIGN_UUID)
@@ -18,8 +18,6 @@ public class AssFiles {
     private String title;
 
     private String source;
-
-    private Integer type;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

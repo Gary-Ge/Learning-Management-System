@@ -1,5 +1,18 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.6.24
+
+- **现在所有用于下载文件的接口都返回一个下载链接，使用一个新标签页打开返回的链接，浏览器会根据文件类型决定是预览还是直接下载**
+- **图片上传接口会返回一个图片的链接，直接将这个链接用在后续的POST或PUT请求中即可（在请求体中有填链接的地方，例如cover, avatar等），无需任何处理。该链接也可以直接被用在在图片组件上进行展示**
+
+- Assignment相关接口已经可用（包括增删改查）
+  - `/service-edu/edu-assignment/assignments/{courseId}`和`/service-edu/edu-assignment/assignment/{assignmentId}`是给Lecturer调用的，用于获取assignment的基本信息和assignment的文件信息
+  - `/service-edu/edu-student/assignment/{assignmentId}`和`/service-edu/edu-student/assignments/{courseId}`是给Student调用的，用于获取assignment基本信息，assignment文件信息和该学生自己提交的文件信息
+- 学生提交作业的接口可用，后一次提交会覆盖前一次提交的所有内容
+- 删除一个Resource的接口可用
+- 删除一个Assignment文件的接口可用
+- 上传视频的接口更新了，现在对于同一个section多次上传视频的话，后一次上传的内容会覆盖前一次
+
 ## Update 2023.6.20 #3
 
 - 关于图片的上传，可以在antd组件的beforeUpload事件里将文件封装为formData对象，并调用接口上传，如下（我也不知道为什么如果在onChange事件里执行上传逻辑会导致上传3次，很怪）

@@ -50,11 +50,27 @@ public class StudentController {
                 data("courses", studentService.getLikeCourseByCourseName(courseName));
     }
 
-    @Operation(summary = "Upload Assignment")
-    @PostMapping("student/upload/{assignmentId}")
+    @Operation(summary = "Submit Assignment")
+    @PostMapping("submit/{assignmentId}")
     public R submitAssignment(HttpServletRequest request, @PathVariable String assignmentId, MultipartFile[] files) {
         String userId = (String) request.getAttribute("userId");
         studentService.submitAssignment(userId, assignmentId, files);
         return R.success().message("Upload assignment success");
+    }
+
+    @Operation(summary = "Get one assignment info with submit info")
+    @GetMapping("assignment/{assignmentId}")
+    public R getAssignment(HttpServletRequest request, @PathVariable String assignmentId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get assignment info success").data("assignment",
+                studentService.getAssignmentById(userId, assignmentId));
+    }
+
+    @Operation(summary = "Get all the assignments info with submit info of a course")
+    @GetMapping("assignments/{courseId}")
+    public R getAssignmentList(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get assignments info success").data("assignments",
+                studentService.getAssignmentListByCourseId(userId, courseId));
     }
 }

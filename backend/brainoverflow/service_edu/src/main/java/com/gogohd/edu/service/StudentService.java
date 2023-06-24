@@ -18,4 +18,8 @@ public interface StudentService extends IService<Student> {
     List<Map<String, Object>> getLikeCourseByCourseName(String courseName);
 
     void submitAssignment(String userId, String courseId, MultipartFile[] files);
+
+    Map<String, Object> getAssignmentById(String userId, String assignmentId);
+
+    List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId);
 }

@@ -96,6 +96,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
+    @Transactional
     public void uploadVideo(String userId, String sectionId, MultipartFile file) {
         if (file == null) {
             throw new BrainException(ResultCode.ERROR, "No file");
@@ -135,6 +136,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
             String videoId = response.getVideoId();
 
+            // Delete the previous video, if any
+            LambdaQueryWrapper<Resource> resourceWrapper = new LambdaQueryWrapper<>();
+            resourceWrapper.eq(Resource::getSectionId, sectionId);
+            baseMapper.delete(resourceWrapper);
+
             // Save this resource to data table
             Resource resource = new Resource();
             resource.setTitle(filename);
@@ -172,7 +178,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public void downloadResource(String userId, HttpServletResponse response, String resourceId) {
+    public String downloadResource(String userId, String resourceId) {
         // Check if this resource exists
         Resource resource = baseMapper.selectById(resourceId);
         if (resource == null) {
@@ -183,10 +189,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         isStaffOrStudent(userId, resource.getSectionId(), "You have no authority to download this file");
 
         // Download the file
-        String source = resource.getSource();
-        String downloadName = resource.getTitle();
-        String objectName = source.substring(6);
-        OssUtils.downloadFile(response, objectName, downloadName);
+        return OssUtils.downloadFile(resource.getSource().substring(6));
     }
 
     @Override
@@ -227,6 +230,28 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         } catch (Exception e) {
             e.printStackTrace();
             throw new BrainException(ResultCode.ERROR, "Play video failed");
+        }
+    }
+
+    @Override
+    public void deleteResourceById(String userId, String resourceId) {
+        // Check if this resource exists
+        Resource resource = baseMapper.selectById(resourceId);
+        if (resource == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Resource not exists");
+        }
+
+        // Check if this user has authority to delete files for this section
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, sectionMapper.selectById(resource.getSectionId()).getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to delete this resource");
+        }
+
+        // Delete the file
+        if (baseMapper.deleteById(resourceId) < 1) {
+            throw new BrainException(ResultCode.ERROR, "Delete resource failed");
         }
     }
 }

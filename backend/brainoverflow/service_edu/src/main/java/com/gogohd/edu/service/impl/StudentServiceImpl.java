@@ -28,10 +28,13 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     private StaffMapper staffMapper;
 
     @Autowired
-    AssignmentMapper assignmentMapper;
+    private AssignmentMapper assignmentMapper;
 
     @Autowired
-    SubmitMapper submitMapper;
+    private AssFileMapper assFileMapper;
+
+    @Autowired
+    private SubmitMapper submitMapper;
 
     @Override
     public void enrollCourse(String userId, String courseId) {
@@ -163,6 +166,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // Upload files
         for (MultipartFile file: files) {
+
             String filename = file.getOriginalFilename();
             if (filename == null) {
                 throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
@@ -174,6 +178,12 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
             // Upload the file
             OssUtils.uploadFile(file, objectName, filename, false);
+
+            // Delete previous submissions, if any
+            LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Submit::getSubmittedBy, userId);
+            wrapper.eq(Submit::getAssignmentId, assignmentId);
+            submitMapper.delete(wrapper);
 
             // Create new submission record
             Submit submit = new Submit();
@@ -194,5 +204,118 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         }
     }
 
+    @Override
+    public Map<String, Object> getAssignmentById(String userId, String assignmentId) {
+        Assignment assignment = assignmentMapper.selectById(assignmentId);
+        if (assignment == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exist");
+        }
 
+        // Check if this user is a student
+        LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+        studentWrapper.eq(Student::getUserId, userId);
+        studentWrapper.eq(Student::getCourseId, assignment.getCourseId());
+        if (!baseMapper.exists(studentWrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You are not a student of this course");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("assignmentId", assignment.getAssignmentId());
+        result.put("title", assignment.getTitle());
+        result.put("description", assignment.getDescription());
+        result.put("start", assignment.getStart());
+        result.put("end", assignment.getEnd());
+
+        // Fetch the information of ass files
+        LambdaQueryWrapper<AssFile> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AssFile::getAssignmentId, assignmentId);
+        List<Map<String, String>> list = assFileMapper.selectList(wrapper).stream()
+                .map(assFile -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("assFileId", assFile.getFileId());
+                    map.put("title", assFile.getTitle());
+
+                    return map;
+                }).collect(Collectors.toList());
+
+        // Fetch the information of submit files
+        LambdaQueryWrapper<Submit> submitWrapper = new LambdaQueryWrapper<>();
+        submitWrapper.eq(Submit::getSubmittedBy, userId);
+        submitWrapper.eq(Submit::getAssignmentId, assignmentId);
+        List<Map<String, String>> submitList = submitMapper.selectList(submitWrapper).stream()
+                        .map(submit -> {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("submitId", submit.getSubmitId());
+                            map.put("title", submit.getName());
+
+                            return map;
+                        }).collect(Collectors.toList());
+
+        result.put("assFiles", list);
+        result.put("submits", submitList);
+
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId) {
+        Course course = courseMapper.selectById(courseId);
+        if (course == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course not exist");
+        }
+
+        // Check if this user is a student
+        LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+        studentWrapper.eq(Student::getUserId, userId);
+        studentWrapper.eq(Student::getCourseId, courseId);
+        if (!baseMapper.exists(studentWrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You are not a student of this course");
+        }
+
+        LambdaQueryWrapper<Assignment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Assignment::getCourseId, courseId);
+        wrapper.orderByAsc(Assignment::getCreatedAt);
+
+        return assignmentMapper.selectList(wrapper).stream()
+                .map(assignment -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("assignmentId", assignment.getAssignmentId());
+                    result.put("title", assignment.getTitle());
+                    result.put("description", assignment.getDescription());
+                    result.put("start", assignment.getStart());
+                    result.put("end", assignment.getEnd());
+
+                    // Get the ass files information, if any
+                    LambdaQueryWrapper<AssFile> assFileWrapper = new LambdaQueryWrapper<>();
+                    assFileWrapper.eq(AssFile::getAssignmentId, assignment.getAssignmentId());
+                    List<Map<String, String>> list = assFileMapper.selectList(assFileWrapper).stream()
+                            .map(assFile -> {
+                                Map<String, String> map = new HashMap<>();
+
+                                map.put("assFileId", assFile.getFileId());
+                                map.put("title", assFile.getTitle());
+
+                                return map;
+                            }).collect(Collectors.toList());
+
+                    result.put("assFiles", list);
+
+                    // Fetch the information of submit files, if any
+                    LambdaQueryWrapper<Submit> submitWrapper = new LambdaQueryWrapper<>();
+                    submitWrapper.eq(Submit::getSubmittedBy, userId);
+                    submitWrapper.eq(Submit::getAssignmentId, assignment.getAssignmentId());
+                    List<Map<String, String>> submitList = submitMapper.selectList(submitWrapper).stream()
+                            .map(submit -> {
+                                Map<String, String> map = new HashMap<>();
+                                map.put("submitId", submit.getSubmitId());
+                                map.put("title", submit.getName());
+
+                                return map;
+                            }).collect(Collectors.toList());
+
+                    result.put("submits", submitList);
+
+                    return result;
+                }).collect(Collectors.toList());
+    }
 }

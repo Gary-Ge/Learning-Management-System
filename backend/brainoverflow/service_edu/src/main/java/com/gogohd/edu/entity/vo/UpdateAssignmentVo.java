@@ -11,9 +11,9 @@ public class UpdateAssignmentVo {
     @Schema(description = "The description of this assignment", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
 
-    @Schema(description = "The start time of this assignment", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "The start time of this assignment", requiredMode = Schema.RequiredMode.REQUIRED)
     private String start;
 
-    @Schema(description = "The end time of this assignment", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "The end time of this assignment", requiredMode = Schema.RequiredMode.REQUIRED)
     private String end;
 }

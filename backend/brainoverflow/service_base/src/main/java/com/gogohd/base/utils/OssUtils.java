@@ -3,6 +3,7 @@ package com.gogohd.base.utils;
 import com.aliyun.oss.*;
 import com.aliyun.oss.internal.OSSHeaders;
 import com.aliyun.oss.model.*;
+import com.aliyuncs.profile.DefaultProfile;
 import com.gogohd.base.exception.BrainException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.util.Date;
 
 public class OssUtils {
 
@@ -18,6 +21,8 @@ public class OssUtils {
     private static final String ACCESS_KEY_SECRET = "yhojBvza5DbUfcdKObl9xCDO3mMUVN";
     private static final String BUCKET_NAME = "brainoverflow";
     private static final String ENDPOINT = "https://oss-ap-southeast-2.aliyuncs.com";
+
+    private static final String MY_HOST = "oss.keyl1meqaq.xyz";
 
     public static void uploadFile(MultipartFile file, String objectName, String downloadName, boolean publicRead) {
         OSS ossClient = new OSSClientBuilder().build(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
@@ -27,7 +32,10 @@ public class OssUtils {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setHeader(OSSHeaders.OSS_STORAGE_CLASS, StorageClass.Standard.toString());
             objectMetadata.setObjectAcl(publicRead ? CannedAccessControlList.PublicRead : CannedAccessControlList.Private);
-            objectMetadata.setContentDisposition("attachment;filename=" + downloadName);
+
+            String contentDisposition = publicRead ? "attachment;filename=" + downloadName : "inline;filename=" + downloadName;
+
+            objectMetadata.setContentDisposition(contentDisposition);
             putObjectRequest.setMetadata(objectMetadata);
 
             PutObjectResult result = ossClient.putObject(putObjectRequest);
@@ -40,45 +48,22 @@ public class OssUtils {
         }
     }
 
-    public static void downloadFile(HttpServletResponse response, String objectName, String downloadName) {
-        BufferedInputStream input = null;
-        OutputStream outputStream = null;
-
-        OSS ossClient = new OSSClientBuilder().build(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-        OSSObject ossObject = ossClient.getObject(BUCKET_NAME, objectName);
-
+    public static String downloadFile(String objectName) {
+        // Generate signed url
+        OSS ossClient = new OSSClientBuilder().build(MY_HOST, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
         try {
-            response.reset();
-            response.setCharacterEncoding("utf-8");
-            response.setContentType("application/octet-stream");
-            response.addHeader("Content-Disposition",
-                    "attachment;filename=" + downloadName);
-
-            input = new BufferedInputStream(ossObject.getObjectContent());
-            byte[] buffBytes = new byte[1024];
-            outputStream = response.getOutputStream();
-            int read = 0;
-            while ((read = input.read(buffBytes)) != -1) {
-                outputStream.write(buffBytes, 0, read);
-            }
-            outputStream.flush();
-
-            ossObject.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            // Set Expiring date
+            Date expiration = new Date(new Date().getTime() + 3600 * 1000L);
+            // Generate URL
+            URL url = ossClient.generatePresignedUrl(BUCKET_NAME, objectName, expiration);
+            return url.toString().replace(BUCKET_NAME + ".", "");
+        } catch (OSSException | ClientException oe) {
+            oe.printStackTrace();
             throw new BrainException(ResultCode.ERROR, "Download file failed");
         } finally {
-            try {
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (ossClient != null) {
+                ossClient.shutdown();
             }
-            ossClient.shutdown();
         }
     }
 }
