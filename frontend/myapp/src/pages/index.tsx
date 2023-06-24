@@ -51,12 +51,9 @@ const { Meta } = Card;
 
 export default function IndexPage() {
   const history = useHistory();
-  const gotostudent = (e:any) => {
-    // console.log(e.target);
-    
-    history.push(`/studentcourse?courseid=${e.target.id}`);
-    // history.push({pathname: '/studentcourse', search: 'test=22222'});
-  }
+  const gotostudent = (id: string,title: string) => {
+    history.push(`/studentcourse?courseid=${id}%title=${title}`);
+}
 
 
   const [customize, setCustomize] = useState(true);
@@ -197,8 +194,8 @@ useEffect(() => {
       </div>
       <div className='course-container'>
       {courses.map((course, index) => (
-        <div className='course-card' key={index} onClick={gotostudent} id={course.id} style={{cursor:'pointer'}}>
-          <Avatar src={course.src} className="square-avatar-course"></Avatar>
+        <div className='course-card' key={index} onClick={() => gotostudent(course.id,course.title)} style={{cursor:'pointer'}}>
+          <Avatar src={course.src} className="square-avatar-course" style={{height:'260px',width:'260px'}}></Avatar>
           {course.title && (
             <div className="overlay">
               <div className="overlay-content">
