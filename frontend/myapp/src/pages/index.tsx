@@ -54,7 +54,6 @@ export default function IndexPage() {
   const gotostudent = (e:any) => {
     // console.log(e.target);
     
-    console.log(e.target.id);
     history.push(`/studentcourse?courseid=${e.target.id}`);
     // history.push({pathname: '/studentcourse', search: 'test=22222'});
   }
@@ -68,9 +67,10 @@ export default function IndexPage() {
   const [courseId, setCourseId] = useState<string[]>([]);
   const [courseDetails, setCourseDetails] = useState<Array<any>>([]);
   const courses = courseDetails.map(detail => ({
-    src: detail.course.creator.avatar,
+    src: detail.course.cover,
     title: detail.course.title,
     date: detail.course.createdAt,
+    id: detail.course.courseId,
   }));
 
 
@@ -95,7 +95,7 @@ export default function IndexPage() {
       localStorage.setItem('userData', JSON.stringify(res.data.user));
     })
     .catch(error => {
-      console.log(error.message);
+      alert(error.message);
     });  
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
@@ -197,7 +197,7 @@ useEffect(() => {
       </div>
       <div className='course-container'>
       {courses.map((course, index) => (
-        <div className='course-card' key={index}>
+        <div className='course-card' key={index} onClick={gotostudent} id={course.id} style={{cursor:'pointer'}}>
           <Avatar src={course.src} className="square-avatar-course"></Avatar>
           {course.title && (
             <div className="overlay">
