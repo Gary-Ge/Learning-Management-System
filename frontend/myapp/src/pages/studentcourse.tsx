@@ -1,9 +1,11 @@
 import'./studentcourse.less';
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
+import Footer from "../../component/footer"
 import { Input } from 'antd';
 import { useLocation } from 'umi';
-import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION } from '../utils/utils';
+import ReactPlayer from 'react-player'
+import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_2 from '../../../images/stu_icon_2.png';
 import stu_icon_3 from '../../../images/stu_icon_3.png';
@@ -60,20 +62,21 @@ const course_outline = [
 }];
 let materials_list = [
   {
-    key: '0', title: 'Week1 course slide', time: '10/06/2023', content: "project mentors to report on the progress of the project. Assessment is based on a project proposal, progressive demonstrations and retrospectives, a final project demonstration and report, and on the quality of the software system itself. Students are also required to reflect on their work and to provide peer assessment of their team-mates' contributions to the project.",
-    file_link:'file_link0'
+    key: '0', title: '', time: '', content: "",
+    file_list: [], cover: '', type:''
   },{
-    key: '1', title: 'Week2 course slide', time: '10/06/2023', content: "project mentors to report on the progress of the project. Assessment is based on a project proposal, progressive demonstrations and retrospectives, a final project demonstration and report, and on the quality of the software system itself. Students are also required to reflect on their work and to provide peer assessment of their team-mates' contributions to the project.",
-    file_link:'file_link1'
+    key: '1', title: '', time: '', content: "",
+    file_list: [], cover: '', type:''
   },{
-    key: '2', title: 'Week3 course slide', time: '10/06/2023', content: "project mentors to report on the progress of the project. Assessment is based on a project proposal, progressive demonstrations and retrospectives, a final project demonstration and report, and on the quality of the software system itself. Students are also required to reflect on their work and to provide peer assessment of their team-mates' contributions to the project.",
-    file_link:'file_link2'
+    key: '2', title: 'Week3 course slide', time: '10/06/2023', content: "",
+    file_list: [], cover: '', type:''
   },
 ];
 
 
 export default function IndexPage() {
-  const [datalist,setdataLists]= useState(data);
+  const [isviewflag, setisviewflag] = useState(true);
+  const [datalist,setdataLists]= useState(data); // tabs course title
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
@@ -89,10 +92,8 @@ export default function IndexPage() {
   //   console.log("count");
   //   console.log(count);
   // });
-  // const [customize, setCustomize] = useState(true);
-  const token1 = getToken(); // todo 
-  // console.log(token);
-  const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODczOTE2MjcsImV4cCI6MTY4OTk4MzYyNywiaWQiOiIyMDQxYmY2ZDNmZGYxYTliMmFlOGM5NjliODJjNWJhNyJ9.CQds7oMmpVDL-BEQBgWm7inXc4prk8AyLjn9XGMSPaY';
+  // 
+  const token = getToken(); // todo 
   useEffect(() => {
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
@@ -103,7 +104,6 @@ export default function IndexPage() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log('res');
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -111,18 +111,47 @@ export default function IndexPage() {
       let courselist = []
       courselist = res.data.courses;
       data = [];
+      let courseidlist: any[] = [];
       courselist.map((item: any, index: number) => {
-        console.log(item.title, item.courseId);
-        data.push({
-          key : index.toString(),
-          id: item.courseId,
-          title: item.title,
-          is_selected: courseid == item.courseId ? true : false
-        }) 
+        courseidlist.push(item.courseId);
       })
+      if (courseidlist.indexOf(courseid) == -1) { // no enroll 
+        setisviewflag(false);
+        console.log('isviewflag', isviewflag); 
+        data.push({
+          key : '0',
+          id: courseid,
+          title: "xxx",
+          is_selected: true
+        });
+        courselist.map((item: any, index: number) => {
+          console.log(item.title, item.courseId);
+          data.push({
+            key : (index+1).toString(),
+            id: item.courseId,
+            title: item.title,
+            is_selected: false
+          });
+        });
+      } else {
+        courselist.map((item: any, index: number) => {
+          console.log(item.title, item.courseId);
+          data.push({
+            key : index.toString(),
+            id: item.courseId,
+            title: item.title,
+            is_selected: courseid == item.courseId ? true : false
+          })
+          // courseidlist.push(item.courseId)
+          // if (courseid != item.courseId) {
+  
+          // }
+        })
+      }
+
       setdataLists([...data]);
       getcourseinfo(courseid.toString()); // get course outline
-      getallsections(courseid.toString());
+      getallsections(courseid.toString()); // get all sections
     })
     .catch(error => {
       console.log(error.message);
@@ -171,7 +200,25 @@ export default function IndexPage() {
       console.log(error.message);
     });
   };
-
+  //
+  const getvideourl = (resourceId:string, inneritem:any)=> {
+    fetch(`${HOST_RESOURCE}/video/${resourceId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('res');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log('video url:',res.data.auth.playURL);
+      inneritem.url = res.data.auth.playURL
+    });
+  }
   // get all sections of a course
   const getallsections = (courseid:string) => {
     fetch(`${HOST_SECTION}/sections/${courseid}`, {
@@ -196,10 +243,26 @@ export default function IndexPage() {
           title: item.title,
           time: item.updatedAt,
           content: item.description,
-          file_link: ''
-        })
+          type: item.type,
+          file_list: item.resources, // resources
+          cover: item.cover
+        });
+      });
+      materials_list.map(item => {
+        if (item.type == 'Custom Video Section') {
+          item.file_list.map((inneritem:any) => {
+            if (inneritem.type == "Video") {
+              // let url_link = getvideourl(inneritem.resourceId);
+              let videolink:any
+              getvideourl(inneritem.resourceId, inneritem)
+              
+            }
+          })
+        }
       });
       setmaterialLists([...materials_list]);
+      console.log("materials_list:",materials_list);
+      
     })
     .catch(error => {
       console.log(error.message);
@@ -228,9 +291,28 @@ export default function IndexPage() {
     setfunLists([...fun_list]);
   };
 
-  // download materials
+ // download materials 2
+  const getsourcelink = (resourceid:string) => {
+    fetch(`${HOST_RESOURCE}/resource/${resourceid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log('getsourcelink', res);
+      // window.location.href="https://baidu.com"; // todo download
+    })
+  }
+  // download materials 1
   const downLoadMaterial = (e:any) => {
-    console.log(e.target.id);
+    console.log('resourceid',e.target.id);
+    getsourcelink(e.target.id);
   };
   // download assignment
   const downLoadAss = (e:any) => {
@@ -281,10 +363,17 @@ export default function IndexPage() {
             materialslist.map(item => <div className='materials_wrap' key={item.key}>
             <div className='materials_title'>{item.title}</div>
             <div className='materials_time'>{item.time}</div>
-            <div className='materials_content'>{item.content}</div>
-            <div className='downloadfile' onClick={downLoadMaterial} id={item.file_link}>Download file
-              <img src={downloadicon} className="downloadicon"/></div>
+            <div className='materials_img'><img src={item.cover}/></div>
+            {item.type == 'Text Section' ? <div className='materials_content'>{item.content}</div> : ''}
+            { item.file_list.map((itm:any, idx:number) => 
+              <div key={idx.toString()}>
+                {itm.type == 'File' ? <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>Download file : {itm.title}
+                <img src={downloadicon} className="downloadicon"/></div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
+              </div>
+            )}
+            {item.type == 'Custom Video Section' ? <div className='materials_content'>{item.content}</div> : ''}
             <div className='dashline'></div>
+
           </div>)
           }
         </div>
@@ -299,10 +388,12 @@ export default function IndexPage() {
             <div className='ass_title_second'><img className='stu_timeicon' src={time_icon}/>Left Time: 3 days 1 hour 59 minutes</div>
             <div className='ass_content'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
             <div className='downloadfile' onClick={downLoadAss} id="1">Download file
-              <img src={downloadicon} className="downloadicon"/></div>
+              <img src={downloadicon} className="downloadicon"/>
+            </div>
             <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
