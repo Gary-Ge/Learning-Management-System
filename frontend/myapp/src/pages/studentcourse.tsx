@@ -19,16 +19,10 @@ import downloadicon from '../../../images/download.png';
 import time_icon from '../../../images/timeicon.png';
 import uploadicon from '../../../images/uploadicon.png';
 
-let data = [
-  {
-    key: '0', title: 'COMP9900',is_selected: true, id: "111"
-  },
-  {
-    key: '1', title: 'COMP9901',is_selected: false, id: "222"
-  },
-  {
-    key: '2', title: 'COMP9902',is_selected: false, id: "333"
-  },
+let data:any = [
+  // {
+  //   key: '0', title: '',is_selected: true, id: "111", isenroll: true
+  // },
 ];
 
 const { Search } = Input;
@@ -38,20 +32,20 @@ const fun_list = [
   {
     key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
   },
+  // {
+  //   key: '1', title: 'Join Class', is_selected: false, img_link: stu_icon_2
+  // },
   {
-    key: '1', title: 'Join Class', is_selected: false, img_link: stu_icon_2
+    key: '1', title: 'Materials', is_selected: false, img_link: stu_icon_3
   },
+  // {
+  //   key: '3', title: 'Forums', is_selected: false, img_link: stu_icon_4
+  // },
+  // {
+  //   key: '4', title: 'Quizzes', is_selected: false, img_link: stu_icon_5
+  // },
   {
-    key: '2', title: 'Materials', is_selected: false, img_link: stu_icon_3
-  },
-  {
-    key: '3', title: 'Forums', is_selected: false, img_link: stu_icon_4
-  },
-  {
-    key: '4', title: 'Quizzes', is_selected: false, img_link: stu_icon_5
-  },
-  {
-    key: '5', title: 'Assignments', is_selected: false, img_link: stu_icon_6
+    key: '2', title: 'Assignments', is_selected: false, img_link: stu_icon_6
   },
 ];
 const course_outline = [
@@ -75,7 +69,7 @@ let materials_list = [
 
 
 export default function IndexPage() {
-  const [isviewflag, setisviewflag] = useState(true);
+  const [isenrollflag, setisenrollflag] = useState(true);
   const [datalist,setdataLists]= useState(data); // tabs course title
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
@@ -95,7 +89,7 @@ export default function IndexPage() {
   // 
   const token = getToken(); // todo 
   useEffect(() => {
-    getcourseinfo(courseid.toString()); // get course outline
+    getcourseinfo(courseid.toString(), true); // get course outline
     // getallcourse -> tabs title
 
   },[]);
@@ -113,7 +107,7 @@ export default function IndexPage() {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log(res.data.courses);
+      // console.log(res.data.courses);
       let courselist = []
       courselist = res.data.courses;
       data = [];
@@ -122,13 +116,14 @@ export default function IndexPage() {
         courseidlist.push(item.courseId);
       })
       if (courseidlist.indexOf(courseid) == -1) { // no enroll 
-        setisviewflag(false);
-        console.log('isviewflag', isviewflag); 
+        setisenrollflag(false);
+        console.log('isenrollflag', isenrollflag); 
         data.push({
           key : '0',
           id: courseid,
           title: viewtitle,
-          is_selected: true
+          is_selected: true,
+          isenroll: false
         });
         console.log('data', data);
         courselist.map((item: any, index: number) => {
@@ -137,7 +132,8 @@ export default function IndexPage() {
             key : (index+1).toString(),
             id: item.courseId,
             title: item.title,
-            is_selected: false
+            is_selected: false, 
+            isenroll: true
           });
         });
         setdataLists([...data]);
@@ -145,13 +141,16 @@ export default function IndexPage() {
           key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
         }])
       } else {
+        setisenrollflag(true);
+        console.log('isenrollflag', isenrollflag);
         courselist.map((item: any, index: number) => {
           console.log(item.title, item.courseId);
           data.push({
             key : index.toString(),
             id: item.courseId,
             title: item.title,
-            is_selected: courseid == item.courseId ? true : false
+            is_selected: courseid == item.courseId ? true : false, 
+            isenroll: true
           })
         })
         setdataLists([...data]);
@@ -163,7 +162,7 @@ export default function IndexPage() {
     });  
   }
   // get course outline
-  const getcourseinfo = (courseid:string) => {
+  const getcourseinfo = (courseid:string, flag:boolean) => {
     fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}/${courseid}`, {
       method: "GET",
       headers: {
@@ -188,7 +187,10 @@ export default function IndexPage() {
       outline[0].outline_content = res_data.description;
       setcourseoutline([...outline]);
       // console.log("setviewtitle",res_data.title);
-      getallcourse(res_data.title);
+      if (flag) {
+        getallcourse(res_data.title);
+      }
+      
     })
     .catch(error => {
       console.log(error.message);
@@ -264,25 +266,42 @@ export default function IndexPage() {
   };
 
   // click tabs title
-  const onclickcourse = (e:any) => {
-    console.log(e.target.outerText);
-    console.log(e.target.id);
-    data.map(item => {
+  const onclickcourse = (idx:string, id:string) => {
+    // console.log(e.target.outerText);
+    console.log('id+++', id);
+    data.map((item:any) => {
       item.is_selected = false;
     });
-    data[e.target.id].is_selected = true;
+    data[idx].is_selected = true;
     // e.target.className = "selected";
     setdataLists([...data]);
+    console.log('isenroll',data[idx].isenroll);
+    if (data[idx].isenroll) {
+      // updata left list
+      setisenrollflag(true);
+      setfunLists([...fun_list]);
+      // get materials
+      getallsections(id.toString());
+    } else {
+      //
+      setisenrollflag(false);
+      setfunLists([{
+        key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
+      }])
+      // console.log('++', funlist);
+    }
+    // update course outline
+    getcourseinfo(id, false);
   };
 
   // click left list
   const onclicklist = (e:any) => {
     // console.log(e.target.id);
-    fun_list.map(item => {
+    funlist.map(item => {
       item.is_selected = false;
     });
-    fun_list[e.target.id].is_selected = true;
-    setfunLists([...fun_list]);
+    funlist[e.target.id].is_selected = true;
+    setfunLists([...funlist]);
   };
 
  // download materials 2
@@ -299,8 +318,10 @@ export default function IndexPage() {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log('getsourcelink', res);
-      // window.location.href="https://baidu.com"; // todo download
+      console.log('getsourcelink', res.data.fileUrl);
+      const w:any = window.open("about:blank");  
+      w.location.href=res.data.fileUrl
+      // window.location.href = res.data.fileUrl; // todo download
     })
   }
   // download materials 1
@@ -318,9 +339,9 @@ export default function IndexPage() {
       <Navbar />
       <div className='stu_title'>
         <div className='stu_title_list'>
-          {datalist.map( course_item  => 
+          {datalist.map( (course_item:any)  => 
           <div className='stu_list_header' key={course_item.title}>
-            <p key={course_item.title} onClick={onclickcourse} id={course_item.key} className={course_item.is_selected ? "selected": ""}>{course_item.title}</p>
+            <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "selected": ""}>{course_item.title}</p>
             <p className={course_item.key == String(data.length - 1) ? "stu_title_bar": ""}>|</p></div>  )}
         </div>
         <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div>
@@ -332,7 +353,7 @@ export default function IndexPage() {
             <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
           }
           {
-            isviewflag ?           
+            isenrollflag ?           
             <div className='stu_icon_last_list'>
               <img src={stu_icon_7} className="stu_icon_list"/>
               <img src={stu_icon_8} className="stu_icon_list"/>
@@ -341,6 +362,7 @@ export default function IndexPage() {
           }
 
         </div>
+        
         <div className={funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
           <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
           <div className='outline_img'><img src={courseoutline[0].coverimg}/></div>
@@ -353,13 +375,14 @@ export default function IndexPage() {
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
         </div>
+       
         { 
-          isviewflag ? 
-          <template>
+          isenrollflag ? 
+          <div className={!funlist[1].is_selected && !funlist[2].is_selected ? 'display_non': 'wid100'}>
             <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
-              online stream class features are being developed...
-            </div>
-            <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
+              {
+                materialslist.length == 0 ? <div>there is no section now...</div> : ''
+              }
               {
                 materialslist.map(item => <div className='materials_wrap' key={item.key}>
                 <div className='materials_title'>{item.title}</div>
@@ -378,13 +401,7 @@ export default function IndexPage() {
               </div>)
               }
             </div>
-            <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
-                Forum features are being developed...
-            </div>
-            <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
-                Online Quiz features are being developed...
-            </div>
-            <div className={funlist[5].is_selected ? 'stu_right_content': 'display_non'}>
+            <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
                 <div className='ass_title'>Week1 Assignment: learning system</div>
                 <div className='ass_title_second'><img className='stu_timeicon' src={time_icon}/>Left Time: 3 days 1 hour 59 minutes</div>
                 <div className='ass_content'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
@@ -393,7 +410,7 @@ export default function IndexPage() {
                 </div>
                 <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
             </div>
-          </template> : ''
+          </div> : ''
         }
       </div>
       <Footer />
