@@ -1,7 +1,9 @@
 import'./studentcourse.less';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import { Input } from 'antd';
+import { useLocation } from 'umi';
+import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_2 from '../../../images/stu_icon_2.png';
 import stu_icon_3 from '../../../images/stu_icon_3.png';
@@ -15,15 +17,15 @@ import downloadicon from '../../../images/download.png';
 import time_icon from '../../../images/timeicon.png';
 import uploadicon from '../../../images/uploadicon.png';
 
-const data = [
+let data = [
   {
-    key: '0', title: 'COMP9900',is_selected: true
+    key: '0', title: 'COMP9900',is_selected: true, id: "111"
   },
   {
-    key: '1', title: 'COMP9901',is_selected: false
+    key: '1', title: 'COMP9901',is_selected: false, id: "222"
   },
   {
-    key: '2', title: 'COMP9902',is_selected: false
+    key: '2', title: 'COMP9902',is_selected: false, id: "333"
   },
 ];
 
@@ -51,10 +53,12 @@ const fun_list = [
   },
 ];
 const course_outline = [
-  { outline_title: 'Course Outline', author: 'Dr Smith W',
-  outline_content: "This is a software project capstone course. Students work in teams of ideally five (5) members to define, implement and evaluate a real-world software system. Most of the work in this course is team-based project work, although there are some introductory lectures on software project management and teamwork strategies. Project teams meet weekly starting from Week 1 with project mentors to report on the progress of the project. Assessment is based on a project proposal, progressive demonstrations and retrospectives, a final project demonstration and report, and on the quality of the software system itself. Students are also required to reflect on their work and to provide peer assessment of their team-mates' contributions to the project.",
+  { outline_title: '', author: '',
+  category: '', coverimg: '', time: '',
+  courseid : '',
+  outline_content: "",
 }];
-const materials_list = [
+let materials_list = [
   {
     key: '0', title: 'Week1 course slide', time: '10/06/2023', content: "project mentors to report on the progress of the project. Assessment is based on a project proposal, progressive demonstrations and retrospectives, a final project demonstration and report, and on the quality of the software system itself. Students are also required to reflect on their work and to provide peer assessment of their team-mates' contributions to the project.",
     file_link:'file_link0'
@@ -69,11 +73,140 @@ const materials_list = [
 
 
 export default function IndexPage() {
-  // const [customize, setCustomize] = useState(true);
   const [datalist,setdataLists]= useState(data);
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
+
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  let courseid: any = query.get('courseid');
+  console.log("---------");
+  console.log(courseid);
+  // const [count, setCount] = useState(0);
+  // useEffect(() => {
+  //   setCount(count + 1);
+  //   console.log("count");
+  //   console.log(count);
+  // });
+  // const [customize, setCustomize] = useState(true);
+  const token1 = getToken(); // todo 
+  // console.log(token);
+  const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODczOTE2MjcsImV4cCI6MTY4OTk4MzYyNywiaWQiOiIyMDQxYmY2ZDNmZGYxYTliMmFlOGM5NjliODJjNWJhNyJ9.CQds7oMmpVDL-BEQBgWm7inXc4prk8AyLjn9XGMSPaY';
+  useEffect(() => {
+    fetch(`${HOST_STUDENT}${COURSE_URL}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('res');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log(res.data.courses);
+      let courselist = []
+      courselist = res.data.courses;
+      data = [];
+      courselist.map((item: any, index: number) => {
+        console.log(item.title, item.courseId);
+        data.push({
+          key : index.toString(),
+          id: item.courseId,
+          title: item.title,
+          is_selected: courseid == item.courseId ? true : false
+        }) 
+      })
+      setdataLists([...data]);
+      getcourseinfo(courseid.toString()); // get course outline
+      getallsections(courseid.toString());
+    })
+    .catch(error => {
+      console.log(error.message);
+    });  
+  },[]);
+  // get course outline
+  const getcourseinfo = (courseid:string) => {
+    fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log(res.data.course);
+      let res_data = res.data.course;
+      let outline = course_outline;
+      outline[0].outline_title = res_data.title;
+      outline[0].author = res_data.creator.username;
+      outline[0].category = res_data.category;
+      outline[0].coverimg = res_data.cover;
+      outline[0].time = res_data.updatedAt;
+      outline[0].courseid = res_data.courseId;
+      outline[0].outline_content = res_data.description;
+      setcourseoutline([...outline]);
+      // let courselist = []
+      // courselist = res.data.courses;
+      // data = [];
+      // courselist.map((item: any, index: number) => {
+      //   console.log(item.title, item.courseId);
+      //   data.push({
+      //     key : index.toString(),
+      //     id: item.courseId,
+      //     title: item.title,
+      //     is_selected: courseid == item.courseId ? true : false
+      //   }) 
+      // })
+      // setdataLists([...data]);
+    })
+    .catch(error => {
+      console.log(error.message);
+    });
+  };
+
+  // get all sections of a course
+  const getallsections = (courseid:string) => {
+    fetch(`${HOST_SECTION}/sections/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('get all sections');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log(res.data.sections);
+      materials_list = []
+      let res_sections = res.data.sections;
+      res_sections.map( (item:any, index: string) => {
+        materials_list.push({
+          key: index.toString(),
+          title: item.title,
+          time: item.updatedAt,
+          content: item.description,
+          file_link: ''
+        })
+      });
+      setmaterialLists([...materials_list]);
+    })
+    .catch(error => {
+      console.log(error.message);
+    }); 
+  };
+
+  // click tabs title
   const onclickcourse = (e:any) => {
     console.log(e.target.outerText);
     console.log(e.target.id);
@@ -84,20 +217,26 @@ export default function IndexPage() {
     // e.target.className = "selected";
     setdataLists([...data]);
   };
+
+  // click left list
   const onclicklist = (e:any) => {
-    console.log(e.target.id);
+    // console.log(e.target.id);
     fun_list.map(item => {
       item.is_selected = false;
     });
     fun_list[e.target.id].is_selected = true;
     setfunLists([...fun_list]);
   };
+
+  // download materials
   const downLoadMaterial = (e:any) => {
     console.log(e.target.id);
   };
+  // download assignment
   const downLoadAss = (e:any) => {
     console.log(e.target.id);
   };
+
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -123,9 +262,14 @@ export default function IndexPage() {
           </div>
         </div>
         <div className={funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
-          <div className='outline_title'>{courseoutline[0].outline_title}</div>
+          <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
+          <div className='outline_img'><img src={courseoutline[0].coverimg}/></div>
           <div className='outline_title_second'>Course Teacher</div>
           <div className='outline_content'>{courseoutline[0].author}</div>
+          <div className='outline_title_second'>Category</div>
+          <div className='outline_content'>{courseoutline[0].category}</div>
+          <div className='outline_title_second'>Updated Time</div>
+          <div className='outline_content'>{courseoutline[0].time}</div>
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
         </div>

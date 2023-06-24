@@ -34,4 +34,10 @@ export const CHANGEFILE_URL = '/user'
 export const EMAIL_URL = '/email'
 export const CODE_URL = '/code'
 export const PASSWORD_URL = '/password'
+export const HOST_STUDENT = '/service-edu/edu-student'
+export const COURSE_URL = '/courses'
+export const HOST_COURSE = '/service-edu/edu-course'
+export const COURSE_DETAIL_URL = '/course'
+export const HOST_SECTION = '/service-edu/edu-section'
+//// /service-edu/edu-course/course/{courseId}
 
