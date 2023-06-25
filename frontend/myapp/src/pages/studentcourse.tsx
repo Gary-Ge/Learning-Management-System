@@ -32,22 +32,24 @@ const fun_list = [
   {
     key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
   },
-  // {
-  //   key: '1', title: 'Join Class', is_selected: false, img_link: stu_icon_2
-  // },
   {
     key: '1', title: 'Materials', is_selected: false, img_link: stu_icon_3
   },
+  {
+    key: '2', title: 'Assignments', is_selected: false, img_link: stu_icon_6
+  },
+];
+  // {
+  //   key: '1', title: 'Join Class', is_selected: false, img_link: stu_icon_2
+  // },
+
   // {
   //   key: '3', title: 'Forums', is_selected: false, img_link: stu_icon_4
   // },
   // {
   //   key: '4', title: 'Quizzes', is_selected: false, img_link: stu_icon_5
   // },
-  {
-    key: '2', title: 'Assignments', is_selected: false, img_link: stu_icon_6
-  },
-];
+
 const course_outline = [
   { outline_title: '', author: '',
   category: '', coverimg: '', time: '',
@@ -67,7 +69,6 @@ let materials_list = [
   },
 ];
 
-
 export default function IndexPage() {
   const [isenrollflag, setisenrollflag] = useState(true);
   const [datalist,setdataLists]= useState(data); // tabs course title
@@ -78,8 +79,8 @@ export default function IndexPage() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   let courseid: any = query.get('courseid');
-  console.log("---------");
-  console.log(courseid);
+  // console.log("---------");
+  // console.log(courseid);
   // const [count, setCount] = useState(0);
   // useEffect(() => {
   //   setCount(count + 1);
@@ -140,7 +141,7 @@ export default function IndexPage() {
         setfunLists([{
           key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
         }])
-      } else {
+      } else { // all enroll
         setisenrollflag(true);
         console.log('isenrollflag', isenrollflag);
         courselist.map((item: any, index: number) => {
@@ -153,7 +154,13 @@ export default function IndexPage() {
             isenroll: true
           })
         })
+        funlist.map(item => {
+          item.is_selected = false;
+        });
+        funlist[0].is_selected = true;
+        setfunLists([...funlist]);
         setdataLists([...data]);
+        console.log('++data',data);
         getallsections(courseid.toString()); // get all sections
       }
     })
@@ -196,7 +203,7 @@ export default function IndexPage() {
       console.log(error.message);
     });
   };
-  //
+  // get video url
   const getvideourl = (resourceId:string, inneritem:any)=> {
     fetch(`${HOST_RESOURCE}/video/${resourceId}`, {
       method: "GET",
@@ -279,7 +286,13 @@ export default function IndexPage() {
     if (data[idx].isenroll) {
       // updata left list
       setisenrollflag(true);
+
+      fun_list.map(item => {
+        item.is_selected = false;
+      });
+      fun_list[0].is_selected = true;
       setfunLists([...fun_list]);
+      console.log('++fun_list', fun_list);
       // get materials
       getallsections(id.toString());
     } else {
@@ -390,9 +403,11 @@ export default function IndexPage() {
                 <div className='materials_img'><img src={item.cover}/></div>
                 {item.type == 'Text Section' ? <div className='materials_content'>{item.content}</div> : ''}
                 { item.file_list.map((itm:any, idx:number) => 
-                  <div key={idx.toString()}>
-                    {itm.type == 'File' ? <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>Download file : {itm.title}
-                    <img src={downloadicon} className="downloadicon"/></div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
+                  <div key={idx.toString()} className="downloadfile_wrap">
+                    {itm.type == 'File' ? 
+                    <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>
+                      <img src={downloadicon} className="downloadicon"/>Download file : {itm.title}
+                    </div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
                   </div>
                 )}
                 {item.type == 'Custom Video Section' ? <div className='materials_content'>{item.content}</div> : ''}
