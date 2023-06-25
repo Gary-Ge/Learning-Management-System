@@ -68,6 +68,17 @@ let materials_list = [
     file_list: [], cover: '', type:''
   },
 ];
+interface List {
+  assFileId: string,
+  title: string
+}
+let assign_list = [  
+  {
+    key: '0', assid: '', title: '', start_time: '', end_time: '',
+    content: '',
+    ass_files: []as Array<List>,
+  }
+];
 
 export default function IndexPage() {
   // const [isenrollflag, setisenrollflag] = useState(true);
@@ -75,6 +86,7 @@ export default function IndexPage() {
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
+  const [assignlist,setassignmentLists]= useState(assign_list);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
@@ -142,6 +154,7 @@ export default function IndexPage() {
         })
         getcourseinfo(courselist[0].courseId);
         getallsections(courselist[0].courseId); // get all sections
+        getallassignments(courselist[0].courseId);// get all assignment
       } else { // all enroll
         // setisenrollflag(true);
         // console.log('isenrollflag', isenrollflag);
@@ -157,6 +170,7 @@ export default function IndexPage() {
         })
         getcourseinfo(courseid.toString());
         getallsections(courseid.toString()); // get all sections
+        getallassignments(courseid.toString()); // get all assignment
       }
       fun_list.map(item => {
         item.is_selected = false;
@@ -274,6 +288,111 @@ export default function IndexPage() {
       console.log(error.message);
     }); 
   };
+  // get all assignments
+  const getallassignments = (courseid:string) => {
+    fetch(`${HOST_STUDENT}/assignments/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('get all sections');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log('getallassignments',res.data.assignments);
+      // if (res.data.assignments.length == 0) {
+      //   setassignmentLists([]);
+      // } else {
+        assign_list = []
+        let res_ass = res.data.assignments;
+        res_ass.map((item:any, idx:string)=>{
+          assign_list.push({
+            key: idx,
+            assid: item.assignmentId,
+            title: item.title,
+            start_time: item.start,
+            end_time: item.end,
+            content: item.description,
+            ass_files: item.assFiles
+          });
+        });
+        assign_list.map((_item:any, _index: number) => {
+          getoneassignment(_item.assid, _item);
+          // _item.ass_files.map((assfile:any) => {
+          //   console.log("+++++++",assfile.assFileId,assfile.title);
+          //   getoneassignment(assfile.assFileId, assfile);
+          // })
+        });
+        
+        setassignmentLists([...assign_list]);
+        console.log('assign_list', assign_list);
+        // console.log('assignlist', assignlist);
+      // }
+      // assign_list = [  
+      //   {
+      //     key: '0', assid: '', title: '', start_time: '', end_time: '',
+      //     content: '',
+      //     ass_files: [],
+      //   }
+      // ];
+      // console.log(res.data.sections);
+      // materials_list = []
+      // let res_sections = res.data.sections;
+      // res_sections.map( (item:any, index: string) => {
+      //   materials_list.push({
+      //     key: index.toString(),
+      //     title: item.title,
+      //     time: item.updatedAt,
+      //     content: item.description,
+      //     type: item.type,
+      //     file_list: item.resources, // resources
+      //     cover: item.cover
+      //   });
+      // });
+      // materials_list.map(item => {
+      //   if (item.type == 'Custom Video Section') {
+      //     item.file_list.map((inneritem:any) => {
+      //       if (inneritem.type == "Video") {
+      //         // let url_link = getvideourl(inneritem.resourceId);
+      //         let videolink:any
+      //         getvideourl(inneritem.resourceId, inneritem)
+              
+      //       }
+      //     })
+      //   }
+      // });
+      // setmaterialLists([...materials_list]);
+      // console.log("materials_list:",materials_list);
+      
+    })
+    .catch(error => {
+      console.log(error.message);
+    }); 
+  };
+  // get one assignment info
+  const getoneassignment = (ass_id:string, inneritem:any) => {
+    fetch(`${HOST_STUDENT}/assignment/${ass_id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('res');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log('get one ass:',res.data.assignment.assFiles);
+      inneritem.ass_files = res.data.assignment.assFiles
+      // inneritem.url = res.data.auth.playURL
+    });
+  }
 
   // click tabs title
   const onclickcourse = (idx:string, id:string) => {
@@ -296,6 +415,7 @@ export default function IndexPage() {
       console.log('++fun_list', fun_list);
       // get materials
       getallsections(id.toString());
+      getallassignments(id.toString());
     // } 
     // else {
     //   setisenrollflag(false);
@@ -342,34 +462,10 @@ export default function IndexPage() {
     console.log('resourceid',e.target.id);
     getsourcelink(e.target.id);
   };
-  // download assignment
+  // download assignment todo
   const downLoadAss = (e:any) => {
     console.log(e.target.id);
   };
-  // join a class
-  // const joincourse = () => {
-  //   console.log('joincourse',courseid);
-  //   fetch(`${HOST_STUDENT}/student/${courseid}`, {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/x-www-form-urlencoded",
-  //       "Authorization": `Bearer ${token}`
-  //     }
-  //   })
-  //   .then(res => res.json())
-  //   .then(res => {
-  //     if (res.code !== 20000) {
-  //       throw new Error(res.message)
-  //     } else {
-  //       fun_list.map(item => {
-  //         item.is_selected = false;
-  //       });
-  //       fun_list[0].is_selected = true;
-  //       setfunLists([...fun_list]);
-  //       getcourseinfo(courseid.toString(), true);
-  //     }
-  //   })
-  // }
   // drop course 1
   const dropcourse = () => {
     console.log('dropdatalist', datalist);
@@ -486,13 +582,44 @@ export default function IndexPage() {
               }
             </div>
             <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
-                <div className='ass_title'>Week1 Assignment: learning system</div>
-                <div className='ass_title_second'><img className='stu_timeicon' src={time_icon}/>Left Time: 3 days 1 hour 59 minutes</div>
-                <div className='ass_content'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-                <div className='downloadfile' onClick={downLoadAss} id="1">Download file
-                  <img src={downloadicon} className="downloadicon"/>
-                </div>
-                <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
+              {
+                assignlist.map(_item =>
+                  <div key={_item.key} id={_item.assid} className="ass_wrap">
+                    <div className='ass_title'>{_item.title}</div>
+                    <div className='ass_title_second'>
+                      <img className='stu_timeicon' src={time_icon}/>
+                      start time : {_item.start_time}
+                    </div>
+                    <div className='ass_title_second'>
+                      <img className='stu_timeicon' src={time_icon}/>
+                      end time : {_item.end_time}
+                    </div>
+                    <div className='ass_content'>{_item.content}</div>
+                    {
+                      // item.ass_files.length !=0 ? <div key='1111'>{item.ass_files[0].title}{item.ass_files[0].assFileId}</div> :''
+                        // item.ass_files.map((interm:any, index:number) => {
+                        //   <div key={index}>1111111</div>
+                          // <div className='downloadfile' onClick={downLoadAss} id={interm.assFileId} key={index.toString()}>
+                          //   <img src={downloadicon} className="downloadicon"/>
+                          //   Download file : {interm.title}
+                          // </div>
+                      //   })
+                      //  :''
+                    }
+                    {
+                      _item.ass_files.map((initem:any, index:number) => {
+                        return(<div key={index} className="bb" id={initem.assFileId}>{initem.title}</div>)
+                      })
+                    }
+                    
+                        {/* <div className='downloadfile' onClick={downLoadAss} id='11' key='1'>
+                          <img src={downloadicon} className="downloadicon"/>
+                          Download file :
+                        </div> */}
+                    <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
+                  </div>
+                )
+              }
             </div>
           </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
        }
