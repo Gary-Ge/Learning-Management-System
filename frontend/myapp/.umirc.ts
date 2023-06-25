@@ -9,6 +9,7 @@ export default defineConfig({
     { path: '/login', component: '@/pages/login' },
     { path: '/register', component: '@/pages/register' },
     { path: '/studentcourse', component: '@/pages/studentcourse' },
+    { path: '/viewstudentcourse', component: '@/pages/viewstudentcourse' },
     { path: '/forgetpassword', component: '@/pages/forgetpassword' },
     { path: '/confirmpassword', component: '@/pages/confirmpassword' }
   ],

@@ -70,7 +70,7 @@ let materials_list = [
 ];
 
 export default function IndexPage() {
-  const [isenrollflag, setisenrollflag] = useState(true);
+  // const [isenrollflag, setisenrollflag] = useState(true);
   const [datalist,setdataLists]= useState(data); // tabs course title
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
@@ -91,13 +91,15 @@ export default function IndexPage() {
   // 
   const token = getToken(); // todo 
   useEffect(() => {
+
+    // getall course -> tabs title
+    getallcourse();
     // get course outline | true: get all course
-    getcourseinfo(courseid.toString(), true);
-    // getallcourse -> tabs title
+    
 
   },[]);
   // get course list -> get all sections
-  const getallcourse = (viewtitle:any) => {
+  const getallcourse = () => {
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
       headers: {
@@ -118,36 +120,33 @@ export default function IndexPage() {
       courselist.map((item: any, index: number) => {
         courseidlist.push(item.courseId);
       })
+      if (courselist.length == 0) {
+        setfunLists([]);
+        setdataLists([]);
+        return;
+      }
       if (courseidlist.indexOf(courseid) == -1) { // no enroll 
-        setisenrollflag(false);
-        console.log('isenrollflag', isenrollflag); 
-        data.push({
-          key : '0',
-          id: courseid,
-          title: viewtitle,
-          is_selected: true,
-          isenroll: false
-        });
-        console.log('data', data);
+        // gotoview todo
+        // first course in tabs title should be selected
+        // window.alert('wrong jump');
+        console.log('wrong jump');
         courselist.map((item: any, index: number) => {
-          console.log(item.title, item.courseId);
+          // console.log(item.title, item.courseId);
           data.push({
-            key : (index+1).toString(),
+            key : index.toString(),
             id: item.courseId,
             title: item.title,
-            is_selected: false, 
+            is_selected: index == 0 ? true : false, 
             isenroll: true
-          });
-        });
-        setdataLists([...data]);
-        setfunLists([{
-          key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
-        }])
+          })
+        })
+        getcourseinfo(courselist[0].courseId);
+        getallsections(courselist[0].courseId); // get all sections
       } else { // all enroll
-        setisenrollflag(true);
-        console.log('isenrollflag', isenrollflag);
+        // setisenrollflag(true);
+        // console.log('isenrollflag', isenrollflag);
         courselist.map((item: any, index: number) => {
-          console.log(item.title, item.courseId);
+          // console.log(item.title, item.courseId);
           data.push({
             key : index.toString(),
             id: item.courseId,
@@ -156,22 +155,24 @@ export default function IndexPage() {
             isenroll: true
           })
         })
-        fun_list.map(item => {
-          item.is_selected = false;
-        });
-        fun_list[0].is_selected = true;
-        setfunLists([...fun_list]);
-        setdataLists([...data]);
-        console.log('++data',data);
+        getcourseinfo(courseid.toString());
         getallsections(courseid.toString()); // get all sections
       }
+      fun_list.map(item => {
+        item.is_selected = false;
+      });
+      fun_list[0].is_selected = true;
+      setfunLists([...fun_list]);
+      setdataLists([...data]);
+      console.log('++data',data);
+      
     })
     .catch(error => {
       console.log(error.message);
     });  
   }
   // get course outline
-  const getcourseinfo = (courseid:string, flag:boolean) => {
+  const getcourseinfo = (courseid:string) => {
     fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}/${courseid}`, {
       method: "GET",
       headers: {
@@ -196,9 +197,9 @@ export default function IndexPage() {
       outline[0].outline_content = res_data.description;
       setcourseoutline([...outline]);
       // console.log("setviewtitle",res_data.title);
-      if (flag) {
-        getallcourse(res_data.title);
-      }
+      // if (flag) {
+      //   getallcourse(res_data.title);
+      // }
       
     })
     .catch(error => {
@@ -285,10 +286,8 @@ export default function IndexPage() {
     // e.target.className = "selected";
     setdataLists([...data]);
     console.log('isenroll',data[idx].isenroll);
-    if (data[idx].isenroll) {
-      // updata left list
-      setisenrollflag(true);
-
+    // if (data[idx].isenroll) {
+      // updata left list initial to outline
       fun_list.map(item => {
         item.is_selected = false;
       });
@@ -297,16 +296,15 @@ export default function IndexPage() {
       console.log('++fun_list', fun_list);
       // get materials
       getallsections(id.toString());
-    } else {
-      //
-      setisenrollflag(false);
-      setfunLists([{
-        key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
-      }])
-      // console.log('++', funlist);
-    }
+    // } 
+    // else {
+    //   setisenrollflag(false);
+    //   setfunLists([{
+    //     key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
+    //   }])
+    // }
     // update course outline
-    getcourseinfo(id, false);
+    getcourseinfo(id);
   };
 
   // click left list
@@ -349,29 +347,29 @@ export default function IndexPage() {
     console.log(e.target.id);
   };
   // join a class
-  const joincourse = () => {
-    console.log('joincourse',courseid);
-    fetch(`${HOST_STUDENT}/student/${courseid}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Bearer ${token}`
-      }
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      } else {
-        fun_list.map(item => {
-          item.is_selected = false;
-        });
-        fun_list[0].is_selected = true;
-        setfunLists([...fun_list]);
-        getcourseinfo(courseid.toString(), true);
-      }
-    })
-  }
+  // const joincourse = () => {
+  //   console.log('joincourse',courseid);
+  //   fetch(`${HOST_STUDENT}/student/${courseid}`, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/x-www-form-urlencoded",
+  //       "Authorization": `Bearer ${token}`
+  //     }
+  //   })
+  //   .then(res => res.json())
+  //   .then(res => {
+  //     if (res.code !== 20000) {
+  //       throw new Error(res.message)
+  //     } else {
+  //       fun_list.map(item => {
+  //         item.is_selected = false;
+  //       });
+  //       fun_list[0].is_selected = true;
+  //       setfunLists([...fun_list]);
+  //       getcourseinfo(courseid.toString(), true);
+  //     }
+  //   })
+  // }
   // drop course 1
   const dropcourse = () => {
     console.log('dropdatalist', datalist);
@@ -392,7 +390,8 @@ export default function IndexPage() {
       if (!res.success) {
         throw new Error(res.message)
       } else {
-        getcourseinfo(courseid.toString(), true);
+        getallcourse();
+        // getcourseinfo(courseid.toString(), true);
         setIsModalOpen(false);
       }
     })
@@ -425,7 +424,9 @@ export default function IndexPage() {
             <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "selected": ""}>{course_item.title}</p>
             <p className={course_item.key == String(data.length - 1) ? "stu_title_bar": ""}>|</p></div>  )}
         </div>
-        <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div>
+        {
+          funlist.length != 0 ? <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div> : ''
+        }
       </div>
       <div className='stu_content'>
         <div className='stu_left_list'>
@@ -434,17 +435,18 @@ export default function IndexPage() {
             <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
           }
           {
-            isenrollflag ?           
+            funlist.length != 0 ?             
             <div className='stu_icon_last_list'>
-              <img src={stu_icon_7} className="stu_icon_list"/>
-              <img src={stu_icon_8} className="stu_icon_list"/>
-              <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
-            </div> : <Button type="primary" className='btn' onClick={joincourse}>Join</Button>
+            <img src={stu_icon_7} className="stu_icon_list"/>
+            <img src={stu_icon_8} className="stu_icon_list"/>
+            <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
+            </div> : ''
           }
 
+
         </div>
-        
-        <div className={funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
+
+        <div className={funlist.length != 0 && funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
           <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
           <div className='outline_img'><img src={courseoutline[0].coverimg}/></div>
           <div className='outline_title_second'>Course Teacher</div>
@@ -456,9 +458,8 @@ export default function IndexPage() {
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
         </div>
-       
-        { 
-          isenrollflag ? 
+       {
+          funlist.length != 0 ?         
           <div className={!funlist[1].is_selected && !funlist[2].is_selected ? 'display_non': 'wid100'}>
             <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
               {
@@ -493,8 +494,9 @@ export default function IndexPage() {
                 </div>
                 <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
             </div>
-          </div> : ''
-        }
+          </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
+       }
+
       </div>
       <Modal title="Drop course" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <p>Are you sure you want to drop out of the course?</p>
