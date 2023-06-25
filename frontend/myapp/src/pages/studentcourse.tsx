@@ -90,11 +90,12 @@ export default function IndexPage() {
   // 
   const token = getToken(); // todo 
   useEffect(() => {
-    getcourseinfo(courseid.toString(), true); // get course outline
+    // get course outline | true: get all course
+    getcourseinfo(courseid.toString(), true);
     // getallcourse -> tabs title
 
   },[]);
-  // get course list
+  // get course list -> get all sections
   const getallcourse = (viewtitle:any) => {
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
@@ -154,11 +155,11 @@ export default function IndexPage() {
             isenroll: true
           })
         })
-        funlist.map(item => {
+        fun_list.map(item => {
           item.is_selected = false;
         });
-        funlist[0].is_selected = true;
-        setfunLists([...funlist]);
+        fun_list[0].is_selected = true;
+        setfunLists([...fun_list]);
         setdataLists([...data]);
         console.log('++data',data);
         getallsections(courseid.toString()); // get all sections
@@ -346,7 +347,58 @@ export default function IndexPage() {
   const downLoadAss = (e:any) => {
     console.log(e.target.id);
   };
-
+  // join a class
+  const joincourse = () => {
+    console.log('joincourse',courseid);
+    fetch(`${HOST_STUDENT}/student/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      } else {
+        fun_list.map(item => {
+          item.is_selected = false;
+        });
+        fun_list[0].is_selected = true;
+        setfunLists([...fun_list]);
+        getcourseinfo(courseid.toString(), true);
+      }
+    })
+  }
+  // drop course 1
+  const dropcourse = () => {
+    console.log('dropdatalist', datalist);
+    datalist.map((item:any)=>{
+      if (item.is_selected) {
+        console.log(item.id);
+        deletedropcourse(item.id);
+      }
+    })
+  }
+  // drop course 2
+  const deletedropcourse = (courseid:string) => {
+    fetch(`${HOST_STUDENT}/student/${courseid}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success) {
+        throw new Error(res.message)
+      } else {
+        getcourseinfo(courseid.toString(), true);
+      }
+    })
+  }
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -370,8 +422,8 @@ export default function IndexPage() {
             <div className='stu_icon_last_list'>
               <img src={stu_icon_7} className="stu_icon_list"/>
               <img src={stu_icon_8} className="stu_icon_list"/>
-              <img src={stu_icon_9} className="stu_icon_list"/>
-            </div> : <Button type="primary" className='btn'>Join</Button>
+              <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
+            </div> : <Button type="primary" className='btn' onClick={joincourse}>Join</Button>
           }
 
         </div>
