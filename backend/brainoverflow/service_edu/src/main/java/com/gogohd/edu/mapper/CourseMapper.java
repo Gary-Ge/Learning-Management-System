@@ -10,6 +10,14 @@ import java.util.Map;
 
 @Mapper
 public interface CourseMapper extends BaseMapper<Course> {
-    @Select("SELECT c.*, u.* FROM COURSES c INNER JOIN USERS u ON c.created_by = u.user_id WHERE c.title LIKE CONCAT('%', #{courseName}, '%')")
+    @Select({
+            "<script>",
+            "SELECT c.*, u.* FROM COURSES c INNER JOIN USERS u ON c.created_by = u.user_id",
+            "<when test='courseName != null and courseName != \"\"'>",
+            "WHERE c.title LIKE CONCAT('%', #{courseName}, '%')",
+            "</when>",
+            "ORDER BY c.created_at DESC",
+            "</script>"
+    })
     List<Map<String, Object>> selectCoursesByName(String courseName);
 }
