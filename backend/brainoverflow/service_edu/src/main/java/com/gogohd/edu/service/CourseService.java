@@ -21,4 +21,8 @@ public interface CourseService extends IService<Course> {
     String uploadCover(String userId, MultipartFile file);
 
     Object getStudentListByCourseId(String courseId, String token);
+
+    List<Map<String, Object>> getAllCourses(String userId);
+
+    Object searchCourses(String userId, String keyword);
 }

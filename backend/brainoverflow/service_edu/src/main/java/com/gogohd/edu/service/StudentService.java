@@ -15,8 +15,6 @@ public interface StudentService extends IService<Student> {
 
     void dropCourse(String userId, String courseId);
 
-    List<Map<String, Object>> getLikeCourseByCourseName(String courseName);
-
     void submitAssignment(String userId, String courseId, MultipartFile[] files);
 
     Map<String, Object> getAssignmentById(String userId, String assignmentId);

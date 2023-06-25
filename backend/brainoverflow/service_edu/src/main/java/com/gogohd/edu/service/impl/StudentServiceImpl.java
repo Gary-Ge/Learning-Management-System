@@ -116,31 +116,6 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                 }).collect(Collectors.toList());
     }
 
-    @Override
-    public List<Map<String, Object>> getLikeCourseByCourseName(String courseName) {
-        return courseMapper.selectCoursesByName(courseName).stream()
-                .map(record -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("courseId", record.get("course_id"));
-                    map.put("title", record.get("title"));
-                    map.put("description", record.get("description"));
-                    map.put("cover", record.get("cover"));
-                    map.put("hasForum", record.get("has_forum"));
-                    map.put("category", record.get("category_name"));
-                    map.put("createdAt", record.get("created_at"));
-                    map.put("updatedAt", record.get("updated_at"));
-
-                    Map<String, Object> creator = new HashMap<>();
-                    creator.put("userId", record.get("user_id"));
-                    creator.put("email", record.get("email"));
-                    creator.put("avatar", record.get("avatar"));
-                    creator.put("username", record.get("username"));
-
-                    map.put("creator", creator);
-                    return map;
-                }).collect(Collectors.toList());
-    }
-
     public boolean isStudentEnrolledInCourse(String userId, String courseId) {
         // Return true if there is a record matching the userId and courseId, otherwise return false
         return baseMapper.countByUserIdAndCourseId(userId, courseId) > 0;

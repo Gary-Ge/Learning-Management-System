@@ -289,4 +289,54 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
         return staffsResponse.getData().get("users");
     }
+
+    @Override
+    public List<Map<String, Object>> getAllCourses(String userId) {
+        return baseMapper.selectAllCourses(userId).stream()
+                .map(record -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("courseId", record.get("course_id"));
+                    map.put("title", record.get("title"));
+                    map.put("description", record.get("description"));
+                    map.put("cover", record.get("cover"));
+                    map.put("hasForum", record.get("has_forum"));
+                    map.put("category", record.get("category_name"));
+                    map.put("createdAt", record.get("created_at"));
+                    map.put("updatedAt", record.get("updated_at"));
+
+                    Map<String, Object> creator = new HashMap<>();
+                    creator.put("userId", record.get("user_id"));
+                    creator.put("email", record.get("email"));
+                    creator.put("avatar", record.get("avatar"));
+                    creator.put("username", record.get("username"));
+
+                    map.put("creator", creator);
+                    return map;
+                }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Object searchCourses(String userId, String keyword) {
+        return baseMapper.searchCoursesByName(userId, keyword).stream()
+                .map(record -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("courseId", record.get("course_id"));
+                    map.put("title", record.get("title"));
+                    map.put("description", record.get("description"));
+                    map.put("cover", record.get("cover"));
+                    map.put("hasForum", record.get("has_forum"));
+                    map.put("category", record.get("category_name"));
+                    map.put("createdAt", record.get("created_at"));
+                    map.put("updatedAt", record.get("updated_at"));
+
+                    Map<String, Object> creator = new HashMap<>();
+                    creator.put("userId", record.get("user_id"));
+                    creator.put("email", record.get("email"));
+                    creator.put("avatar", record.get("avatar"));
+                    creator.put("username", record.get("username"));
+
+                    map.put("creator", creator);
+                    return map;
+                }).collect(Collectors.toList());
+    }
 }

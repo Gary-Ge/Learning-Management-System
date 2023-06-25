@@ -68,4 +68,19 @@ public class CourseController {
         return R.success().message("Upload cover success").data("cover",
                 courseService.uploadCover(userId, file));
     }
+
+    @Operation(summary = "Get all the courses")
+    @GetMapping("courses")
+    public R getCourses(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get all courses success").data("courses", courseService.getAllCourses(userId));
+    }
+
+    @Operation(summary = "Search courses by course name")
+    @GetMapping("courses/{keyword}")
+    public R searchCourses(HttpServletRequest request, @PathVariable String keyword) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get all courses success").data("courses",
+                courseService.searchCourses(userId, keyword));
+    }
 }
