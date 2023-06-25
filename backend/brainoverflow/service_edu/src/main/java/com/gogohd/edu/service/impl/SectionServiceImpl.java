@@ -379,6 +379,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
         LambdaQueryWrapper<Section> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Section::getCourseId, courseId);
         wrapper.eq(Section::getType, 0);
+        wrapper.orderByAsc(Section::getCreatedAt);
 
         return baseMapper.selectList(wrapper).stream()
                 .map(section -> {
@@ -417,6 +418,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
         LambdaQueryWrapper<Section> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Section::getCourseId, courseId);
         wrapper.ne(Section::getType, 0);
+        wrapper.orderByAsc(Section::getCreatedAt);
 
         return baseMapper.selectList(wrapper).stream()
                 .map(section -> {
@@ -463,6 +465,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
 
         LambdaQueryWrapper<Section> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Section::getCourseId, courseId);
+        wrapper.orderByAsc(Section::getCreatedAt);
 
         return baseMapper.selectList(wrapper).stream()
                 .map(section -> {

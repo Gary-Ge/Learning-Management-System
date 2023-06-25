@@ -103,7 +103,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         course.setUpdatedBy(userId);
         // If the cover is not provided, use the default one
         if (ObjectUtils.isEmpty(cover)) {
-            course.setCover("https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/cover/default/default-cover.svg");
+            course.setCover("https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/cover/default/default-cover.jpg");
         }
 
         // Insert to data table

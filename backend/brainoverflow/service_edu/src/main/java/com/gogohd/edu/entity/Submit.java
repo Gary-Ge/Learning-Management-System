@@ -24,7 +24,5 @@ public class Submit {
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    private LocalDateTime updated_at;
-
     private String submittedBy;
 }

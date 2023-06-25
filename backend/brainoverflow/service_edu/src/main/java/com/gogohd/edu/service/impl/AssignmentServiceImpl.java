@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
 import com.gogohd.base.utils.DateTimeUtils;
-import com.gogohd.base.utils.R;
 import com.gogohd.base.utils.ResultCode;
-import com.gogohd.edu.client.OpenFeignClient;
 import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
@@ -21,7 +19,8 @@ import com.gogohd.base.utils.OssUtils;
 import com.gogohd.base.utils.RandomUtils;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,13 +35,10 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     private CourseMapper courseMapper;
 
     @Autowired
-    private OpenFeignClient openFeignClient;
-
-    @Autowired
     private StudentMapper studentMapper;
 
     @Autowired
-    private AssFilesMapper assFilesMapper;
+    private AssFileMapper assFileMapper;
 
     private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this section";
@@ -55,6 +51,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             throw new BrainException(ResultCode.ERROR, "Course not exist");
         }
 
+        // Check if this user is a staff of this course
         LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Staff::getUserId, userId);
         wrapper.eq(Staff::getCourseId, courseId);
@@ -78,35 +75,57 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         Assignment assignment = new Assignment();
         assignment.setTitle(createAssignmentVo.getTitle());
         assignment.setDescription(createAssignmentVo.getDescription());
+        try {
+            LocalDateTime start = DateTimeUtils.stringToDateTime(createAssignmentVo.getStart());
+            LocalDateTime end = DateTimeUtils.stringToDateTime(createAssignmentVo.getEnd());
 
-        assignment.setStart(DateTimeUtils.stringToDateTime(createAssignmentVo.getStart()));
-        assignment.setEnd(DateTimeUtils.stringToDateTime(createAssignmentVo.getEnd()));
+            if (!start.isBefore(end)) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "The start time should be earlier than the end time");
+            }
+
+            assignment.setStart(start);
+            assignment.setEnd(end);
+        } catch (DateTimeParseException e) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
+        }
 
         assignment.setCourseId(courseId);
 
         baseMapper.insert(assignment);
-
         return assignment.getAssignmentId();
     }
 
     @Override
-    public Map<String, Object> getAssignmentById(String assignmentId, String token) {
+    public Map<String, Object> getAssignmentById(String assignmentId, String userId) {
         Assignment assignment = baseMapper.selectById(assignmentId);
         if (assignment == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Assignment does not exist");
         }
+
+        // Check if this user is a staff or a student of this course
+        isStaffOrStudent(userId, assignment.getCourseId());
 
         // Construct the result
         Map<String, Object> result = new HashMap<>();
         result.put("assignmentId", assignment.getAssignmentId());
         result.put("title", assignment.getTitle());
         result.put("description", assignment.getDescription());
-        result.put("start", DateTimeUtils.dateTimeToString(assignment.getStart()));
-        result.put("end", DateTimeUtils.dateTimeToString(assignment.getEnd()));
+        result.put("start", assignment.getStart());
+        result.put("end", assignment.getEnd());
 
-        // Fetch the information of related course
-        Course course = courseMapper.selectById(assignment.getCourseId());
-        result.put("course", course.getTitle());
+        // Fetch the information of ass files
+        LambdaQueryWrapper<AssFile> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AssFile::getAssignmentId, assignmentId);
+        List<Map<String, String>> list = assFileMapper.selectList(wrapper).stream()
+                .map(assFile -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("assFileId", assFile.getFileId());
+                    map.put("title", assFile.getTitle());
+
+                    return map;
+                }).collect(Collectors.toList());
+
+        result.put("assFiles", list);
 
         return result;
     }
@@ -128,12 +147,13 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     }
 
     @Override
-    public List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId, String token) {
+    public List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId) {
         // Check if this user has authority to get this assignment information
         isStaffOrStudent(userId, courseId);
 
         LambdaQueryWrapper<Assignment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Assignment::getCourseId, courseId);
+        wrapper.orderByAsc(Assignment::getCreatedAt);
 
         return baseMapper.selectList(wrapper).stream()
                 .map(assignment -> {
@@ -141,12 +161,23 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
                     result.put("assignmentId", assignment.getAssignmentId());
                     result.put("title", assignment.getTitle());
                     result.put("description", assignment.getDescription());
-                    result.put("start", DateTimeUtils.dateTimeToString(assignment.getStart()));
-                    result.put("end", DateTimeUtils.dateTimeToString(assignment.getEnd()));
+                    result.put("start", assignment.getStart());
+                    result.put("end", assignment.getEnd());
 
-                    // Fetch the information of related course
-                    Course course = courseMapper.selectById(assignment.getCourseId());
-                    result.put("course", course.getTitle());
+                    // Get the ass files information, if any
+                    LambdaQueryWrapper<AssFile> assFileWrapper = new LambdaQueryWrapper<>();
+                    assFileWrapper.eq(AssFile::getAssignmentId, assignment.getAssignmentId());
+                    List<Map<String, String>> list = assFileMapper.selectList(assFileWrapper).stream()
+                            .map(assFile -> {
+                                Map<String, String> map = new HashMap<>();
+
+                                map.put("assFileId", assFile.getFileId());
+                                map.put("title", assFile.getTitle());
+
+                                return map;
+                            }).collect(Collectors.toList());
+
+                    result.put("assFiles", list);
 
                     return result;
                 }).collect(Collectors.toList());
@@ -173,6 +204,11 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     public void deleteAssignment(String userId, String assignmentId) {
         checkAssignmentValidity(userId, assignmentId, NO_AUTHORITY_DELETE);
 
+        // Delete all the ass files related to this assignment
+        LambdaQueryWrapper<AssFile> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AssFile::getAssignmentId, assignmentId);
+        assFileMapper.delete(wrapper);
+
         // Delete this assignment
         if (baseMapper.deleteById(assignmentId) < 1) {
             throw new BrainException(ResultCode.ERROR, "Delete assignment failed");
@@ -182,18 +218,8 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     @Override
     @Transactional
     public void updateAssignment(String userId, String assignmentId, UpdateAssignmentVo updateAssignmentVo) {
-        checkAssignmentValidity(userId, assignmentId, NO_AUTHORITY_DELETE);
-        Assignment assignment = baseMapper.selectById(assignmentId);
-        if (assignment == null) {
-            throw new BrainException(ResultCode.ERROR, "Assignment does not exist");
-        }
+        checkAssignmentValidity(userId, assignmentId, "You have no authority to update this assignment");
 
-        if (ObjectUtils.isEmpty(updateAssignmentVo.getTitle())) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment title cannot be empty");
-        }
-        if (ObjectUtils.isEmpty(updateAssignmentVo.getDescription())) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment description cannot be empty");
-        }
         if (ObjectUtils.isEmpty(updateAssignmentVo.getStart())) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment start time cannot be empty");
         }
@@ -201,10 +227,25 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment end time cannot be empty");
         }
 
+        Assignment assignment = new Assignment();
+
+        try {
+            LocalDateTime start = DateTimeUtils.stringToDateTime(updateAssignmentVo.getStart());
+            LocalDateTime end = DateTimeUtils.stringToDateTime(updateAssignmentVo.getEnd());
+
+            if (!start.isBefore(end)) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "The start time should be earlier than the end time");
+            }
+
+            assignment.setStart(start);
+            assignment.setEnd(end);
+        } catch (DateTimeParseException e) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
+        }
+
         assignment.setTitle(updateAssignmentVo.getTitle());
         assignment.setDescription(updateAssignmentVo.getDescription());
-        assignment.setStart(DateTimeUtils.stringToDateTime(updateAssignmentVo.getStart()));
-        assignment.setEnd(DateTimeUtils.stringToDateTime(updateAssignmentVo.getEnd()));
+        assignment.setAssignmentId(assignmentId);
 
         int result = baseMapper.updateById(assignment);
         if (result == 0) {
@@ -245,13 +286,12 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             OssUtils.uploadFile(file, objectName, filename, false);
 
             // Insert assignment record
-            AssFiles assFile = new AssFiles();
+            AssFile assFile = new AssFile();
             assFile.setTitle(filename);
             assFile.setSource("oss://" + objectName);
             assFile.setAssignmentId(assignmentId);
-            assFile.setType(0);
             try {
-                if (assFilesMapper.insert(assFile) < 1) {
+                if (assFileMapper.insert(assFile) < 1) {
                     throw new BrainException(ResultCode.ERROR, "Insert record failed");
                 }
             } catch (Exception e) {
@@ -262,26 +302,51 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     }
 
     @Override
-    public void downloadAssignment(String userId, HttpServletResponse response, String assignmentId, String fileId) {
-        // Check if this assignment exists
-        Assignment assignment = baseMapper.selectById(assignmentId);
-        if (assignment == null) {
-            throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exists");
+    public String downloadAssignment(String userId, String assFileId) {
+        // Check if this ass file exists
+        AssFile assFile = assFileMapper.selectById(assFileId);
+        if (assFile == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Assignment file not exist");
         }
 
-        // Check if this user has the authority to access this file
-        checkAssignmentValidity(userId, assignment.getAssignmentId(), NO_AUTHORITY_DOWNLOAD);
+        Assignment assignment = baseMapper.selectById(assFile.getAssignmentId());
 
-        // Fetch the specified file
-        AssFiles fileToDownload = assFilesMapper.selectById(fileId);
-        if (fileToDownload == null || !fileToDownload.getAssignmentId().equals(assignmentId)) {
-            throw new BrainException(ResultCode.NOT_FOUND, "No file found for this assignment");
+        // Check if this user has the authority to download this file
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, assignment.getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+            studentWrapper.eq(Student::getCourseId, assignment.getCourseId());
+            studentWrapper.eq(Student::getUserId, userId);
+            if (!studentMapper.exists(studentWrapper)) {
+                throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_DOWNLOAD);
+            }
         }
 
-        // Download the file
-        String source = fileToDownload.getSource();
-        String downloadName = fileToDownload.getTitle();
-        String objectName = source.substring(6);
-        OssUtils.downloadFile(response, objectName, downloadName);
+        // Generate download URL
+        return OssUtils.downloadFile(assFile.getSource().substring(6));
+    }
+
+    @Override
+    public void deleteAssignmentFile(String userId, String assFileId) {
+        // Check if this ass file exists
+        AssFile assFile = assFileMapper.selectById(assFileId);
+        if (assFile == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "File not exist");
+        }
+
+        // Check if this user has the authority to delete this file
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, baseMapper.selectById(assFile.getAssignmentId()).getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to delete this file");
+        }
+
+        // Delete this file
+        if (assFileMapper.deleteById(assFileId) < 1) {
+            throw new BrainException(ResultCode.ERROR, "Delete file failed");
+        }
     }
 }

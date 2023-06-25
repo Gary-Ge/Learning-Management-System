@@ -12,7 +12,9 @@ public interface ResourceService extends IService<Resource> {
 
     void uploadVideo(String userId, String sectionId, MultipartFile file);
 
-    void downloadResource(String userId, HttpServletResponse response, String resourceId);
+    String downloadResource(String userId, String resourceId);
 
     Map<String, String> playVideo(String userId, String resourceId);
+
+    void deleteResourceById(String userId, String resourceId);
 }

@@ -24,9 +24,16 @@
   color: gray;
   font-size: 14px;
 }
+.stu_flex{
+  flex: 1
+}
+.wid100{
+  width: 100%;
+}
 .stu_title p{
   margin: 0;
   cursor: pointer;
+  margin-right: 10px;
 }
 .selected{
   color: black;
@@ -41,6 +48,9 @@
 .stu_title_bar{
   display: none;
 }
+.mrt{
+  margin-right: 10px;
+}
 .stu_content{
   display: flex;
   flex-direction: row;
@@ -54,6 +64,7 @@
 }
 .stu_left_list div{
   height: 40px;
+  width: 160px;
   line-height: 40px;
   border:1px solid #000;
   border-radius: 10px;
@@ -63,6 +74,9 @@
   padding-left: 25px;
   background-color: #fff;
   cursor: pointer;
+}
+.btn{
+  width: 160px;
 }
 .stu_right_content{
   flex: 1;
@@ -80,6 +94,7 @@
   margin-right: 8px;
 }
 .stu_icon_last_list{
+  width: 160px;
   border: 1px dashed #97D077!important;
   background-color: #EBF3FF;
 }
@@ -94,6 +109,17 @@
   height: 50px;
   line-height: 50px;
   margin-bottom: 15px;
+}
+.outline_img{
+  
+  // border:1px solid red;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+.outline_img img{
+  max-width: 500px;
 }
 .outline_title_second{
   // font-size: 17px;
@@ -129,9 +155,18 @@
 .materials_content{
   font-size: 16px;
 }
+.materials_img{
+  max-width: 500px;
+  text-align: center;
+  margin: 0 auto;
+}
 .downloadicon{
   width: 20px;
+  height: 20px;
   margin-right: 10px;
+}
+.downloadfile_wrap{
+  text-align: end;
 }
 .downloadfile{
   color: #A680B8;
@@ -140,14 +175,21 @@
   padding: 10px;
   margin-top: 20px;
   cursor: pointer;
-  display: flex;
-  flex-direction: row-reverse;
+  display: inline-block;
+  // display: flex;
+  // flex-direction: row-reverse;
 }
 .dashline{
   width: 100%;
   border: 2px dashed #7EA6E0;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+.react-player{
+  margin: 0 auto!important;
+}
+.video_title{
+  text-align: center;
 }
 .ass_title{
   font-weight: bold;

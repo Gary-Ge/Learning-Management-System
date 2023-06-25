@@ -31,24 +31,23 @@ public class AssignmentController {
         return R.success().message("Create assignment success").data("assignmentId", assignmentId);
     }
 
-    @Operation(summary = "Get a specific assignment for this course")
+    @Operation(summary = "Get a specific assignment information")
     @GetMapping("assignment/{assignmentId}")
     public R getAssignmentById(HttpServletRequest request, @PathVariable String assignmentId) {
-        String token = request.getHeader("token");
-        Map<String, Object> assignment = assignmentService.getAssignmentById(assignmentId, token);
+        String userId = (String) request.getAttribute("userId");
+        Map<String, Object> assignment = assignmentService.getAssignmentById(assignmentId, userId);
         return R.success().message("Get assignment success").data("assignment", assignment);
     }
 
-    @Operation(summary = "Get a list of assignments for this course")
+    @Operation(summary = "Get a list of assignments of this course")
     @GetMapping("assignments/{courseId}")
     public R getAssignmentListByCourseId(HttpServletRequest request, @PathVariable String courseId) {
         String userId = (String) request.getAttribute("userId");
-        String token = request.getHeader("token");
-        List<Map<String, Object>> assignments = assignmentService.getAssignmentListByCourseId(userId, courseId, token);
+        List<Map<String, Object>> assignments = assignmentService.getAssignmentListByCourseId(userId, courseId);
         return R.success().message("Get assignment list success").data("assignments", assignments);
     }
 
-    @Operation(summary = "Delete an assignment for this course")
+    @Operation(summary = "Delete an assignment")
     @DeleteMapping("assignment/{assignmentId}")
     public R deleteAssignment(HttpServletRequest request, @PathVariable String assignmentId) {
         String userId = (String) request.getAttribute("userId");
@@ -56,7 +55,7 @@ public class AssignmentController {
         return R.success().message("Delete assignment success");
     }
 
-    @Operation(summary = "Update an assignment for this course")
+    @Operation(summary = "Update an assignment")
     @PutMapping("assignment/{assignmentId}")
     public R updateAssignment(HttpServletRequest request, @PathVariable String assignmentId,
                               @RequestBody UpdateAssignmentVo updateAssignmentVo) {
@@ -65,20 +64,27 @@ public class AssignmentController {
         return R.success().message("Update assignment success");
     }
 
-    @Operation(summary = "Upload assignment files for this course")
-    @PostMapping("assignment/upload/{assignmentId}")
+    @Operation(summary = "Upload multiple files for an assignment")
+    @PostMapping("assignment/assFile/{assignmentId}")
     public R uploadAssignment(HttpServletRequest request, @PathVariable String assignmentId, MultipartFile[] files) {
         String userId = (String) request.getAttribute("userId");
         assignmentService.uploadAssignment(userId, assignmentId, files);
-        return R.success().message("Upload assignment success");
+        return R.success().message("Upload assignment files success");
     }
 
-    @Operation(summary = "Download assignment files for this course")
-    @GetMapping("assignment/download/{assignmentId}/{fileId}")
-    public void downloadAssignment(HttpServletRequest request, HttpServletResponse response,
-                                @PathVariable String assignmentId,
-                                @PathVariable String fileId) {
+    @Operation(summary = "Download an assignment file for this course")
+    @GetMapping("assignment/assFile/{assFileId}")
+    public R downloadAssignment(HttpServletRequest request, @PathVariable String assFileId) {
         String userId = (String) request.getAttribute("userId");
-        assignmentService.downloadAssignment(userId, response, assignmentId, fileId);
+        return R.success().message("Get download link success").data("fileUrl",
+                assignmentService.downloadAssignment(userId, assFileId));
+    }
+
+    @Operation(summary = "Delete one assignment file")
+    @DeleteMapping("assignment/assFile/{assFileId}")
+    public R deleteAssignmentFile(HttpServletRequest request, @PathVariable String assFileId) {
+        String userId = (String) request.getAttribute("userId");
+        assignmentService.deleteAssignmentFile(userId, assFileId);
+        return R.success().message("Delete assignment file success");
     }
 }

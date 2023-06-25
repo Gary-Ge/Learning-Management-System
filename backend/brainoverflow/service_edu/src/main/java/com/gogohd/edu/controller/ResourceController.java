@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("edu-resource")
@@ -35,12 +34,20 @@ public class ResourceController {
         return R.success().message("Upload video success");
     }
 
-    @Operation(summary = "Download file")
+    @Operation(summary = "Download resource")
     @GetMapping("/resource/{resourceId}")
-    public void downloadResource(HttpServletRequest request, HttpServletResponse response,
-                              @PathVariable String resourceId) {
+    public R downloadResource(HttpServletRequest request, @PathVariable String resourceId) {
         String userId = (String) request.getAttribute("userId");
-        resourceService.downloadResource(userId, response, resourceId);
+        return R.success().message("Get download link success").data("fileUrl",
+                resourceService.downloadResource(userId, resourceId));
+    }
+
+    @Operation(summary = "Delete resource")
+    @DeleteMapping("/resource/{resourceId}")
+    public R deleteResource(HttpServletRequest request, @PathVariable String resourceId) {
+        String userId = (String) request.getAttribute("userId");
+        resourceService.deleteResourceById(userId, resourceId);
+        return R.success().message("Delete resource success");
     }
 
     @Operation(summary = "Play video")
