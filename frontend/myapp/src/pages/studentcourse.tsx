@@ -2,7 +2,7 @@ import'./studentcourse.less';
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
-import { Input, Button } from 'antd';
+import { Input, Button, Modal } from 'antd';
 import { useLocation } from 'umi';
 import ReactPlayer from 'react-player'
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE } from '../utils/utils';
@@ -75,6 +75,7 @@ export default function IndexPage() {
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -374,12 +375,8 @@ export default function IndexPage() {
   // drop course 1
   const dropcourse = () => {
     console.log('dropdatalist', datalist);
-    datalist.map((item:any)=>{
-      if (item.is_selected) {
-        console.log(item.id);
-        deletedropcourse(item.id);
-      }
-    })
+    showModal();
+
   }
   // drop course 2
   const deletedropcourse = (courseid:string) => {
@@ -396,9 +393,28 @@ export default function IndexPage() {
         throw new Error(res.message)
       } else {
         getcourseinfo(courseid.toString(), true);
+        setIsModalOpen(false);
       }
     })
   }
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    
+    datalist.map((item:any)=>{
+      if (item.is_selected) {
+        console.log(item.id);
+        deletedropcourse(item.id);
+      }
+    })
+    
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -480,6 +496,9 @@ export default function IndexPage() {
           </div> : ''
         }
       </div>
+      <Modal title="Drop course" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <p>Are you sure you want to drop out of the course?</p>
+      </Modal>
       <Footer />
     </div>
   );
