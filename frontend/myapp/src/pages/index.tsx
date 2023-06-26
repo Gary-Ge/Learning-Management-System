@@ -44,6 +44,28 @@ const data = [
     title: 'Ant Design Title 3',
   },
 ];
+const cardData = [
+  {
+    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
+    title: "Card title",
+    description: "This is the description",
+  },
+  {
+    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
+    title: "Card title",
+    description: "This is the description",
+  },
+  {
+    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
+    title: "Card title",
+    description: "This is the description",
+  },
+  {
+    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
+    title: "Card title",
+    description: "This is the description",
+  },
+];
 const onSearch = (value: string) => console.log(value);
 const { Search } = Input;
 const { Meta } = Card;
@@ -66,6 +88,7 @@ export default function IndexPage() {
   const [curriculum, setCurriculum] = useState([]);
   const [courseId, setCourseId] = useState<string[]>([]);
   const [courseDetails, setCourseDetails] = useState<Array<any>>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,
@@ -221,43 +244,42 @@ useEffect(() => {
     <div>
     <div className='card_and_calendar'>
     <div className='card'
-    onMouseEnter={() => setHovered(true)}
-    onMouseLeave={() => setHovered(false)}>
-     <Card 
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}>
+    {cardData
+    .slice((currentPage - 1) * 3, currentPage * 3)
+    .map((data, index) => (
+      <Card 
+        key={index}
         className={`custom-card ${hovered ? 'hovered' : ''}`} 
         style={{ width: '100%', height:'70%', marginTop: '40px',backgroundColor: '#ffffff'}}
       >
         <Meta
-          avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" className="square-avatar"
-          style={{ width: '40%', height: 'auto' }} />}
-          title={<span className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
-          description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
+          avatar={
+            <Avatar 
+              src={data.avatarSrc} 
+              className="square-avatar"
+              style={{ width: '40%', height: 'auto' }} 
+            />
+          }
+          title={<span className='card-title' style={{ fontSize: '1.5em' }}>{data.title}</span>}
+          description={<span className='card-description' style={{ fontSize: '1em' }}>{data.description}</span>}
         />
         <div className={`button-container ${hovered ? 'show' : ''}`}>
           <Button type="primary" size="large">Join</Button>
           <Button type="primary"size="large">View</Button>
         </div>
       </Card>
-      <Card className="custom-card" style={{ width: '100%', height:'70%', marginTop: '40px'}}>
-        <Meta
-          avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" className="square-avatar"
-          style={{ width: '40%', height: 'auto' }} />}
-          title={<span className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
-          description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
-        />
-      </Card>
-      <Card className="custom-card" style={{ width: '100%', height:'70%', marginTop: '40px'}}>
-        <Meta
-          avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" className="square-avatar"
-          style={{ width: '40%', height: 'auto' }} />}
-          title={<span className='card-title' style={{ fontSize: '1.5em' }}>Card title</span>}
-          description={<span className='card-description' style={{ fontSize: '1em' }}>This is the description</span>}
-        />
-      </Card>
-      <div className='course-Page'>
-      <Pagination defaultCurrent={1} defaultPageSize={3} total={1000} />
-      </div>
-      </div>
+    ))}
+    <div className='course-Page'>
+    <Pagination 
+      defaultCurrent={1} 
+      defaultPageSize={3} 
+      total={cardData.length} 
+      onChange={(page) => setCurrentPage(page)}
+    />
+    </div>
+    </div>
     <div className='calendar'>
       <Calendar fullscreen={false}/>
     </div>
