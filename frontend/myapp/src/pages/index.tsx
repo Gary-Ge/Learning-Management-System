@@ -44,28 +44,6 @@ const data = [
     title: 'Ant Design Title 3',
   },
 ];
-const cardData = [
-  {
-    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
-    title: "Card title",
-    description: "This is the description",
-  },
-  {
-    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
-    title: "Card title",
-    description: "This is the description",
-  },
-  {
-    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
-    title: "Card title",
-    description: "This is the description",
-  },
-  {
-    avatarSrc: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
-    title: "Card title",
-    description: "This is the description",
-  },
-];
 const onSearch = (value: string) => console.log(value);
 const { Search } = Input;
 const { Meta } = Card;
@@ -88,12 +66,19 @@ export default function IndexPage() {
   const [curriculum, setCurriculum] = useState([]);
   const [courseId, setCourseId] = useState<string[]>([]);
   const [courseDetails, setCourseDetails] = useState<Array<any>>([]);
+  const [allcourseDetails, setAllCourseDetails] = useState<Array<any>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,
     date: detail.course.createdAt,
     id: detail.course.courseId,
+  }));
+  const allcourses = allcourseDetails.map(detail => ({
+    src: detail.cover,
+    title: detail.title,
+    date: detail.createdAt,
+    id: detail.courseId,
   }));
 
 
@@ -144,6 +129,24 @@ export default function IndexPage() {
     .catch(error => {
       alert(error.message);
     });  
+    fetch(`${HOST_COURSE}${COURSE_URL}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      setAllCourseDetails(res.data.courses)
+    })
+    .catch(error => {
+      alert(error.message);
+    }); 
+    
   },[]);
   updateUserData(userData);
 
@@ -174,8 +177,8 @@ useEffect(() => {
 
 
   useEffect(() => {
-    console.log(courseDetails);
-}, [courseDetails]);
+    console.log(allcourses);
+}, [allcourses]);
 
   return (
       <div className='body_user'>
@@ -246,7 +249,7 @@ useEffect(() => {
     <div className='card'
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}>
-    {cardData
+    {allcourses
     .slice((currentPage - 1) * 3, currentPage * 3)
     .map((data, index) => (
       <Card 
@@ -257,13 +260,13 @@ useEffect(() => {
         <Meta
           avatar={
             <Avatar 
-              src={data.avatarSrc} 
+              src={data.src} 
               className="square-avatar"
               style={{ width: '40%', height: 'auto' }} 
             />
           }
           title={<span className='card-title' style={{ fontSize: '1.5em' }}>{data.title}</span>}
-          description={<span className='card-description' style={{ fontSize: '1em' }}>{data.description}</span>}
+          description={<span className='card-description' style={{ fontSize: '1em' }}>{data.date}</span>}
         />
         <div className={`button-container ${hovered ? 'show' : ''}`}>
           <Button type="primary" size="large">Join</Button>
@@ -275,7 +278,7 @@ useEffect(() => {
     <Pagination 
       defaultCurrent={1} 
       defaultPageSize={3} 
-      total={cardData.length} 
+      total={allcourses.length} 
       onChange={(page) => setCurrentPage(page)}
     />
     </div>
