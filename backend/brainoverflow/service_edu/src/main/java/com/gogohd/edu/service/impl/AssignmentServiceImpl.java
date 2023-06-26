@@ -279,6 +279,9 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             if (filename == null) {
                 throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
             }
+            if (filename.length() > 255) {
+                throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be longer than 255 characters");
+            }
             // Generate a UUID for each file and use the UUID as filename, preventing file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "assignment/" + assignmentId + "/" + RandomUtils.generateUUID() + extension;

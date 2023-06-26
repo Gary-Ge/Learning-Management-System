@@ -65,4 +65,12 @@ public class StudentController {
         return R.success().message("Get assignments info success").data("assignments",
                 studentService.getAssignmentListByCourseId(userId, courseId));
     }
+
+    @Operation(summary = "Download one submit")
+    @GetMapping("submit/{submitId}")
+    public R downloadSubmit(HttpServletRequest request, @PathVariable String submitId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Download submit success").data("fileUrl",
+                studentService.downloadSubmitBySubmitId(userId, submitId));
+    }
 }

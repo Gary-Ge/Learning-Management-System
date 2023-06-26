@@ -76,6 +76,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
             if (filename == null) {
                 throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
             }
+            if (filename.length() > 255) {
+                throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be longer than 255 characters");
+            }
             // Generate a UUID for each cover and use the UUID as filename, pretending file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "resource/" + sectionId + "/" + RandomUtils.generateUUID() + extension;
@@ -121,6 +124,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
         if (filename == null) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Filename cannot be empty");
+        }
+        if (filename.length() > 255) {
+            throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be longer than 255 characters");
         }
         if (!filename.toLowerCase().endsWith(".mp4")) {
             throw new BrainException(ResultCode.ERROR, "Only mp4 videos are supported now");

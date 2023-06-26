@@ -20,4 +20,6 @@ public interface StudentService extends IService<Student> {
     Map<String, Object> getAssignmentById(String userId, String assignmentId);
 
     List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId);
+
+    Object downloadSubmitBySubmitId(String userId, String submitId);
 }

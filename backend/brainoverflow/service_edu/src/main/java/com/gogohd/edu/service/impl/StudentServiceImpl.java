@@ -139,6 +139,12 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             throw new BrainException(ResultCode.NO_AUTHORITY, "You are not enrolled in this course");
         }
 
+        // Delete previous submissions, if any
+        LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Submit::getSubmittedBy, userId);
+        wrapper.eq(Submit::getAssignmentId, assignmentId);
+        submitMapper.delete(wrapper);
+
         // Upload files
         for (MultipartFile file: files) {
 
@@ -147,18 +153,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                 throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
             }
 
+            if (filename.length() > 255) {
+                throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be longer than 255 characters");
+            }
+
             // Generate a UUID for each file and use the UUID as filename, preventing file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "submit/" + assignmentId + "/" + RandomUtils.generateUUID() + extension;
 
             // Upload the file
             OssUtils.uploadFile(file, objectName, filename, false);
-
-            // Delete previous submissions, if any
-            LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Submit::getSubmittedBy, userId);
-            wrapper.eq(Submit::getAssignmentId, assignmentId);
-            submitMapper.delete(wrapper);
 
             // Create new submission record
             Submit submit = new Submit();
@@ -292,5 +296,19 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
                     return result;
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Object downloadSubmitBySubmitId(String userId, String submitId) {
+        Submit submit = submitMapper.selectById(submitId);
+        if (submit == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Submit not exist");
+        }
+        if (!submit.getSubmittedBy().equals(userId)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You can only download submissions submitted by yourself");
+        }
+
+        // Download submits
+        return OssUtils.downloadFile(submit.getSource().substring(6));
     }
 }
