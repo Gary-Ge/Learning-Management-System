@@ -51,15 +51,12 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
   const handleTextDescriptionChange = (value: string) => {
     setDescription(value);
   };
-<<<<<<< HEAD
   // upload resource
   const [fileList, setFileList] = useState<any[]>([]);
 
   const handleFileListChange = (newFileList: any[]) => {
     setFileList(newFileList);
   };
-=======
->>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -73,14 +70,6 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       alert('Please input a valid text description')
       return
     }
-<<<<<<< HEAD
-    if (!validNotFile(fileList)) {
-      alert('Please choose a valid text file')
-      return
-    }
-=======
-    
->>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
     const dto = new TextLessonDTO(title, description);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
@@ -102,39 +91,37 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-<<<<<<< HEAD
       console.log('sectionId', res.data.sectionId);
       const sectionID = res.data.sectionId;
-      // 上传文件
-      const formData = new FormData();
+      
+      // Upload File, if any
+      if (fileList.length > 0) {
+        const formData = new FormData();
 
-      fileList.forEach((file) => {
-        formData.append("files", file);
-      });
-
-      fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${sectionID}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
-        },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log('res_file', res);
-        if (res.code !== 200) {
-          throw new Error(res.message);
-        }
+        fileList.forEach((file) => {
+          formData.append("files", file);
+        });
+        
+        fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${sectionID}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          onSubmit(sectionID);
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      } else {
         onSubmit(sectionID);
-      })
-      .catch(error => {
-        alert(error.message);
-      });
-=======
-      // console.log('courseId', res.data.sectionId);
-      const sectionId = res.data.sectionId;
-      onSubmit(sectionId);
->>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
+      }
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
@@ -215,7 +202,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader />
+            <FileUploader onFileListChange={handleFileListChange}/>
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>

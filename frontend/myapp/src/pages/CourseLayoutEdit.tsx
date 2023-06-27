@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Typography, Button, Form, Input, Radio  } from 'antd';
 import './StaffDashboardContent.less';
 import './CourseLayout.css';
@@ -8,11 +8,22 @@ const { Title, Text } = Typography;
 import {
   HeartFilled,
 } from '@ant-design/icons';
-import UploadImageButton from './UploadImageButton';
+import CourseUploadImageButton from './CourseUploadImageButton';
 import { CourseLayoutDTO } from '../utils/entities';
 import { useHistory } from 'umi';
 
 const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: string) => void; course: any }> = ({ onCancel, onSubmit, course }) => {
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    form.setFieldsValue({
+      "course name": course.title,
+      "category": course.category,
+      "description content": course.description
+    });
+  }, [course])
+
   const token = getToken();
   const [title, setTitle] = useState("");
   const handleCourseTitleChange = (e:any) => {
@@ -41,8 +52,8 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   // const [courseId, setCourseId] = useState(null);
   const handleSubmit = () => {
     // 处理提交逻辑
-    setImageUrl(course.cover);
-    console.log(course.cover)
+    // setImageUrl(course.cover);
+    // console.log(course.cover)
     const dto = new CourseLayoutDTO(title, category, description, cover, hasForum);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
@@ -92,9 +103,9 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold' }}>Edit Courses</Title>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-          <UploadImageButton onImageUpload={handleImageUpload} url={course.cover}  />
+          <CourseUploadImageButton onImageUpload={handleImageUpload} url={course.cover}  />
         </div>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -107,8 +118,6 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
             ]}
           >
             <Input 
-                placeholder={course.title}
-                value={title}
                 onChange={handleCourseTitleChange}
                 style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
             />
@@ -125,8 +134,6 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
             ]}
           >
             <Input 
-              placeholder={"course.category"} 
-              value={category}
               onChange={handleCourseCategoryChange}
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
             />
@@ -143,11 +150,11 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
             ]}
           >
           </Form.Item>
-          <Form.Item>
+          <Form.Item
+            name="description content"
+          >
             <Input.TextArea 
-              placeholder={course.description}
               rows={4} 
-              value={description}
               onChange={handleCourseDescriptionChange}
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
             />

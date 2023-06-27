@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, Collapse  } from 'antd';
-=======
 import React, { useState, useEffect } from 'react';
-import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
->>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
+import { Layout, theme, Typography, Button, Form, Input, Collapse  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {getToken} from '../utils/utils'
@@ -56,6 +51,8 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
     setTitle(section.title);
     setDescription(section.description);
 
+    setSectionInfor(section);
+
     form.setFieldsValue({
       "text title": section.title
     })
@@ -80,6 +77,24 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
   const handleFileListChange = (newFileList: any[]) => {
     setFileList(newFileList);
   };
+
+  const openFile = (resourceId: string) => {
+    fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resource/${resourceId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      window.open(res.data.fileUrl);
+    })
+  }
+
   const handleSubmit = () => {
     // 处理提交逻辑    
     const dto = new TextLessonDTO(title, description);
@@ -102,31 +117,38 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      onSubmit(section.sectionId);
-      const formData = new FormData();
 
-      fileList.forEach((file) => {
-        formData.append("files", file);
-      });
+      // Upload file, if any
+      if (fileList.length > 0) {
+        const formData = new FormData();
 
-      fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${section.sectionId}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
-        },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log('res', res);
-        if (res.code !== 200) {
-          throw new Error(res.message);
-        }
-      })
-      .catch(error => {
-        alert(error.message);
-      });
+        fileList.forEach((file) => {
+          formData.append("files", file);
+        });
+  
+        fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${section.sectionId}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(res => {
+          console.log('res', res);
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          onSubmit(section.sectionId);
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      } else {
+        onSubmit(section.sectionId);
+      }
       // history.push('/'); // redirect to login page, adjust as needed
+      
     })
     .catch(error => {
       alert(error.message);
@@ -139,7 +161,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then(res => res.json())
@@ -152,7 +174,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => res.json())
@@ -257,9 +279,12 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
                     // color: activeButton === section.sectionId ? 'red' : 'black',
                     fontFamily: 'Comic Sans MS'
                   }}
+                  onClick={() => {
+                    openFile(resources.resourceId);
+                  }}
                 >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                    {resources.title.length > 12 ? resources.title.substring(0, 7) + '...' : resources.title}
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                    {resources.title}
                   </span>
                 </Button>
                 <DeleteOutlined 

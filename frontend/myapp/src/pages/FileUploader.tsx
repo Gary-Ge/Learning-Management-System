@@ -9,6 +9,14 @@ interface FileUploaderProps {
 const FileUploader: React.FC<FileUploaderProps> = ({ onFileListChange }) => {
   const [fileList, setFileList] = useState<Array<any>>([]);
 
+  const onRemove = (file: any) => {
+    const index = fileList.indexOf(file);
+    const newFileList = fileList.slice();
+    newFileList.splice(index, 1);
+    setFileList(newFileList);
+    onFileListChange(newFileList);
+  }
+
   const beforeUpload = (file: any) => {
     const isFileExist = fileList.some((item) => item.name === file.name);
 
@@ -38,6 +46,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileListChange }) => {
           fileList={fileList}
           beforeUpload={beforeUpload}
           style={{ flexGrow: 1 }}
+          onRemove={onRemove}
         >
           <Button
             icon={<FolderOpenOutlined />}

@@ -92,11 +92,30 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
     setEnd(assignment.end);
     setDescription(assignment.description);
 
+    setAssignmentInfor(assignment);
+
     form.setFieldsValue({
       "assignment title": assignment.title,
       "assignment mark": assignment.mark
     })
   }, [assignment])
+
+  const openFile = (assFileId: string) => {
+    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assFileId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      window.open(res.data.fileUrl);
+    })
+  }
 
   const handleSubmit = () => {
     console.log(start);
@@ -123,31 +142,36 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      onSubmit();
-      const formData = new FormData();
 
-      fileList.forEach((file) => {
-        formData.append("files", file);
-      });
+      // Upload file, if any
+      if (fileList.length > 0) {
+        const formData = new FormData();
 
-      fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assignment.assignmentId}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
-        },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log('res', res);
-        if (res.code !== 200) {
-          throw new Error(res.message);
-        }
-      })
-      .catch(error => {
-        alert(error.message);
-      });
-      // history.push('/'); // redirect to login page, adjust as needed
+        fileList.forEach((file) => {
+          formData.append("files", file);
+        });
+  
+        fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assignment.assignmentId}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(res => {
+          console.log('res', res);
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          onSubmit();
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      } else {
+        onSubmit();
+      }
     })
     .catch(error => {
       alert(error.message);
@@ -160,7 +184,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then(res => res.json())
@@ -173,7 +197,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(res => res.json())
@@ -302,9 +326,12 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
                     // color: activeButton === section.sectionId ? 'red' : 'black',
                     fontFamily: 'Comic Sans MS'
                   }}
+                  onClick={() => {
+                    openFile(assFile.assFileId);
+                  }}
                 >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                    {assFile.title.length > 12 ? assFile.title.substring(0, 7) + '...' : assFile.title}
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                    {assFile.title}
                   </span>
                 </Button>
                 <DeleteOutlined 

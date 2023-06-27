@@ -1,4 +1,5 @@
 export function validNotFile(value: any) {
+  console.log(value)
   if (Array.isArray(value) && value.length === 0) {
     return false;
   }

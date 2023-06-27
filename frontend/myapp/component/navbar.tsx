@@ -68,6 +68,9 @@ export default function Dashboard() {
       avatarURL = parsedData.avatar;
     }
   }
+
+  const [form] = Form.useForm();
+
   function getUserData() {
     fetch(`${HOST}${CHANGEFILE_URL}`, {
       method: "GET",
@@ -84,6 +87,11 @@ export default function Dashboard() {
       setImageUrl(res.data.user.avatar);
       setEmail(res.data.user.email);
       setUsername(res.data.user.username);
+
+      form.setFieldsValue({
+        "username": res.data.user.username,
+        "Email Address": res.data.user.email
+      })
     })
     .catch(error => {
       // alert(error.message);
@@ -128,6 +136,7 @@ export default function Dashboard() {
   const handleModalClose = () => {
     setIsModalVisible(false);
     setTempFile(null);
+    getUserData();
   };
   const handleSubmit = () => {
     const token = getToken();
@@ -144,35 +153,9 @@ export default function Dashboard() {
       return;
     }
 
-    
-
     if (!tempFile) {
-      alert('Please select an image file');
-      return;
-    }
-    const formData = new FormData();
-    formData.append("file", tempFile);
-  
-    fetch (`${HOST}/avatar`,{
-      method: 'POST',
-      headers: {
-        "Authorization": `Bearer ${token}`
-      },
-      body: formData
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (res.code !== 20000) {
-        throw new Error(res.message);
-      }
-      const newAvatar = res.data.avatar;
-      setImageUrl(newAvatar);
-      let userData = localStorage.getItem('userData');
-      let parsedData = JSON.parse(userData || '{}');
-      parsedData.avatar = newAvatar; // update the avatar
-      localStorage.setItem('userData', JSON.stringify(parsedData));
-  
-      const dto = new ChangeUserDTO(username,password,email,newAvatar);
+      // If the user not upload a new avatar, just update the user info
+      const dto = new ChangeUserDTO(username, password, email, "");
       fetch(`${HOST}${CHANGEFILE_URL}`, {
         method: "Put",
         body: JSON.stringify(dto),
@@ -188,16 +171,60 @@ export default function Dashboard() {
         }
         alert("User information updated successfully");
         handleModalClose();
-        getUserData();
       })
       .catch(error => {
         alert(error.message);
       });
-    })
-    .catch(error => {
-      alert(error.message);
-    });
+    } else {
+      // If the user upload a new avatar, first upload the avatar, then update the user info
+      const formData = new FormData();
+      formData.append("file", tempFile);
+      fetch (`${HOST}/avatar`,{
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message);
+        }
+        const newAvatar = res.data.avatar;
+        setImageUrl(newAvatar);
+        let userData = localStorage.getItem('userData');
+        let parsedData = JSON.parse(userData || '{}');
+        parsedData.avatar = newAvatar; // update the avatar
+        localStorage.setItem('userData', JSON.stringify(parsedData));
+    
+        const dto = new ChangeUserDTO(username,password,email,newAvatar);
+        fetch(`${HOST}${CHANGEFILE_URL}`, {
+          method: "Put",
+          body: JSON.stringify(dto),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          alert("User information updated successfully");
+          handleModalClose();
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    }
   }
+    
   
 
   const onChange = (key: string) => {
@@ -281,19 +308,17 @@ export default function Dashboard() {
             {tempFile ? <img src={URL.createObjectURL(tempFile)} alt="avatar" style={{ width: '100%' }} /> : (imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton)}
           </Upload>
             </div>
-              <Form
+              <Form form={form}
                 name="basic"
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
                 style={{ maxWidth: 600, paddingTop: "30px",fontFamily: 'Comic Sans MS' }}
-                initialValues={{ remember: true }}
                 autoComplete="off"
               >
                 <Form.Item
                   label="Username"
                   name="username"
                   rules={[{ required: false, message: 'Please input your Username!' }]}
-                  initialValue={username}
                 >
                   <Input placeholder="Please input your username" value={username} onChange={handleUsernameChange} />
                 </Form.Item>
@@ -301,7 +326,6 @@ export default function Dashboard() {
                 <Form.Item
                   label="Email Address"
                   name="Email Address"
-                  initialValue={email}
                   rules={[{ required: false, message: 'Please input your Email Address!' }]}
                 >
                   <Input placeholder="Please input your email address" value={email} onChange={handleEmailChange} />

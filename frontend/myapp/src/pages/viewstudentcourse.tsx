@@ -128,22 +128,7 @@ export default function IndexPage() {
 
   // join a class
   const joincourse = () => {
-    console.log('joincourse',courseid);
-    fetch(`${HOST_STUDENT}/student/${courseid}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Bearer ${token}`
-      }
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (res.code == 20000 || res.code == 20001) { 
-        showjoinModal(); // go to studentcourse page
-      } else {
-        throw new Error(res.message)
-      }
-    })
+    showjoinModal();
   }
   const showModal = () => {
     setIsModalOpen(true);
@@ -163,8 +148,22 @@ export default function IndexPage() {
   };
 
   const joinhandleOk = () => {
-    setjoinIsModalOpen(false);
-    history.push(`/studentcourse?courseid=${courseid}&title=`);
+    fetch(`${HOST_STUDENT}/student/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code == 20000 || res.code == 20001) { 
+        setjoinIsModalOpen(false);
+        history.push(`/studentcourse?courseid=${courseid}&title=`);
+      } else {
+        throw new Error(res.message)
+      }
+    })
   };
 
   const joinhandleCancel = () => {

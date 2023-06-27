@@ -8,7 +8,7 @@ const { Title, Text } = Typography;
 import {
   HeartFilled,
 } from '@ant-design/icons';
-import UploadImageButton from './UploadImageButton';
+import CourseUploadImageButton from './CourseUploadImageButton';
 import { validNotNull} from '../utils/utilsStaff';
 import { CourseLayoutDTO } from '../utils/entities';
 import { useHistory } from 'umi';
@@ -112,7 +112,7 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold' }}>Create Courses</Title>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-          <UploadImageButton onImageUpload={handleImageUpload} url="" />
+          <CourseUploadImageButton onImageUpload={handleImageUpload} url="" />
         </div>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 

@@ -118,7 +118,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: formData
     })
