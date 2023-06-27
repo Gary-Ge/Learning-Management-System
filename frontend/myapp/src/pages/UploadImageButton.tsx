@@ -25,7 +25,6 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
   const [tempFile, setTempFile] = useState<File | null>(null);
 
   useEffect(() => {
-    console.log(url)
       setFromoutside(true)
       setUploadedImageUrl(url);
       setUploadStatus('success');
@@ -48,10 +47,8 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
       if (res.code !== 20000) {
         throw new Error(res.message);
       }
-      const newAvatar = res;
-      setImageUrl(newAvatar);
-      console.log(imageUrl)
-      onImageUpload(imageUrl)
+      setImageUrl(res.data.avatar);
+      onImageUpload(res.data.avatar)
       setUploadStatus('success')
       setFromoutside(false)
     })
@@ -60,17 +57,6 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
      });
   };
 
-  const uploadRequest = (file: any) => {
-    // 实际的上传请求逻辑
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        // 模拟上传成功
-        resolve();
-        // 模拟上传失败
-        // reject();
-      }, 2000);
-    });
-  };
 
   const renderButtonContent = () => {
     if (uploading) {

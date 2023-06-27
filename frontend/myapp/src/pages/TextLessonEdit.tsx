@@ -41,8 +41,7 @@ const quillFormats = [
   'color',
   'background',
 ];
-const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => {
-  console.log(section)
+const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => { 
   const token = getToken();
   const [title, setTitle] = useState("");
   const handleTextTitleChange = (e:any) => {

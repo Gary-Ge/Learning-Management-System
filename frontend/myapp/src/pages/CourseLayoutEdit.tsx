@@ -31,8 +31,9 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   const [cover, setImageUrl] = useState("");
   const handleImageUpload = (url: any) => {
     setImageUrl(url);
+    console.log(cover)
   };
-  console.log(course.hasForum)
+  console.log(course.url)
   const history = useHistory();
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
@@ -40,9 +41,8 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   // const [courseId, setCourseId] = useState(null);
   const handleSubmit = () => {
     // 处理提交逻辑
-    if (cover === "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/cover/default/default-cover.jpg") {
-      setImageUrl(course.cover);
-    }
+    setImageUrl(course.cover);
+    console.log(course.cover)
     const dto = new CourseLayoutDTO(title, category, description, cover, hasForum);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 

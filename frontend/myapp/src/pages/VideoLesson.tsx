@@ -48,6 +48,10 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
   const handleVideoDescriptionChange = (value: string) => {
     setDescription(value);
   };
+  const [file, setFile] = useState("");
+  const handleFileListChange = (value:any) => {
+    setFile(value);
+  }
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -120,7 +124,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader />
+            <FileUploader onFileListChange={handleFileListChange}/>
           </Form.Item>
           <Form.Item
             label={
