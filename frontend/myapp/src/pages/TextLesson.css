@@ -1,0 +1,12 @@
+.quill-container .quill {
+  width: auto;
+  height: 100%;
+  color: #B3B3B3;
+}
+
+.ql-editor {
+  font-size: 15px;
+  font-family: 'Comic Sans MS';
+  color: #B3B3B3;
+  height: 120px;
+}  

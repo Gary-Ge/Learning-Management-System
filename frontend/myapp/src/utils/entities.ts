@@ -1,3 +1,40 @@
+export class CourseLayoutDTO {
+  title: any;
+  category: any;
+  description: any;
+  cover: any;
+  hasForum: any;
+
+  constructor(title: any, category: any, description: any, cover: any, hasForum: any) {
+    this.title = title;
+    this.category = category;
+    this.description = description;
+    this.cover = cover;
+    this.hasForum = hasForum;
+  }
+}
+export class TextLessonDTO {
+  title: any;
+  description: any;
+
+  constructor(title: any, description: any) {
+    this.title = title;
+    this.description = description;
+  }
+}
+export class AssignmentLessonDTO {
+  title: any;
+  description: any;
+  start: any;
+  end: any;
+
+  constructor(title: any, description: any, start: any, end: any) {
+    this.title = title;
+    this.description = description;
+    this.start = start;
+    this.end = end;
+  }
+}
 export class RegisterDTO {
     username: any;
     password: any;
