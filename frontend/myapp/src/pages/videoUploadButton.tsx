@@ -14,7 +14,7 @@ interface UploadImageButtonProps {
   onImageUpload: (url: string) => void;
   url: string;
 }
-const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url }) => {
+const VideoUploadButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url }) => {
   const token = getToken();
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -35,7 +35,7 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
     setTempFile(file);
     const formData = new FormData();
     formData.append("file",  file);
-    fetch (`/service-ucenter/ucenter/avatar`,{
+    fetch (`/service-edu/edu-section/videoCover/{courseId}`,{
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${token}`
@@ -140,4 +140,4 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
   );
 };
           
-export default UploadImageButton;
+export default VideoUploadButton;

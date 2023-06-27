@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { Layout, Typography, Button, Form, Input, Radio  } from 'antd';
 import './StaffDashboardContent.less';
 import './CourseLayout.css';
+import {getToken} from '../utils/utils'
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import UploadImageButton from './UploadImageButton';
-import { validNotNull, getToken } from '../utils/utilsStaff';
+import { validNotNull} from '../utils/utilsStaff';
 import { CourseLayoutDTO } from '../utils/entities';
 import { useHistory } from 'umi';
 
 const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string) => void }> = ({ onCancel, onSubmit }) => {
+  const token = getToken();
   const [title, setTitle] = useState("");
   const handleCourseTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -69,7 +71,7 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: requestData
     })

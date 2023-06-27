@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import UploadImageButton from './UploadImageButton';
+import VideoUploadButton from '../pages/videoUploadButton';
 import FileUploader from './FileUploader';
 
 const { Content, Footer } = Layout;
@@ -48,6 +48,10 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
   const handleVideoDescriptionChange = (value: string) => {
     setDescription(value);
   };
+  const [file, setFile] = useState("");
+  const handleFileListChange = (value:any) => {
+    setFile(value);
+  }
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -107,7 +111,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
           </Form.Item>
           <Form.Item>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-              <UploadImageButton onImageUpload={handleImageUpload} url=""/>
+              <VideoUploadButton onImageUpload={handleImageUpload} url="" />
             </div>
           </Form.Item>
           <Form.Item
@@ -120,7 +124,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader />
+            <FileUploader onFileListChange={handleFileListChange}/>
           </Form.Item>
           <Form.Item
             label={

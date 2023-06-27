@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
+import {getToken} from '../utils/utils'
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
+<<<<<<< HEAD
 import { validNotNull, validNotFile } from '../utils/utilsStaff';
+=======
+import { validNotNull} from '../utils/utilsStaff';
+>>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
 import { AssignmentLessonDTO } from '../utils/entities';
 import moment, { Moment } from 'moment';
 
 const { Content, Footer } = Layout;
+const token = getToken();
 const { Title, Text } = Typography;
 const quillModules = {
   toolbar: [
@@ -101,10 +107,13 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
       alert('Please input a valid assignment description')
       return
     }
+<<<<<<< HEAD
     if (!validNotFile(fileList)) {
       alert('Please choose a valid assignment file')
       return
     }
+=======
+>>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
     const dto = new AssignmentLessonDTO(title, description, start, end, mark);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
@@ -116,7 +125,7 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: requestData
     })

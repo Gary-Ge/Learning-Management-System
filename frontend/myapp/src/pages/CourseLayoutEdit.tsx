@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { Layout, Typography, Button, Form, Input, Radio  } from 'antd';
 import './StaffDashboardContent.less';
 import './CourseLayout.css';
+import {getToken} from '../utils/utils'
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import UploadImageButton from './UploadImageButton';
-import { validNotNull, getToken } from '../utils/utilsStaff';
 import { CourseLayoutDTO } from '../utils/entities';
 import { useHistory } from 'umi';
 
 const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: string) => void; course: any }> = ({ onCancel, onSubmit, course }) => {
+  const token = getToken();
   const [title, setTitle] = useState("");
   const handleCourseTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -30,8 +31,9 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   const [cover, setImageUrl] = useState("");
   const handleImageUpload = (url: any) => {
     setImageUrl(url);
+    console.log(cover)
   };
-  console.log(course.hasForum)
+  console.log(course.url)
   const history = useHistory();
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
@@ -39,9 +41,8 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   // const [courseId, setCourseId] = useState(null);
   const handleSubmit = () => {
     // 处理提交逻辑
-    if (cover === "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/cover/default/default-cover.jpg") {
-      setImageUrl(course.cover);
-    }
+    setImageUrl(course.cover);
+    console.log(course.cover)
     const dto = new CourseLayoutDTO(title, category, description, cover, hasForum);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
@@ -54,7 +55,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: requestData
     })
@@ -91,7 +92,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold' }}>Edit Courses</Title>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-          <UploadImageButton onImageUpload={handleImageUpload} url={course.cover} />
+          <UploadImageButton onImageUpload={handleImageUpload} url={course.cover}  />
         </div>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 

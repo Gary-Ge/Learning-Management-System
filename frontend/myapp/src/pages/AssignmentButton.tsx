@@ -5,9 +5,11 @@ import {
   CheckCircleOutlined,
   DeleteOutlined
 } from '@ant-design/icons';
+import {getToken} from '../utils/utils'
 
-const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (assignmentData: any) => void }> = ({ courseId, onSingleAssignmentChange }) => {
+const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (assignmentData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleAssignmentChange, changeFlag }) => {
   const [assignments, setAssignments] = useState<any[]>([]);
+  const token = getToken();
 
   const fetchAssignmentSections = async () => {
     try {
@@ -15,7 +17,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -28,13 +30,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
   };
   useEffect(() => {
     fetchAssignmentSections(); // 初始加载章节数据
-    // 设置轮询定时器，每隔一段时间更新章节数据
-    const interval = setInterval(fetchAssignmentSections, 5000); // 5000毫秒为轮询间隔，可根据需要调整
-    // 在组件卸载时清除定时器
-    return () => {
-      clearInterval(interval);
-    };
-  }, [courseId]);
+  }, [changeFlag]);
 
   const handleDeleteClick = (assignmentId: string) => {
     // 处理删除图标点击事件
@@ -43,7 +39,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then(res => res.json())
@@ -52,6 +48,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      fetchAssignmentSections();
     })
     .catch(error => {
       alert(error.message);
@@ -65,7 +62,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then(res => res.json())
@@ -98,7 +95,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
   };
   return (
     <Layout style={{ backgroundColor: 'white' }}>
-      {assignments.map((assignment) => (
+      {(assignments||[]).map((assignment) => (
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
           <Button

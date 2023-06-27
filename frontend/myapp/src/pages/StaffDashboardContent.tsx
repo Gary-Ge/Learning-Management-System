@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider } from 'antd';
 import './StaffDashboardContent.less';
 import Navbar from "../../component/navbar"
+import {getToken} from '../utils/utils'
 import {
   PlusCircleOutlined,
   HeartFilled,
@@ -34,6 +35,7 @@ const { Title, Text } = Typography;
 const { Panel } = Collapse;
 
 const StaffDashboardContent: React.FC = () => {
+  const token = getToken();
   const [isSiderVisible, setIsSiderVisible] = useState(true);
   const [contentMarginLeft, setContentMarginLeft] = useState(isSiderVisible ? 200 : 0);
   useEffect(() => {
@@ -42,6 +44,9 @@ const StaffDashboardContent: React.FC = () => {
   
   const [courseSubmitted, setCourseSubmitted] = useState(false);
   const [selectedOption, setSelectedOption] = useState('close');
+
+  const [textChangeFlag, setTextChangeFlag] = useState(false);
+  const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   
   const handleAddCourses = () => {
     setSelectedOption('course');
@@ -50,6 +55,7 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('close');
   };
   const handleSubmitCourse = (courseId: string) => {
+    fetchCourses();
     setSelectedOption('close');
     setCourseSubmitted(true);
     // console.log('courseSubmitted', courseId);
@@ -62,7 +68,7 @@ const StaffDashboardContent: React.FC = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -79,13 +85,6 @@ const StaffDashboardContent: React.FC = () => {
     if (courses !== null) {
       setCourseSubmitted(true);
     }
-    // 设置轮询定时器，每隔一段时间更新章节数据
-    const interval = setInterval(fetchCourses, 5000); // 5000毫秒为轮询间隔，可根据需要调整
-
-    // 在组件卸载时清除定时器
-    return () => {
-      clearInterval(interval);
-    };
   }, []);
 
   // useEffect(() => {
@@ -108,7 +107,7 @@ const StaffDashboardContent: React.FC = () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then((response) => response.json())
@@ -126,11 +125,13 @@ const StaffDashboardContent: React.FC = () => {
   };
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const handleSubmitText = (sectionId: string) => {
+    setTextChangeFlag(!textChangeFlag);
     setSelectedOption('close');
     console.log('Submitted sectionId:', sectionId);
   };
 
   const handleSubmitAssignment = () => {
+    setAssignmentChangeFlag(!assignmentChangeFlag);
     setSelectedOption('close');
   };
 
@@ -165,8 +166,8 @@ const StaffDashboardContent: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center' }}
       >
-        <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} />
-        <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} />
+        <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
+        <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
         {/* add course materials button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 'auto' }}>

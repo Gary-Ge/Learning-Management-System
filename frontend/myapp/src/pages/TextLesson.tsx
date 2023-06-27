@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
+import {getToken} from '../utils/utils'
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
-import { validNotNull, validNotFile } from '../utils/utilsStaff';
-import { TextLessonDTO, FileUploadDTO } from '../utils/entities';
+import { validNotNull } from '../utils/utilsStaff';
+import { TextLessonDTO } from '../utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -41,6 +42,7 @@ const quillFormats = [
   'background',
 ];
 const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+  const token = getToken();
   const [title, setTitle] = useState("");
   const handleTextTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -49,12 +51,15 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
   const handleTextDescriptionChange = (value: string) => {
     setDescription(value);
   };
+<<<<<<< HEAD
   // upload resource
   const [fileList, setFileList] = useState<any[]>([]);
 
   const handleFileListChange = (newFileList: any[]) => {
     setFileList(newFileList);
   };
+=======
+>>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -68,10 +73,14 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       alert('Please input a valid text description')
       return
     }
+<<<<<<< HEAD
     if (!validNotFile(fileList)) {
       alert('Please choose a valid text file')
       return
     }
+=======
+    
+>>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
     const dto = new TextLessonDTO(title, description);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
@@ -83,7 +92,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: requestData
     })
@@ -93,6 +102,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+<<<<<<< HEAD
       console.log('sectionId', res.data.sectionId);
       const sectionID = res.data.sectionId;
       // 上传文件
@@ -120,11 +130,17 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       .catch(error => {
         alert(error.message);
       });
+=======
+      // console.log('courseId', res.data.sectionId);
+      const sectionId = res.data.sectionId;
+      onSubmit(sectionId);
+>>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
       alert(error.message);
     });
+    
   };
   return (
     <>
@@ -199,7 +215,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader onFileListChange={handleFileListChange} />
+            <FileUploader />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>

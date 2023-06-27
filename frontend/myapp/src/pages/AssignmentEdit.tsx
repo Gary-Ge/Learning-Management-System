@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
 import './StaffDashboardContent.less';
+import {getToken} from '../utils/utils'
 import './TextLesson.css';
 import {
   HeartFilled,
@@ -9,11 +10,12 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
-import { validNotNull, getToken } from '../utils/utilsStaff';
+import { validNotNull} from '../utils/utilsStaff';
 import { AssignmentLessonDTO } from '../utils/entities';
 import moment, { Moment } from 'moment';
 
 const { Content, Footer } = Layout;
+const token = getToken();
 const { Title, Text } = Typography;
 const quillModules = {
   toolbar: [
@@ -79,6 +81,23 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    console.log('assignment', assignment);
+    setTitle(assignment.title);
+    setMark(assignment.mark);
+    setStart(assignment.start);
+    setEnd(assignment.end);
+    setDescription(assignment.description);
+
+    form.setFieldsValue({
+      "assignment title": assignment.title,
+      "assignment mark": assignment.mark
+    })
+  }, [assignment])
+
   const handleSubmit = () => {
     console.log(start);
     console.log(end);
@@ -94,7 +113,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: requestData
     })
@@ -193,8 +212,8 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Assignment</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
-          <Form.Item 
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
+          <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
                 Assignment Title
@@ -205,10 +224,8 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
               { max: 100, message: 'The assignment title must be less than 100 characters!' },
             ]}
           >
-            <Input 
-              placeholder={assignment.title} 
+            <Input
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={title}
               onChange={handleAssignmentTitleChange}
             />
           </Form.Item>
@@ -262,7 +279,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
               <ReactQuill
                 modules={quillModules}
                 formats={quillFormats}
-                placeholder={assignment.description}
                 value={description}
                 onChange={handleAssignmentDescriptionChange}
               />

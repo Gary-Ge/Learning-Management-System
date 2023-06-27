@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, Collapse  } from 'antd';
+=======
+import React, { useState, useEffect } from 'react';
+import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
+>>>>>>> 2d8c2067fae716aa02214439633ccd41534bb3bb
 import './StaffDashboardContent.less';
 import './TextLesson.css';
+import {getToken} from '../utils/utils'
 import {
   DeleteOutlined,
   HeartFilled,
@@ -9,7 +15,7 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
-import { validNotNull, getToken } from '../utils/utilsStaff';
+import { validNotNull} from '../utils/utilsStaff';
 import { TextLessonDTO } from '../utils/entities';
 const { Panel } = Collapse;
 
@@ -42,7 +48,20 @@ const quillFormats = [
   'color',
   'background',
 ];
-const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => {
+const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => { 
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    setTitle(section.title);
+    setDescription(section.description);
+
+    form.setFieldsValue({
+      "text title": section.title
+    })
+  }, [section])
+
+  const token = getToken();
   const [title, setTitle] = useState("");
   const [sectionInfor, setSectionInfor] = useState(section);
   const handleTextTitleChange = (e:any) => {
@@ -73,7 +92,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
       body: requestData
     })
@@ -173,7 +192,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Text Lesson</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -206,9 +225,8 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
               <ReactQuill
                 modules={quillModules}
                 formats={quillFormats}
-                placeholder={section.description}
-                value={description}
                 onChange={handleTextDescriptionChange}
+                value={description}
               />
             </div>
           </Form.Item>

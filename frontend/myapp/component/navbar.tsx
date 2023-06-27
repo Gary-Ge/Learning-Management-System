@@ -15,8 +15,6 @@ import logo_s from '../../images/logo_s.png';
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
-const userDataString = localStorage.getItem('userData');
-const userDataName = userDataString ? JSON.parse(userDataString) : null;
 function updateUserData(newUserData:any) {
   localStorage.setItem('userData', JSON.stringify(newUserData));
 }
@@ -71,21 +69,30 @@ export default function Dashboard() {
     }
   }
   function getUserData() {
-    const userData = localStorage.getItem('userData');
-    let parsedData = JSON.parse(userData || '{}');
-    if (parsedData) {
-      setImageUrl(parsedData.avatar || '');
-      setUsername(parsedData.username || '');
-      setEmail(parsedData.email || '');
-    }
+    fetch(`${HOST}${CHANGEFILE_URL}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      setImageUrl(res.data.user.avatar);
+      setEmail(res.data.user.email);
+      setUsername(res.data.user.username);
+    })
+    .catch(error => {
+      // alert(error.message);
+    });  
   }
   useEffect(() => {
     getUserData();
-    updateUserData(userDataName);
   }, []);
   
-  
-
   const biggerThan540 = useMediaPredicate("(min-width: 540px)");
   
   const [loading, setLoading] = useState(false);
@@ -123,10 +130,6 @@ export default function Dashboard() {
     setTempFile(null);
   };
   const handleSubmit = () => {
-    if (!tempFile) {
-      alert('Please select an image file');
-      return;
-    }
     const token = getToken();
     if (!validNotNull(username)) {
       alert('Please input a username');
@@ -136,8 +139,15 @@ export default function Dashboard() {
       alert('Please input a valid email');
       return;
     }
-    if (!ValidPassword(password)) {
+    if (password !== "" && password !== null && !ValidPassword(password)) {
       alert('Please input a valid password');
+      return;
+    }
+
+    
+
+    if (!tempFile) {
+      alert('Please select an image file');
       return;
     }
     const formData = new FormData();
@@ -179,7 +189,6 @@ export default function Dashboard() {
         alert("User information updated successfully");
         handleModalClose();
         getUserData();
-        updateUserData(userDataName);
       })
       .catch(error => {
         alert(error.message);
@@ -283,7 +292,8 @@ export default function Dashboard() {
                 <Form.Item
                   label="Username"
                   name="username"
-                  rules={[{ required: true, message: 'Please input your Username!' }]}
+                  rules={[{ required: false, message: 'Please input your Username!' }]}
+                  initialValue={username}
                 >
                   <Input placeholder="Please input your username" value={username} onChange={handleUsernameChange} />
                 </Form.Item>
@@ -291,8 +301,8 @@ export default function Dashboard() {
                 <Form.Item
                   label="Email Address"
                   name="Email Address"
-                  initialValue={username}
-                  rules={[{ required: true, message: 'Please input your Email Address!' }]}
+                  initialValue={email}
+                  rules={[{ required: false, message: 'Please input your Email Address!' }]}
                 >
                   <Input placeholder="Please input your email address" value={email} onChange={handleEmailChange} />
                 </Form.Item>
@@ -300,7 +310,7 @@ export default function Dashboard() {
                 <Form.Item
                   label="Password"
                   name="password"
-                  rules={[{ required: true, message: 'Please input your Password!' }]}
+                  rules={[{ required: false, message: 'Please input your Password!' }]}
                 >
                   <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
                 </Form.Item>

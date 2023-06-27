@@ -5,7 +5,7 @@ import Footer from "../../component/footer"
 import { Input, Button, Modal, message, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import { useLocation } from 'umi';
-import ReactPlayer from 'react-player'
+import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
   COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
@@ -597,7 +597,7 @@ export default function IndexPage() {
                 <div className='materials_title'>{item.title}</div>
                 <div className='materials_time'>{item.time}</div>
                 <div className='materials_img'><img src={item.cover}/></div>
-                {item.type == 'Text Section' ? <div className='materials_content'>{item.content}</div> : ''}
+                {item.type == 'Text Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
                 { item.file_list.map((itm:any, idx:number) => 
                   <div key={idx.toString()} className="downloadfile_wrap">
                     {itm.type == 'File' ? 
@@ -606,7 +606,7 @@ export default function IndexPage() {
                     </div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
                   </div>
                 )}
-                {item.type == 'Custom Video Section' ? <div className='materials_content'>{item.content}</div> : ''}
+                {item.type == 'Custom Video Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
                 <div className='dashline'></div>
 
               </div>)
@@ -628,7 +628,7 @@ export default function IndexPage() {
                       <img className='stu_timeicon' src={time_icon}/>
                       end time : {_item.end_time}
                     </div>
-                    <div className='ass_content'>{_item.content}</div>
+                    <div className='ass_content' dangerouslySetInnerHTML={{__html: _item.content}}></div>
                     {
                       _item.ass_files.map((initem:any, index:number) => {
                         return(<div key={index} className='downloadfile' onClick={downLoadAss} id={initem.assFileId}>

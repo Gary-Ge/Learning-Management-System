@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Button } from 'antd';
 import './StaffDashboardContent.less';
+import {getToken} from '../utils/utils'
 import {
   FileTextOutlined,
   DeleteOutlined
 } from '@ant-design/icons';
 
-const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionData: any) => void }> = ({ courseId, onSingleSectionChange }) => {
+const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleSectionChange, changeFlag }) => {
   const [sections, setSections] = useState<any[]>([]);
-
+  const token = getToken();
   const fetchTextSections = async () => {
     try {
       const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-section/textSections/${courseId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -28,13 +29,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
   };
   useEffect(() => {
     fetchTextSections(); // 初始加载章节数据
-    // 设置轮询定时器，每隔一段时间更新章节数据
-    const interval = setInterval(fetchTextSections, 5000); // 5000毫秒为轮询间隔，可根据需要调整
-    // 在组件卸载时清除定时器
-    return () => {
-      clearInterval(interval);
-    };
-  }, [courseId]);
+  }, [changeFlag]);
 
   const handleSectionClick = (sectionId: string) => {
     // 处理菜单项点击事件
@@ -43,7 +38,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then(res => res.json())
@@ -67,7 +62,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        Authorization: `Bearer ${token}`,
       },
     })
     .then(res => res.json())
@@ -76,6 +71,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      fetchTextSections();
     })
     .catch(error => {
       alert(error.message);
@@ -98,7 +94,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
   };
   return (
     <Layout style={{ backgroundColor: 'white' }}>
-      {sections.map((section) => (
+      {(sections||[]).map((section) => (
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
           <Button
