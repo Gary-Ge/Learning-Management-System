@@ -19,13 +19,13 @@
 .timeline {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  grid-gap: 20px;
+  // grid-gap: 20px;
 }
 .container_timeline{
   background: #ffffff;
   padding: 20px;
   border-radius: 5px;
-  width: 400px;
+  width: 480px;
   height: 325px;
   max-width: 90%;
   margin: auto;
@@ -52,7 +52,9 @@
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding: 20px;
+  // padding: 20px;
+  padding-left: 40px;
+  padding-right: 40px;
   border-radius: 5px;
   width: 1275px;
   height: 300px;
@@ -79,6 +81,7 @@
 }
 
 .overlay {
+  padding-left: 20px;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -132,6 +135,7 @@
   margin-left: 3%;
   border-radius: 20px;
   display: block;
+  margin-top: 50px;
 }
 .card_and_calendar{
   display: grid;
@@ -195,9 +199,9 @@
   margin-top: 20px;
   margin-left: 50px;
 }
-.custom-card  .ant-card-meta-avatar {
-  width: 50%;
-}
+// .custom-card  .ant-card-meta-avatar {
+//   width: 50%;
+// }
 .calendar {
   background: #ffffff;
   padding: 20px;
@@ -237,6 +241,9 @@
 .calendar .ant-picker-calendar-full .ant-picker-calendar-header .ant-picker-calendar-month-select,
 .calendar .ant-picker-calendar-full .ant-picker-calendar-header .ant-picker-calendar-year-select {
   margin: 0 5px;
+}
+.displaynon{
+  display: none;
 }
 
 @media (max-width: 1289px) {
@@ -314,7 +321,7 @@
     width: 405px;
   }
   .custom-card .ant-card-meta-avatar {
-    width: 60%;
+    // width: 60%;
   }
   .intro-card .ant-card-meta-detail {
     margin-top: 20px;
@@ -330,10 +337,6 @@
   }
   .card-title {
     font-size: 1em !important;
-  }
-  
-  .card-description {
-    font-size: 0.5em !important;
   }
   .calendar {
     width: 400px;
@@ -383,9 +386,6 @@
   font-size: 0.8em !important;
 }
 
-.card-description {
-  font-size: 0.6em !important;
-}
 .course-container {
   width: 300px;
 }
