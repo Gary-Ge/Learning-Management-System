@@ -92,7 +92,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold' }}>Edit Courses</Title>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-          <UploadImageButton onImageUpload={handleImageUpload} url={course.cover} />
+          <UploadImageButton onImageUpload={handleImageUpload} url={course.cover}  />
         </div>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
