@@ -5,7 +5,7 @@ import Footer from "../../component/footer"
 import { Input, Button, Modal, message, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import { useLocation } from 'umi';
-import ReactPlayer from 'react-player'
+import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
   COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
