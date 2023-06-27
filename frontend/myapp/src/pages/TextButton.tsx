@@ -7,7 +7,7 @@ import {
   DeleteOutlined
 } from '@ant-design/icons';
 
-const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionData: any) => void }> = ({ courseId, onSingleSectionChange }) => {
+const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleSectionChange, changeFlag }) => {
   const [sections, setSections] = useState<any[]>([]);
   const token = getToken();
   const fetchTextSections = async () => {
@@ -29,13 +29,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
   };
   useEffect(() => {
     fetchTextSections(); // 初始加载章节数据
-    // 设置轮询定时器，每隔一段时间更新章节数据
-    const interval = setInterval(fetchTextSections, 5000); // 5000毫秒为轮询间隔，可根据需要调整
-    // 在组件卸载时清除定时器
-    return () => {
-      clearInterval(interval);
-    };
-  }, [courseId]);
+  }, [changeFlag]);
 
   const handleSectionClick = (sectionId: string) => {
     // 处理菜单项点击事件

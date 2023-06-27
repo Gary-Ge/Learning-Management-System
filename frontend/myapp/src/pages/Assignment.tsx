@@ -97,7 +97,7 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
       alert('Please input a valid assignment description')
       return
     }
-    const dto = new AssignmentLessonDTO(title, description, start, end);
+    const dto = new AssignmentLessonDTO(title, description, start, end, mark);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
     // const token = getToken(); // 获取令牌(token)

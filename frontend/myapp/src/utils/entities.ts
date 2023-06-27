@@ -34,12 +34,14 @@ export class AssignmentLessonDTO {
   description: any;
   start: any;
   end: any;
+  mark: any;
 
-  constructor(title: any, description: any, start: any, end: any) {
+  constructor(title: any, description: any, start: any, end: any, mark: any) {
     this.title = title;
     this.description = description;
     this.start = start;
     this.end = end;
+    this.mark = mark;
   }
 }
 export class RegisterDTO {

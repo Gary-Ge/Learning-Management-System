@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import {getToken} from '../utils/utils'
 
-const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (assignmentData: any) => void }> = ({ courseId, onSingleAssignmentChange }) => {
+const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (assignmentData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleAssignmentChange, changeFlag }) => {
   const [assignments, setAssignments] = useState<any[]>([]);
   const token = getToken();
 
@@ -30,13 +30,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
   };
   useEffect(() => {
     fetchAssignmentSections(); // 初始加载章节数据
-    // 设置轮询定时器，每隔一段时间更新章节数据
-    const interval = setInterval(fetchAssignmentSections, 5000); // 5000毫秒为轮询间隔，可根据需要调整
-    // 在组件卸载时清除定时器
-    return () => {
-      clearInterval(interval);
-    };
-  }, [courseId]);
+  }, [changeFlag]);
 
   const handleDeleteClick = (assignmentId: string) => {
     // 处理删除图标点击事件

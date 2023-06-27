@@ -44,6 +44,9 @@ const StaffDashboardContent: React.FC = () => {
   
   const [courseSubmitted, setCourseSubmitted] = useState(false);
   const [selectedOption, setSelectedOption] = useState('close');
+
+  const [textChangeFlag, setTextChangeFlag] = useState(false);
+  const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   
   const handleAddCourses = () => {
     setSelectedOption('course');
@@ -52,6 +55,7 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('close');
   };
   const handleSubmitCourse = (courseId: string) => {
+    fetchCourses();
     setSelectedOption('close');
     setCourseSubmitted(true);
     // console.log('courseSubmitted', courseId);
@@ -81,13 +85,6 @@ const StaffDashboardContent: React.FC = () => {
     if (courses !== null) {
       setCourseSubmitted(true);
     }
-    // 设置轮询定时器，每隔一段时间更新章节数据
-    const interval = setInterval(fetchCourses, 5000); // 5000毫秒为轮询间隔，可根据需要调整
-
-    // 在组件卸载时清除定时器
-    return () => {
-      clearInterval(interval);
-    };
   }, []);
 
   // useEffect(() => {
@@ -128,11 +125,13 @@ const StaffDashboardContent: React.FC = () => {
   };
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const handleSubmitText = (sectionId: string) => {
+    setTextChangeFlag(!textChangeFlag);
     setSelectedOption('close');
     console.log('Submitted sectionId:', sectionId);
   };
 
   const handleSubmitAssignment = () => {
+    setAssignmentChangeFlag(!assignmentChangeFlag);
     setSelectedOption('close');
   };
 
@@ -167,8 +166,8 @@ const StaffDashboardContent: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center' }}
       >
-        <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} />
-        <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} />
+        <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
+        <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
         {/* add course materials button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 'auto' }}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
 import './StaffDashboardContent.less';
 import {getToken} from '../utils/utils'
@@ -73,11 +73,28 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    console.log('assignment', assignment);
+    setTitle(assignment.title);
+    setMark(assignment.mark);
+    setStart(assignment.start);
+    setEnd(assignment.end);
+    setDescription(assignment.description);
+
+    form.setFieldsValue({
+      "assignment title": assignment.title,
+      "assignment mark": assignment.mark
+    })
+  }, [assignment])
+
   const handleSubmit = () => {
     console.log(start);
     console.log(end);
     // 处理提交逻辑
-    const dto = new AssignmentLessonDTO(title, description, start, end);
+    const dto = new AssignmentLessonDTO(title, description, start, end, mark);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
     // const token = getToken(); // 获取令牌(token)
@@ -125,8 +142,8 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Assignment</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
-          <Form.Item 
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
+          <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
                 Assignment Title
@@ -137,10 +154,8 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
               { max: 100, message: 'The assignment title must be less than 100 characters!' },
             ]}
           >
-            <Input 
-              placeholder={assignment.title} 
+            <Input
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={title}
               onChange={handleAssignmentTitleChange}
             />
           </Form.Item>
@@ -197,7 +212,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
               <ReactQuill
                 modules={quillModules}
                 formats={quillFormats}
-                placeholder={assignment.description}
                 value={description}
                 onChange={handleAssignmentDescriptionChange}
               />
