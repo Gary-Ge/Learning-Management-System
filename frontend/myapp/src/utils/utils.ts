@@ -42,5 +42,5 @@ export const HOST_COURSE = '/service-edu/edu-course'
 export const COURSE_DETAIL_URL = '/course'
 export const HOST_SECTION = '/service-edu/edu-section'
 export const HOST_RESOURCE = '/service-edu/edu-resource'
-//// /service-edu/edu-course/course/{courseId}
+export const HOST_ASSIGNMENT = '/service-edu/edu-assignment'
 
