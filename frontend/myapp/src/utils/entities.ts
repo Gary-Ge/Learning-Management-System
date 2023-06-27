@@ -13,6 +13,13 @@ export class CourseLayoutDTO {
     this.hasForum = hasForum;
   }
 }
+export class FileUploadDTO {
+  files: any;
+
+  constructor(files: any) {
+    this.files = files;
+  }
+}
 export class TextLessonDTO {
   title: any;
   description: any;

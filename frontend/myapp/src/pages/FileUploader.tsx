@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { Layout, Upload, Button, message } from 'antd';
 import { FolderOpenOutlined } from '@ant-design/icons';
 
-const FileUploader = () => {
+interface FileUploaderProps {
+  onFileListChange: (fileList: any[]) => void;
+}
+
+const FileUploader: React.FC<FileUploaderProps> = ({ onFileListChange }) => {
   const [fileList, setFileList] = useState<Array<any>>([]);
 
   const handleFileChange = ({ fileList }: { fileList: Array<any> }) => {
     setFileList(fileList);
+    onFileListChange(fileList);
   };
   const beforeUpload = (file: any) => {
     const isFileExist = fileList.some(item => item.name === file.name);
@@ -21,13 +26,6 @@ const FileUploader = () => {
     setFileList(updatedFileList);
 
     return false; // 阻止文件上传
-  };
-  const handleUpload = () => {
-    // 在这里执行上传文件的逻辑
-    // 可以将文件发送到服务器或进行其他操作
-
-    // 清空上传的文件列表
-    setFileList([]);
   };
 
   return (

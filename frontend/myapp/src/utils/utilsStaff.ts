@@ -1,16 +1,8 @@
-export function validEmail (email:any) {
-  if (email == null || email === '' || !email.match(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)) {
-    return false
-  }
-  return true
-}
-
-export function ValidPassword (password:any) {
-  if (password == null || password.length < 8) {
+export function validNotFile(value: any) {
+  if (Array.isArray(value) && value.length === 0) {
     return false;
   }
-  var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]+$/
-  return regex.test(password);
+  return true;
 }
 
 export function validNotNull (value:any) {

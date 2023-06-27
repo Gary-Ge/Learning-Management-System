@@ -39,7 +39,15 @@ const quillFormats = [
   'color',
   'background',
 ];
-const TextLesson: React.FC<{ onCancel: () => void; onSubmit: () => void }> = ({ onCancel, onSubmit }) => {
+const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+  const [title, setTitle] = useState("");
+  const handleVideoTitleChange = (e:any) => {
+    setTitle(e.target.value);
+  };
+  const [description, setDescription] = useState("");
+  const handleVideoDescriptionChange = (value: string) => {
+    setDescription(value);
+  };
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -156,4 +164,4 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: () => void }> = ({ 
   );
 };
 
-export default TextLesson;
+export default VideoLesson;

@@ -400,7 +400,7 @@ const StaffDashboardContent: React.FC = () => {
           <TextLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitText} />
         )}
         {selectedOption === 'video' && (
-          <VideoLesson onCancel={handleCancel} onSubmit={handleSubmitVideo} />
+          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
         {selectedOption === 'stream' && (
           <StreamLesson onCancel={handleCancel} onSubmit={handleSubmitVideo} />
