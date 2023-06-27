@@ -6,7 +6,7 @@ export function validNotFile(value: any) {
 }
 
 export function validNotNull (value:any) {
-  if (value == null || value === '') {
+  if (value == null || value === '' || value == -1) {
     return false
   }
   return true

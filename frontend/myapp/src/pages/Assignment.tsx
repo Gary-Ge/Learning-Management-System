@@ -8,7 +8,7 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
-import { validNotNull, getToken } from '../utils/utilsStaff';
+import { validNotNull, validNotFile } from '../utils/utilsStaff';
 import { AssignmentLessonDTO } from '../utils/entities';
 import moment, { Moment } from 'moment';
 
@@ -46,7 +46,7 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
   const handleAssignmentTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
-  const [mark, setMark] = useState(null);
+  const [mark, setMark] = useState(-1);
   const handleAssignmentMarkChange = (e:any) => {
     setMark(e.target.value);
   };
@@ -70,6 +70,12 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
   };
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
+  };
+  // upload resource
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  const handleFileListChange = (newFileList: any[]) => {
+    setFileList(newFileList);
   };
   const handleSubmit = () => {
     console.log(start);
@@ -95,7 +101,11 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
       alert('Please input a valid assignment description')
       return
     }
-    const dto = new AssignmentLessonDTO(title, description, start, end);
+    if (!validNotFile(fileList)) {
+      alert('Please choose a valid assignment file')
+      return
+    }
+    const dto = new AssignmentLessonDTO(title, description, start, end, mark);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
     // const token = getToken(); // 获取令牌(token)
@@ -112,11 +122,34 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
     })
     .then(res => res.json())
     .then(res => {
-      console.log('res', res);
+      // console.log('ass_res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
       onSubmit();
+      const formData = new FormData();
+
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${res.data.assignmentId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(res => {
+        console.log('res', res);
+        if (res.code !== 200) {
+          throw new Error(res.message);
+        }
+      })
+      .catch(error => {
+        alert(error.message);
+      });
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
@@ -232,7 +265,7 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
             </div>
           </Form.Item>
           <Form.Item>
-            <FileUploader />
+            <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>

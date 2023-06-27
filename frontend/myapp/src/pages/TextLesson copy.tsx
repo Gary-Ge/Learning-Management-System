@@ -41,85 +41,96 @@ const quillFormats = [
   'background',
 ];
 const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
-  const [title, setTitle] = useState("");
-  const handleTextTitleChange = (e:any) => {
-    setTitle(e.target.value);
-  };
-  const [description, setDescription] = useState("");
-  const handleTextDescriptionChange = (value: string) => {
-    setDescription(value);
-  };
+  // const [title, setTitle] = useState("");
+  // const handleTextTitleChange = (e:any) => {
+  //   setTitle(e.target.value);
+  // };
+  // const [description, setDescription] = useState("");
+  // const handleTextDescriptionChange = (value: string) => {
+  //   setDescription(value);
+  // };
   // upload resource
-  const [fileList, setFileList] = useState<any[]>([]);
-
-  const handleFileListChange = (newFileList: any[]) => {
-    setFileList(newFileList);
+  const [files, setFileList] = useState<any[]>([]);
+  // 处理 file list 变化的回调函数
+  const handleFileListChange = (newfileList: any[]) => {
+    // 在这里处理文件列表的变化
+    console.log(newfileList);
+    setFileList(newfileList);
   };
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
+  // const [sectionId, setSectionId] = useState("");
   const handleSubmit = () => {
     // 处理提交逻辑
-    if (!validNotNull(title)) {
-      alert('Please input a valid text title')
-      return
-    }
-    if (!validNotNull(description)) {
-      alert('Please input a valid text description')
-      return
-    }
-    if (!validNotFile(fileList)) {
-      alert('Please choose a valid text file')
-      return
-    }
-    const dto = new TextLessonDTO(title, description);
-    const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    // console.log(courseId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/textSection/${courseId}`, {
+    // if (!validNotNull(title)) {
+    //   alert('Please input a valid text title')
+    //   return
+    // }
+    // if (!validNotNull(description)) {
+    //   alert('Please input a valid text description')
+    //   return
+    // }
+    // if (!validNotFile(files)) {
+    //   alert('Please choose a valid text file')
+    //   return
+    // }
+    // const dto = new TextLessonDTO(title, description);
+    // const requestData = JSON.stringify(dto);
+    // // console.log('dto', dto); 
+    // // const token = getToken(); // 获取令牌(token)
+    // // const token = localStorage.getItem('token');
+    // // console.log(token);
+    // // console.log(courseId);
+    // fetch(`http://175.45.180.201:10900/service-edu/edu-section/textSection/${courseId}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+    //   },
+    //   body: requestData
+    // })
+    // .then(res => res.json())
+    // .then(res => {
+    //   // console.log('res', res);
+    //   if (res.code !== 20000) {
+    //     throw new Error(res.message)
+    //   }
+    //   console.log('sectionId', res.data.sectionId);
+    //   const sectionID = res.data.sectionId;
+    //   setSectionId(sectionID)
+    //   onSubmit(sectionID);
+    //   // history.push('/'); // redirect to login page, adjust as needed
+    // })
+    // .catch(error => {
+    //   alert(error.message);
+    // });
+
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+    console.log("formData",formData);
+    const filedto = new FileUploadDTO(files);
+    const requestFileData = JSON.stringify(filedto);
+    fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${sectionId}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
         Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
       },
-      body: requestData
+      body: formData
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
+      console.log('res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log('sectionId', res.data.sectionId);
-      const sectionID = res.data.sectionId;
-      // 上传文件
-      const formData = new FormData();
-
-      fileList.forEach((file) => {
-        formData.append("files", file);
-      });
-
-      fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${sectionID}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
-        },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log('res_file', res);
-        if (res.code !== 200) {
-          throw new Error(res.message);
-        }
-        onSubmit(sectionID);
-      })
-      .catch(error => {
-        alert(error.message);
-      });
+      // console.log('courseId', res.data.sectionId);
+      // const sectionId = res.data.sectionId;
+      // onSubmit(sectionId);
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
@@ -147,7 +158,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Create Text Lesson</Title>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
-          <Form.Item 
+          {/* <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
                   Text Title
@@ -197,7 +208,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
             }
             name="materials"
           >
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item>
             <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>

@@ -9,22 +9,24 @@ interface FileUploaderProps {
 const FileUploader: React.FC<FileUploaderProps> = ({ onFileListChange }) => {
   const [fileList, setFileList] = useState<Array<any>>([]);
 
-  const handleFileChange = ({ fileList }: { fileList: Array<any> }) => {
-    setFileList(fileList);
-    onFileListChange(fileList);
-  };
   const beforeUpload = (file: any) => {
-    const isFileExist = fileList.some(item => item.name === file.name);
+    const isFileExist = fileList.some((item) => item.name === file.name);
 
     if (isFileExist) {
       message.error('File already exists!');
-      setFileList([]);
       return false; // 阻止文件上传
     }
 
-    const updatedFileList = [...fileList, file];
-    setFileList(updatedFileList);
-
+    // // 添加新文件到文件列表
+    // const updatedFileList = [...fileList, file];
+    // setFileList(updatedFileList);
+    fileList.push(file);
+    let copyfilelist = fileList.slice();
+    // console.log('copyfilelist', copyfilelist);
+    // setFileList([...fileList, file]);
+    setFileList([...copyfilelist]);
+    // console.log('fileList', fileList);
+    onFileListChange(fileList);
     return false; // 阻止文件上传
   };
 
@@ -33,14 +35,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileListChange }) => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
         <Upload
           multiple
-          onChange={handleFileChange}
           fileList={fileList}
           beforeUpload={beforeUpload}
           style={{ flexGrow: 1 }}
         >
-          <Button 
-            icon={<FolderOpenOutlined />} 
-            type="primary" 
+          <Button
+            icon={<FolderOpenOutlined />}
+            type="primary"
             ghost
             style={{ border: '1px dashed #9999FF', height: '100px', width: '100%' }}
           >

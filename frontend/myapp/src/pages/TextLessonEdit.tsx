@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, Collapse  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {
+  DeleteOutlined,
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
@@ -10,6 +11,7 @@ import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
 import { validNotNull, getToken } from '../utils/utilsStaff';
 import { TextLessonDTO } from '../utils/entities';
+const { Panel } = Collapse;
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -42,6 +44,7 @@ const quillFormats = [
 ];
 const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => {
   const [title, setTitle] = useState("");
+  const [sectionInfor, setSectionInfor] = useState(section);
   const handleTextTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
@@ -52,6 +55,12 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
+  // upload resource
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  const handleFileListChange = (newFileList: any[]) => {
+    setFileList(newFileList);
+  };
   const handleSubmit = () => {
     // 处理提交逻辑    
     const dto = new TextLessonDTO(title, description);
@@ -60,7 +69,6 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
     // const token = getToken(); // 获取令牌(token)
     // const token = localStorage.getItem('token');
     // console.log(token);
-    // console.log(courseId);
     fetch(`http://175.45.180.201:10900/service-edu/edu-section/textSection/${section.sectionId}`, {
       method: 'PUT',
       headers: {
@@ -76,12 +84,74 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
         throw new Error(res.message)
       }
       onSubmit(section.sectionId);
+      const formData = new FormData();
+
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${section.sectionId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(res => {
+        console.log('res', res);
+        if (res.code !== 200) {
+          throw new Error(res.message);
+        }
+      })
+      .catch(error => {
+        alert(error.message);
+      });
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
       alert(error.message);
     });
-    
+  };
+  const handleDeleteClick = (resourceId: string) => {
+    // 处理删除图标点击事件
+    // console.log('click delete:', sectionId);
+    fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resource/${resourceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res)
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      fetch(`http://175.45.180.201:10900/service-edu/edu-section/section/${section.sectionId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        },
+      })
+      .then(res => res.json())
+      .then(res => {
+        // console.log('res', res)
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+        const sectionData = res.data.section;
+        setSectionInfor(sectionData);
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    })
+    .catch(error => {
+      alert(error.message);
+    });
   };
   return (
     <>
@@ -152,7 +222,39 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader />
+            {sectionInfor.resources.map((resources: any) => (
+              <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                <Button
+                  // key={section.sectionId}
+                  // onClick={() => handleButtonClick(section.sectionId)}
+                  // onMouseEnter={() => handleButtonMouseEnter(section.sectionId)}
+                  // onMouseLeave={handleButtonMouseLeave}
+                  style={{ 
+                    border: 'none', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    width: '300px',
+                    // backgroundColor: activeButton === section.sectionId ? '#DAE8FC' : 'transparent',
+                    // color: activeButton === section.sectionId ? 'red' : 'black',
+                    fontFamily: 'Comic Sans MS'
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                    {resources.title.length > 12 ? resources.title.substring(0, 7) + '...' : resources.title}
+                  </span>
+                </Button>
+                <DeleteOutlined 
+                  style={{ color: 'red', cursor: 'pointer', width: '30px' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(resources.resourceId);
+                  }} 
+                />
+              </div>
+              </>
+            ))}
+            <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>

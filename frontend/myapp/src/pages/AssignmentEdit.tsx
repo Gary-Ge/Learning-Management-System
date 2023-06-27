@@ -4,6 +4,7 @@ import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {
   HeartFilled,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -42,6 +43,7 @@ const quillFormats = [
   'background',
 ];
 const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; assignment: any }> = ({ onCancel, onSubmit, assignment }) => {
+  const [assignmentInfor, setAssignmentInfor] = useState(assignment);
   const [title, setTitle] = useState("");
   const handleAssignmentTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -68,6 +70,12 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
   const handleAssignmentDescriptionChange = (value: string) => {
     setDescription(value);
   };
+  // upload resource
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  const handleFileListChange = (newFileList: any[]) => {
+    setFileList(newFileList);
+  };
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -75,7 +83,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
     console.log(start);
     console.log(end);
     // 处理提交逻辑
-    const dto = new AssignmentLessonDTO(title, description, start, end);
+    const dto = new AssignmentLessonDTO(title, description, start, end, mark);
     const requestData = JSON.stringify(dto);
     // console.log('dto', dto); 
     // const token = getToken(); // 获取令牌(token)
@@ -97,13 +105,75 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
         throw new Error(res.message)
       }
       onSubmit();
+      const formData = new FormData();
+
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assignment.assignmentId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(res => {
+        console.log('res', res);
+        if (res.code !== 200) {
+          throw new Error(res.message);
+        }
+      })
+      .catch(error => {
+        alert(error.message);
+      });
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
       alert(error.message);
     });
   };
-  
+  const handleDeleteClick = (assFileId: string) => {
+    // 处理删除图标点击事件
+    // console.log('click delete:', sectionId);
+    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assFileId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res)
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${assignment.assignmentId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJicmFpbm92ZXJmbG93LXVzZXIiLCJpYXQiOjE2ODc1MTg2MDksImV4cCI6MTY5MDExMDYwOSwiaWQiOiIwZTVjM2UwMTRjNDA1NDhkMzNjY2E0ZWQ3YjlhOWUwNCJ9.ngA7l15oOI-LyXB_Ps5kMzW_nzJDFYDOI4FmKcYIxO4`,
+        },
+      })
+      .then(res => res.json())
+      .then(res => {
+        // console.log('res', res)
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+        const assignmentData = res.data.assignment;
+        setAssignmentInfor(assignmentData);
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    })
+    .catch(error => {
+      alert(error.message);
+    });
+  };
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
       <Content 
@@ -149,13 +219,10 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
               </Text>
             } 
             name="assignment mark" 
-            rules={[
-              { required: true, message: 'Please input the assignment mark!' },
-            ]}
           >
             <Input 
               type="number"
-              placeholder="Input Number" 
+              placeholder={assignment.mark} 
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
               value={mark}
               onChange={handleAssignmentMarkChange}
@@ -202,7 +269,39 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
             </div>
           </Form.Item>
           <Form.Item>
-            <FileUploader />
+          {assignmentInfor.assFiles.map((assFile: any) => (
+              <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                <Button
+                  // key={section.sectionId}
+                  // onClick={() => handleButtonClick(section.sectionId)}
+                  // onMouseEnter={() => handleButtonMouseEnter(section.sectionId)}
+                  // onMouseLeave={handleButtonMouseLeave}
+                  style={{ 
+                    border: 'none', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    width: '300px',
+                    // backgroundColor: activeButton === section.sectionId ? '#DAE8FC' : 'transparent',
+                    // color: activeButton === section.sectionId ? 'red' : 'black',
+                    fontFamily: 'Comic Sans MS'
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                    {assFile.title.length > 12 ? assFile.title.substring(0, 7) + '...' : assFile.title}
+                  </span>
+                </Button>
+                <DeleteOutlined 
+                  style={{ color: 'red', cursor: 'pointer', width: '30px' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(assFile.assFileId);
+                  }} 
+                />
+              </div>
+              </>
+            ))}
+            <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
