@@ -1,5 +1,10 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.6.27
+
+- Assignment创建时需要提供分数。所有获取Assignment信息的接口也同时返回分数信息
+- Assignment创建时现在会判断ass的截止日期是否晚于当前日期
+
 ## Update 2023.6.25
 
 - 获取所有课程的接口已经可用，位于`/service-edu/edu-course/courses`，该接口会忽略当前用户创建/教授/注册参与的所有课程，只返回那些与当前用户完全无关的课程，按照创建时间排序
