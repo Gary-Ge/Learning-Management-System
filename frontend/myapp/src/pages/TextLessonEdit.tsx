@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
@@ -42,6 +42,18 @@ const quillFormats = [
   'background',
 ];
 const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => { 
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    setTitle(section.title);
+    setDescription(section.description);
+
+    form.setFieldsValue({
+      "text title": section.title
+    })
+  }, [section])
+
   const token = getToken();
   const [title, setTitle] = useState("");
   const handleTextTitleChange = (e:any) => {
@@ -105,7 +117,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Text Lesson</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -139,6 +151,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
                 modules={quillModules}
                 formats={quillFormats}
                 onChange={handleTextDescriptionChange}
+                value={description}
               />
             </div>
           </Form.Item>

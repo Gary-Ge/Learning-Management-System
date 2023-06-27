@@ -48,6 +48,7 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      fetchAssignmentSections();
     })
     .catch(error => {
       alert(error.message);

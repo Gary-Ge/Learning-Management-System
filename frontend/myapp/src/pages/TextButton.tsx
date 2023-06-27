@@ -71,6 +71,7 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      fetchTextSections();
     })
     .catch(error => {
       alert(error.message);
