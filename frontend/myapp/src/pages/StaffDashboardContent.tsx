@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider } from 'antd';
 import './StaffDashboardContent.less';
+import Navbar from "../../component/navbar"
 import {
   PlusCircleOutlined,
   HeartFilled,
@@ -68,8 +69,8 @@ const StaffDashboardContent: React.FC = () => {
       const data = await response.json();
       const fetchedCourses = data.data.courses;
       setCourses(fetchedCourses);
-    } catch (error) {
-      alert(error.message);
+    } catch (error:any) {
+      console.log(error.message);
     }
   };
 
@@ -97,7 +98,7 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedCourseId(courseId);
     setSelectedCourseTitle(courseTitle);
   };
-  const [singleCourse, setSingleCourse] = useState(null);
+  const [singleCourse, setSingleCourse] = useState<Array<any>>([{cover: '',title:'',category:'',description:'',hasForum:false}]);
   const handleEditCourse = (courseId: string) => {
     // console.log(courseId);
     setSelectedCourseId(courseId);
@@ -120,7 +121,7 @@ const StaffDashboardContent: React.FC = () => {
       // console.log('data_title', data.data.course.title);
     })
     .catch((error) => {
-      alert(error.message);
+      console.log(error.message);
     });
   };
   const [selectedCourseId, setSelectedCourseId] = useState('');
@@ -311,6 +312,7 @@ const StaffDashboardContent: React.FC = () => {
   
   return (
     <>
+    <Navbar />
     <Layout className='staff-dashboard' style={{ backgroundColor: '#EFF1F6' }}>
       <Sider
         className='left-sider'

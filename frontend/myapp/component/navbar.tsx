@@ -197,6 +197,7 @@ export default function Dashboard() {
     if (key == '1') {
       history.push('/')
     }else{
+      history.push('/staffcourse')
     }
   };
   const items: TabsProps['items'] = [

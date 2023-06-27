@@ -31,9 +31,8 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   const handleImageUpload = (url: any) => {
     setImageUrl(url);
   };
-
+  console.log(course.hasForum)
   const history = useHistory();
-
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -69,9 +68,8 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      alert(error.message);
+      console.log(error.message);
     });
-    
   };
   return (
     <>
@@ -126,7 +124,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
             ]}
           >
             <Input 
-              placeholder={course.category} 
+              placeholder={"course.category"} 
               value={category}
               onChange={handleCourseCategoryChange}
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
@@ -161,7 +159,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
             }
             name="createForums"
           >
-            <Radio.Group value={hasForum} defaultValue={course.hasForum} onChange={(e) => setForum(e.target.value)}>
+            <Radio.Group value={course.hasForum} defaultValue={course.hasForum} onChange={(e) => setForum(e.target.value)}>
               <Radio value={true} style={{ fontSize: '15px', fontFamily: 'Comic Sans MS', color: 'black' }}>
                 Yes
               </Radio>

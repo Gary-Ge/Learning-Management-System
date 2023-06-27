@@ -50,15 +50,6 @@ const FileUploader = () => {
           </Button>
         </Upload>
       </div>
-      {fileList.length > 0 && (
-        <Button
-          type="primary"            
-          onClick={handleUpload}
-          style={{ border: '5px' }}
-        >
-          Upload
-        </Button>
-      )}
     </Layout>
   );
 };

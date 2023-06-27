@@ -286,7 +286,7 @@ useEffect(() => {
             />
           }
           title={<span className='card-title' style={{ fontSize: '1.5em' }}>{course.title}</span>}
-          description={<span className='card-description' style={{ fontSize: '1em' }}>{course.date}<br />{course.description}</span>}
+          description={<span className='card-description' style={{ fontSize: '1em' }}>{course.date}<br/>{course.description}</span>}
         />
         <div className={`button-container ${hoveredId === course.id ? 'show' : ''}`}>
           <Button type="primary" size="large"onClick={() => {
