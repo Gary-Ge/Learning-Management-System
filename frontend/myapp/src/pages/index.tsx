@@ -62,7 +62,7 @@ export default function IndexPage() {
   const [customize, setCustomize] = useState(true);
   const [userData, setUserData] = useState({});
   const token = getToken()
-  const [hovered, setHovered] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [curriculum, setCurriculum] = useState([]);
   const [courseId, setCourseId] = useState<string[]>([]);
   const [courseDetails, setCourseDetails] = useState<Array<any>>([]);
@@ -180,6 +180,7 @@ useEffect(() => {
     console.log(allcourses);
 }, [allcourses]);
 
+
   return (
       <div className='body_user'>
       <Navbar />
@@ -224,7 +225,7 @@ useEffect(() => {
       <div className='course-container'>
       {courses.map((course, index) => (
         <div className='course-card' key={index} onClick={() => gotostudent(course.id,course.title)} style={{cursor:'pointer'}}>
-          <Avatar src={course.src} className="square-avatar-course" style={{height:'260px',width:'260px'}}></Avatar>
+          <Avatar src={course.src} className="square-avatar-course" style={{height:'270px',width:'270px'}}></Avatar>
           {course.title && (
             <div className="overlay">
               <div className="overlay-content">
@@ -246,42 +247,66 @@ useEffect(() => {
     />
     <div>
     <div className='card_and_calendar'>
-    <div className='card'
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
-    {allcourses
+    <div className='card'>
+  {allcourses
     .slice((currentPage - 1) * 3, currentPage * 3)
-    .map((data, index) => (
+    .map((course) => (
       <Card 
-        key={index}
-        className={`custom-card ${hovered ? 'hovered' : ''}`} 
+        key={course.id}
+        className={`custom-card ${hoveredCard === course.id ? 'hovered' : ''}`}
         style={{ width: '100%', height:'70%', marginTop: '40px',backgroundColor: '#ffffff'}}
+        onMouseEnter={() => courseId.includes(course.id) && setHoveredCard(course.id)}
+        onMouseLeave={() => courseId.includes(course.id) && setHoveredCard(null)}
+        onClick={() => {
+          console.log(hoveredCard)
+          if (courseId.includes(course.id)) {
+            gotostudent(course.id, course.title);
+          } 
+        }}
       >
         <Meta
           avatar={
             <Avatar 
-              src={data.src} 
+              src={course.src} 
               className="square-avatar"
               style={{ width: '40%', height: 'auto' }} 
             />
           }
-          title={<span className='card-title' style={{ fontSize: '1.5em' }}>{data.title}</span>}
-          description={<span className='card-description' style={{ fontSize: '1em' }}>{data.date}</span>}
+          title={<span className='card-title' style={{ fontSize: '1.5em' }}>{course.title}</span>}
+          description={<span className='card-description' style={{ fontSize: '1em' }}>{course.date}</span>}
         />
-        <div className={`button-container ${hovered ? 'show' : ''}`}>
-          <Button type="primary" size="large">Join</Button>
-          <Button type="primary"size="large">View</Button>
+        <div className={`button-container ${hoveredCard === course.id ? 'show' : ''}`}>
+          <Button type="primary" size="large"onClick={() => {
+          fetch(`${HOST_STUDENT}/student/${course.id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${token}`
+          }
+        })
+        .then(res => res.json()) 
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message)
+          }
+          gotostudent(course.id, course.title);
+        })
+        .catch(error => {
+          alert(error.message);
+        });} 
+        }>Join</Button>
+          <Button type="primary" size="large" onClick={() => gotoviewstudent(course.id,course.title)}>View</Button>
         </div>
       </Card>
-    ))}
-    <div className='course-Page'>
+  ))}
+  <div className='course-Page'>
     <Pagination 
       defaultCurrent={1} 
       defaultPageSize={3} 
       total={allcourses.length} 
       onChange={(page) => setCurrentPage(page)}
     />
-    </div>
+   </div>
     </div>
     <div className='calendar'>
       <Calendar fullscreen={false}/>
