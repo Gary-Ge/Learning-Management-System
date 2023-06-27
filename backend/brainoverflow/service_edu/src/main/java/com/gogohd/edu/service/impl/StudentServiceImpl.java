@@ -204,6 +204,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         result.put("description", assignment.getDescription());
         result.put("start", assignment.getStart());
         result.put("end", assignment.getEnd());
+        result.put("mark", assignment.getMark());
 
         // Fetch the information of ass files
         LambdaQueryWrapper<AssFile> wrapper = new LambdaQueryWrapper<>();
@@ -263,6 +264,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                     result.put("description", assignment.getDescription());
                     result.put("start", assignment.getStart());
                     result.put("end", assignment.getEnd());
+                    result.put("mark", assignment.getMark());
 
                     // Get the ass files information, if any
                     LambdaQueryWrapper<AssFile> assFileWrapper = new LambdaQueryWrapper<>();

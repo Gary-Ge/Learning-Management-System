@@ -16,4 +16,7 @@ public class CreateAssignmentVo {
 
     @Schema(description = "The end time of this assignment", requiredMode = Schema.RequiredMode.REQUIRED)
     private String end;
+
+    @Schema(description = "The mark of this assignment", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer mark;
 }

@@ -71,16 +71,23 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         if (ObjectUtils.isEmpty(createAssignmentVo.getEnd())) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment end time cannot be empty");
         }
+        if (ObjectUtils.isEmpty(createAssignmentVo.getMark())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment mark cannot be empty");
+        }
 
         Assignment assignment = new Assignment();
         assignment.setTitle(createAssignmentVo.getTitle());
         assignment.setDescription(createAssignmentVo.getDescription());
+        assignment.setMark(createAssignmentVo.getMark());
         try {
             LocalDateTime start = DateTimeUtils.stringToDateTime(createAssignmentVo.getStart());
             LocalDateTime end = DateTimeUtils.stringToDateTime(createAssignmentVo.getEnd());
 
             if (!start.isBefore(end)) {
                 throw new BrainException(ResultCode.ILLEGAL_ARGS, "The start time should be earlier than the end time");
+            }
+            if (!end.isAfter(LocalDateTime.now())) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "The end time should be later than current time");
             }
 
             assignment.setStart(start);
@@ -112,6 +119,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         result.put("description", assignment.getDescription());
         result.put("start", assignment.getStart());
         result.put("end", assignment.getEnd());
+        result.put("mark", assignment.getMark());
 
         // Fetch the information of ass files
         LambdaQueryWrapper<AssFile> wrapper = new LambdaQueryWrapper<>();
@@ -163,6 +171,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
                     result.put("description", assignment.getDescription());
                     result.put("start", assignment.getStart());
                     result.put("end", assignment.getEnd());
+                    result.put("mark", assignment.getMark());
 
                     // Get the ass files information, if any
                     LambdaQueryWrapper<AssFile> assFileWrapper = new LambdaQueryWrapper<>();
@@ -236,6 +245,9 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             if (!start.isBefore(end)) {
                 throw new BrainException(ResultCode.ILLEGAL_ARGS, "The start time should be earlier than the end time");
             }
+            if (!end.isAfter(LocalDateTime.now())) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "The end time should be later than current time");
+            }
 
             assignment.setStart(start);
             assignment.setEnd(end);
@@ -245,6 +257,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
 
         assignment.setTitle(updateAssignmentVo.getTitle());
         assignment.setDescription(updateAssignmentVo.getDescription());
+        assignment.setMark(updateAssignmentVo.getMark());
         assignment.setAssignmentId(assignmentId);
 
         int result = baseMapper.updateById(assignment);
