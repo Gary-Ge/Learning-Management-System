@@ -229,7 +229,7 @@ const onSearch = (value: string) => {
 useEffect(() => {
   // Check the token immediately when the component mounts
   if (!checkToken()) {
-    alert('you are not login')
+    message.warning('you are not login')
     history.push('/login');
   }
 },[token])
