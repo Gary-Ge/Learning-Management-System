@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, Select  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {
@@ -75,12 +75,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
       alert('Please input a valid video description')
       return
     }
-    if (youtubeLink !== "") {
-      setType(1);
-    } 
-    else {
-      setType(2);
-    }
     const dto = new VideoLessonDTO(title, description, cover, youtubeLink, type);
     const requestData = JSON.stringify(dto);
     fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
@@ -93,7 +87,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
+      console.log('video_res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -126,7 +120,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                  Video Title
+                  Video Title{console.log(video)}
               </Text>
             } 
             name="video title" 
@@ -145,23 +139,46 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Video URL
+                Video Type
               </Text>
             } 
-            name="video url" 
+            name="video type" 
           >
-            <Input 
-              placeholder="URL" 
-              style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={youtubeLink}
-              onChange={handleUrlChange}
-            />
+            <Select
+              placeholder="Select Video Section Type"
+              style={{ fontFamily: 'Comic Sans MS', width: '100%' }}
+              onChange={(value: number) => {
+                setType(value);
+              }}
+            >
+              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={1}>YouTube Video Section</Select.Option>
+              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={2}>Custom Video Section</Select.Option>
+            </Select>
           </Form.Item>
-          <Form.Item>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-              <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={courseId} />
-            </div>
-          </Form.Item>
+          {type === 1 && (
+            <Form.Item 
+              label={
+                <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
+                  Video URL
+                </Text>
+              } 
+              name="video url" 
+            >
+              <Input 
+                placeholder="URL" 
+                style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
+                value={youtubeLink}
+                onChange={handleUrlChange}
+              />
+            </Form.Item>
+          )}
+          {type === 2 && (
+            <Form.Item>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
+                <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={courseId} />
+              </div>
+            </Form.Item>
+          )}
           {/* <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
