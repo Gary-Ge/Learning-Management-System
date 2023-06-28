@@ -198,7 +198,7 @@ export default function Dashboard() {
         if (res.code !== 20000) {
           throw new Error(res.message);
         }
-        alert("User information updated successfully");
+        message.success("User information updated successfully");
         handleModalClose();
       })
       .catch(error => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./register.less";
 import { Link,useHistory } from 'umi';
-import { Button, Form, Input, Radio } from 'antd';
+import { Button, Form, Input, Radio, message } from 'antd';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { validEmail, validNotNull,  ValidPassword, HOST, REGISTER_URL, saveToken, HEADER } from '../utils/utils';
 import { RegisterDTO } from '../utils/entities';
@@ -51,10 +51,11 @@ export default function LoginPage() {
       }
       console.log(res.data.token)
       saveToken(res.data.token)
+      message.success('Register successfully!')
       history.push('/login'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      alert(error.message)
+      message.error(error.message)
     });  
   };
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./forgetpassword.less";
 import { CloseCircleOutlined } from '@ant-design/icons';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { Link,useHistory } from 'umi'; 
 import { validEmail,validNotNull,HOST,EMAIL_URL,HEADER,CODE_URL} from '../utils/utils';
 import { CaptachaDTO } from '../utils/entities';
@@ -31,10 +31,10 @@ export default function ForgetPassword() {
             if (res.code !== 20000) {
               throw new Error(res.message)
             }
-            alert('Verification code sent successfully');
+            message.success('Verification code sent successfully');
           })
           .catch(error => {
-            alert(error.message);
+            message.error(error.message);
           });  
     }
     const handleSubmit = () => {

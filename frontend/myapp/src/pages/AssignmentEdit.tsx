@@ -15,7 +15,6 @@ import { AssignmentLessonDTO } from '../utils/entities';
 import moment, { Moment } from 'moment';
 
 const { Content, Footer } = Layout;
-const token = getToken();
 const { Title, Text } = Typography;
 const quillModules = {
   toolbar: [
@@ -45,6 +44,8 @@ const quillFormats = [
   'background',
 ];
 const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; assignment: any }> = ({ onCancel, onSubmit, assignment }) => {
+  const token = getToken();
+
   const [assignmentInfor, setAssignmentInfor] = useState(assignment);
   const [title, setTitle] = useState("");
   const handleAssignmentTitleChange = (e:any) => {
