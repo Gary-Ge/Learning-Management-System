@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Typography, Button, Form, Input, Radio  } from 'antd';
+import { Layout, Typography, Button, Form, Input, Radio, message  } from 'antd';
 import './StaffDashboardContent.less';
 import './CourseLayout.css';
 import {getToken} from '../utils/utils'
@@ -84,11 +84,12 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
       // console.log('courseId', res.data.courseId);
       // setCourseId(res.data.courseId);
       const courseId = res.data.courseId;
+      message.success('Create Course Successfully!');
       onSubmit(courseId);
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
     
   };

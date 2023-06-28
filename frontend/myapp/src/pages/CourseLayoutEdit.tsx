@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Typography, Button, Form, Input, Radio  } from 'antd';
+import { Layout, Typography, Button, Form, Input, Radio, message  } from 'antd';
 import './StaffDashboardContent.less';
 import './CourseLayout.css';
 import {getToken} from '../utils/utils'
@@ -76,6 +76,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      message.success('Update Course Successfully!');
       onSubmit(course.courseId);
       // history.push('/'); // redirect to login page, adjust as needed
     })

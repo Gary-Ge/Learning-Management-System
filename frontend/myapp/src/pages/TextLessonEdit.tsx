@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, Collapse  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, Collapse, message } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {getToken} from '../utils/utils'
@@ -139,19 +139,21 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
+          message.success('Successfully updated text lesson!');
           onSubmit(section.sectionId);
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });
       } else {
+        message.success('Successfully updated text lesson!');
         onSubmit(section.sectionId);
       }
       // history.push('/'); // redirect to login page, adjust as needed
       
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
   };
   const handleDeleteClick = (resourceId: string) => {

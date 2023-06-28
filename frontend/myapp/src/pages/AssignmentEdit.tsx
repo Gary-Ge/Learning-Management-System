@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
 import './StaffDashboardContent.less';
 import {getToken} from '../utils/utils'
 import './TextLesson.css';
@@ -165,17 +165,19 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
+          message.success('Assignment updated successfully');
           onSubmit();
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });
       } else {
+        message.success('Assignment updated successfully');
         onSubmit();
       }
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
   };
   const handleDeleteClick = (assFileId: string) => {

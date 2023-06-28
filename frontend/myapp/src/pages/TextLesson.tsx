@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, message  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {getToken} from '../utils/utils'
@@ -114,18 +114,20 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
+          message.success('Create text lesson successfully');
           onSubmit(sectionID);
         })
         .catch(error => {
           alert(error.message);
         });
       } else {
+        message.success('Create text lesson successfully');
         onSubmit(sectionID);
       }
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
     
   };

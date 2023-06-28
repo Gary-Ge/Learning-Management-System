@@ -29,7 +29,7 @@ const StudentDashboardContent: React.FC = () => {
       <div>
       {userDataName ? (
                 <>
-                    Hi, {userDataName.username}
+                    Hi,
                     <br />
                     Welcome to our website ~~
                 </>

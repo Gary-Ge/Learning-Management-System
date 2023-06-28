@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {getToken} from '../utils/utils'
@@ -144,18 +144,20 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
+          message.success("Create assignment success")
           onSubmit();
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });
       } else {
+        message.success("Create assignment success")
         onSubmit();
       }
       // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
   };
   

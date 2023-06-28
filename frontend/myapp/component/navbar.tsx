@@ -119,7 +119,8 @@ export default function Dashboard() {
 
       form.setFieldsValue({
         "username": res.data.user.username,
-        "Email Address": res.data.user.email
+        "Email Address": res.data.user.email,
+        "password": "",
       })
     })
     .catch(error => {
@@ -233,7 +234,7 @@ export default function Dashboard() {
           body: JSON.stringify(dto),
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${token}`,
           }
         })
         .then(res => res.json())
@@ -241,15 +242,15 @@ export default function Dashboard() {
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
-          alert("User information updated successfully");
+          message.success("User information updated successfully");
           handleModalClose();
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });
       })
       .catch(error => {
-        alert(error.message);
+        message.error(error.message);
       });
     }
   }
@@ -341,7 +342,7 @@ export default function Dashboard() {
                   name="password"
                   rules={[{ required: false, message: 'Please input your Password!' }]}
                 >
-                  <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
+                  <Input.Password placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
                 </Form.Item>
               </Form>
             </Modal>
