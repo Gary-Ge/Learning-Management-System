@@ -24,7 +24,7 @@ public interface SectionService extends IService<Section> {
 
     void updateVideoSectionById(String userId, String sectionId, UpdateVideoSectionVo updateVideoSectionVo);
 
-    String uploadVideoCover(String userId, String courseId, MultipartFile file);
+    String uploadVideoCover(String userId, MultipartFile file);
 
     List<Map<String, Object>> getTextSectionListByCourseId(String userId, String courseId);
 

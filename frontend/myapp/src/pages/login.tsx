@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "./login.less"; 
 import { Button, Form, Input, Radio } from 'antd';
 import { Link,useHistory } from 'umi'; 
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { LoginDTO } from '../utils/entities';
 import { validEmail, validNotNull, HOST, LOGIN_URL, saveToken, HEADER } from '../utils/utils';
+function clearToken() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userData');
+}
 
 export default function LoginPage() {
 
@@ -51,6 +55,9 @@ export default function LoginPage() {
      alert(error.message)
     });  
   }
+  useEffect(() => {
+    clearToken();
+  }, []);
 
   return (
     <div className="body_login_register">

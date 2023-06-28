@@ -1,15 +1,22 @@
-.custom-tabs{
+.tabs_wrap{
   display: inline-block;
   color: white;
-  font-size: 18px;
   font-weight: bold;
   text-transform: uppercase;
-  font-family:Comic Sans MS;
-  margin: 0;
-  padding: 2px;
-  background: transparent;
-  height: 64px;
   
+}
+.tabs_wrap div{
+  display: inline-block;
+  font-family: "Comic Sans MS";
+  font-size: 14px;
+  padding-left: 20px;
+  padding-right: 20px;
+  height: 64px;
+  cursor: pointer;
+}
+.tabs_active{
+  // border: 1px solid red;
+  background-color: #484E56;
 }
 
 .custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
@@ -54,6 +61,9 @@
 .layout {
   background-color: transparent;
   width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
 }
 .layout .fixed-tabs {
   padding: 0;
@@ -91,13 +101,14 @@
 }
 .welcome_div {
   max-width: 100%;
+  margin-top: 60px;
 }
 .welcome_container {
   background: transparent;
   padding: 20px;
   border-radius: 5px;
   width: 1275px;
-  height: 200px;
+  // height: 200px;
   max-width: 100%;
   margin: auto;
   box-shadow: 0px 0px 10px transparent;

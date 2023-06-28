@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,Upload } from 'antd';
-import type { TabsProps } from 'antd';
+import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,Upload, message } from 'antd';
 import './navbar.less'; 
 import { validEmail, validNotNull, ValidPassword,HOST, CHANGEFILE_URL,getToken} from '../src/utils/utils';
 import { UserOutlined,LogoutOutlined,PlusOutlined,LoadingOutlined } from '@ant-design/icons';
-import { useHistory } from 'umi';
+import { useHistory, useLocation } from 'umi';
 import { ChangeUserDTO } from '../src/utils/entities';
 import { useMediaPredicate } from "react-media-hook";
-
-
 import logo_l from '../../images/logo_l.png';
 import logo_s from '../../images/logo_s.png';
 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
-const userDataString = localStorage.getItem('userData');
-const userDataName = userDataString ? JSON.parse(userDataString) : null;
 function updateUserData(newUserData:any) {
   localStorage.setItem('userData', JSON.stringify(newUserData));
 }
@@ -56,7 +51,27 @@ const TimeDisplay: React.FC = () => {
 };
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('1');
+  const tabs_list = [{
+    key: '1',
+    is_selected: true,
+    title: 'Student Dashboard'
+  },{
+    key: '2',
+    is_selected: false,
+    title: 'Staff Dashboard'
+  }]
+  const tabs_list2 = [{
+    key: '1',
+    is_selected: false,
+    title: 'Student Dashboard'
+  },{
+    key: '2',
+    is_selected: true,
+    title: 'Staff Dashboard'
+  }]
+  const location = useLocation();
+  const { pathname } = location;
+  const [tablist, settablist] = useState(pathname == '/staffcourse' ? tabs_list2 :tabs_list);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -70,22 +85,51 @@ export default function Dashboard() {
       avatarURL = parsedData.avatar;
     }
   }
-  function getUserData() {
-    const userData = localStorage.getItem('userData');
-    let parsedData = JSON.parse(userData || '{}');
-    if (parsedData) {
-      setImageUrl(parsedData.avatar || '');
-      setUsername(parsedData.username || '');
-      setEmail(parsedData.email || '');
+  const onclicktab = (e:any) => {
+    console.log('tabs',e.target.id);
+    tabs_list.map((item)=> {
+      item.is_selected = false
+    })
+    tabs_list[Number(e.target.id) - 1].is_selected = true
+    settablist([...tabs_list]);
+    if (e.target.id == '1') {
+      history.push('/')
+    } else {
+      history.push('/staffcourse')
     }
+  }
+  const [form] = Form.useForm();
+
+  function getUserData() {
+    fetch(`${HOST}${CHANGEFILE_URL}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      setImageUrl(res.data.user.avatar);
+      setEmail(res.data.user.email);
+      setUsername(res.data.user.username);
+
+      form.setFieldsValue({
+        "username": res.data.user.username,
+        "Email Address": res.data.user.email
+      })
+    })
+    .catch(error => {
+      message.error(error.message);
+    });  
   }
   useEffect(() => {
     getUserData();
-    updateUserData(userDataName);
   }, []);
   
-  
-
   const biggerThan540 = useMediaPredicate("(min-width: 540px)");
   
   const [loading, setLoading] = useState(false);
@@ -121,12 +165,9 @@ export default function Dashboard() {
   const handleModalClose = () => {
     setIsModalVisible(false);
     setTempFile(null);
+    getUserData();
   };
   const handleSubmit = () => {
-    if (!tempFile) {
-      alert('Please select an image file');
-      return;
-    }
     const token = getToken();
     if (!validNotNull(username)) {
       alert('Please input a username');
@@ -136,33 +177,14 @@ export default function Dashboard() {
       alert('Please input a valid email');
       return;
     }
-    if (!ValidPassword(password)) {
+    if (password !== "" && password !== null && !ValidPassword(password)) {
       alert('Please input a valid password');
       return;
     }
-    const formData = new FormData();
-    formData.append("file", tempFile);
-  
-    fetch (`${HOST}/avatar`,{
-      method: 'POST',
-      headers: {
-        "Authorization": `Bearer ${token}`
-      },
-      body: formData
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (res.code !== 20000) {
-        throw new Error(res.message);
-      }
-      const newAvatar = res.data.avatar;
-      setImageUrl(newAvatar);
-      let userData = localStorage.getItem('userData');
-      let parsedData = JSON.parse(userData || '{}');
-      parsedData.avatar = newAvatar; // update the avatar
-      localStorage.setItem('userData', JSON.stringify(parsedData));
-  
-      const dto = new ChangeUserDTO(username,password,email,newAvatar);
+
+    if (!tempFile) {
+      // If the user not upload a new avatar, just update the user info
+      const dto = new ChangeUserDTO(username, password, email, "");
       fetch(`${HOST}${CHANGEFILE_URL}`, {
         method: "Put",
         body: JSON.stringify(dto),
@@ -176,41 +198,61 @@ export default function Dashboard() {
         if (res.code !== 20000) {
           throw new Error(res.message);
         }
-        alert("User information updated successfully");
+        message.success("User information updated successfully");
         handleModalClose();
-        getUserData();
-        updateUserData(userDataName);
       })
       .catch(error => {
         alert(error.message);
       });
-    })
-    .catch(error => {
-      alert(error.message);
-    });
+    } else {
+      // If the user upload a new avatar, first upload the avatar, then update the user info
+      const formData = new FormData();
+      formData.append("file", tempFile);
+      fetch (`${HOST}/avatar`,{
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message);
+        }
+        const newAvatar = res.data.avatar;
+        setImageUrl(newAvatar);
+        let userData = localStorage.getItem('userData');
+        let parsedData = JSON.parse(userData || '{}');
+        parsedData.avatar = newAvatar; // update the avatar
+        localStorage.setItem('userData', JSON.stringify(parsedData));
+    
+        const dto = new ChangeUserDTO(username,password,email,newAvatar);
+        fetch(`${HOST}${CHANGEFILE_URL}`, {
+          method: "Put",
+          body: JSON.stringify(dto),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          alert("User information updated successfully");
+          handleModalClose();
+        })
+        .catch(error => {
+          alert(error.message);
+        });
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+    }
   }
-  
-
-  const onChange = (key: string) => {
-    setActiveTab(key);
-    console.log(key);
-    if (key == '1') {
-      history.push('/')
-    }else{
-    }
-  };
-  const items: TabsProps['items'] = [
-    {
-      key: '1',
-      label: biggerThan540 ? `Student Dashboard`: `Student`,
-      // children: <StudentDashboardContent />,
-    },
-    {
-      key: '2',
-      label: biggerThan540 ?`Staff Dashboard` : `Staff`,
-      // children: <StaffDashboardContent />,
-    }
-  ];
   const history = useHistory(); 
   const handleLogout = () => {
     localStorage.clear();
@@ -229,13 +271,13 @@ export default function Dashboard() {
           alt="LogoSVG" 
           className="hearder-logo-s"
         />
-        <Tabs    
-          defaultActiveKey="1"
-          activeKey={activeTab}
-          items={items}
-          onTabClick={onChange}
-          className="custom-tabs"
-        />
+        <div className='tabs_wrap'>
+          {
+            tablist.map((tab)=>{
+              return <div className={tab.is_selected ? 'tabs_active' : ''} key={tab.key} id={tab.key} onClick={onclicktab}>{tab.title}</div>
+            })
+          }
+        </div>
         <div className='header-right'>
           <div className='hear-right-inner'>
             <div className='TimeDisplay'>
@@ -271,18 +313,17 @@ export default function Dashboard() {
             {tempFile ? <img src={URL.createObjectURL(tempFile)} alt="avatar" style={{ width: '100%' }} /> : (imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton)}
           </Upload>
             </div>
-              <Form
+              <Form form={form}
                 name="basic"
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 16 }}
                 style={{ maxWidth: 600, paddingTop: "30px",fontFamily: 'Comic Sans MS' }}
-                initialValues={{ remember: true }}
                 autoComplete="off"
               >
                 <Form.Item
                   label="Username"
                   name="username"
-                  rules={[{ required: true, message: 'Please input your Username!' }]}
+                  rules={[{ required: false, message: 'Please input your Username!' }]}
                 >
                   <Input placeholder="Please input your username" value={username} onChange={handleUsernameChange} />
                 </Form.Item>
@@ -290,8 +331,7 @@ export default function Dashboard() {
                 <Form.Item
                   label="Email Address"
                   name="Email Address"
-                  initialValue={username}
-                  rules={[{ required: true, message: 'Please input your Email Address!' }]}
+                  rules={[{ required: false, message: 'Please input your Email Address!' }]}
                 >
                   <Input placeholder="Please input your email address" value={email} onChange={handleEmailChange} />
                 </Form.Item>
@@ -299,7 +339,7 @@ export default function Dashboard() {
                 <Form.Item
                   label="Password"
                   name="password"
-                  rules={[{ required: true, message: 'Please input your Password!' }]}
+                  rules={[{ required: false, message: 'Please input your Password!' }]}
                 >
                   <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
                 </Form.Item>

@@ -116,31 +116,6 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                 }).collect(Collectors.toList());
     }
 
-    @Override
-    public List<Map<String, Object>> getLikeCourseByCourseName(String courseName) {
-        return courseMapper.selectCoursesByName(courseName).stream()
-                .map(record -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("courseId", record.get("course_id"));
-                    map.put("title", record.get("title"));
-                    map.put("description", record.get("description"));
-                    map.put("cover", record.get("cover"));
-                    map.put("hasForum", record.get("has_forum"));
-                    map.put("category", record.get("category_name"));
-                    map.put("createdAt", record.get("created_at"));
-                    map.put("updatedAt", record.get("updated_at"));
-
-                    Map<String, Object> creator = new HashMap<>();
-                    creator.put("userId", record.get("user_id"));
-                    creator.put("email", record.get("email"));
-                    creator.put("avatar", record.get("avatar"));
-                    creator.put("username", record.get("username"));
-
-                    map.put("creator", creator);
-                    return map;
-                }).collect(Collectors.toList());
-    }
-
     public boolean isStudentEnrolledInCourse(String userId, String courseId) {
         // Return true if there is a record matching the userId and courseId, otherwise return false
         return baseMapper.countByUserIdAndCourseId(userId, courseId) > 0;
@@ -164,6 +139,12 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             throw new BrainException(ResultCode.NO_AUTHORITY, "You are not enrolled in this course");
         }
 
+        // Delete previous submissions, if any
+        LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Submit::getSubmittedBy, userId);
+        wrapper.eq(Submit::getAssignmentId, assignmentId);
+        submitMapper.delete(wrapper);
+
         // Upload files
         for (MultipartFile file: files) {
 
@@ -172,18 +153,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                 throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be null");
             }
 
+            if (filename.length() > 255) {
+                throw new BrainException(ResultCode.UPLOAD_FILE_ERROR, "File name cannot be longer than 255 characters");
+            }
+
             // Generate a UUID for each file and use the UUID as filename, preventing file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
             String objectName = "submit/" + assignmentId + "/" + RandomUtils.generateUUID() + extension;
 
             // Upload the file
             OssUtils.uploadFile(file, objectName, filename, false);
-
-            // Delete previous submissions, if any
-            LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Submit::getSubmittedBy, userId);
-            wrapper.eq(Submit::getAssignmentId, assignmentId);
-            submitMapper.delete(wrapper);
 
             // Create new submission record
             Submit submit = new Submit();
@@ -225,6 +204,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         result.put("description", assignment.getDescription());
         result.put("start", assignment.getStart());
         result.put("end", assignment.getEnd());
+        result.put("mark", assignment.getMark());
 
         // Fetch the information of ass files
         LambdaQueryWrapper<AssFile> wrapper = new LambdaQueryWrapper<>();
@@ -284,6 +264,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                     result.put("description", assignment.getDescription());
                     result.put("start", assignment.getStart());
                     result.put("end", assignment.getEnd());
+                    result.put("mark", assignment.getMark());
 
                     // Get the ass files information, if any
                     LambdaQueryWrapper<AssFile> assFileWrapper = new LambdaQueryWrapper<>();
@@ -317,5 +298,19 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
                     return result;
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Object downloadSubmitBySubmitId(String userId, String submitId) {
+        Submit submit = submitMapper.selectById(submitId);
+        if (submit == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Submit not exist");
+        }
+        if (!submit.getSubmittedBy().equals(userId)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You can only download submissions submitted by yourself");
+        }
+
+        // Download submits
+        return OssUtils.downloadFile(submit.getSource().substring(6));
     }
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./forgetpassword.less";
 import { CloseCircleOutlined } from '@ant-design/icons';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { Link,history } from 'umi'; 
 import { HOST,PASSWORD_URL,HEADER} from '../utils/utils';
 import { LoginDTO } from '../utils/entities';
@@ -33,11 +33,11 @@ export default function ConfirmPassword() {
             if (res.code !== 20000) {
               throw new Error(res.message)
             }
-            alert('Reset your password successfully');
+            message.success('Reset your password successfully');
             history.push('/login');
           })
           .catch(error => {
-            alert(error.message);
+            message.error(error.message);
           });  
         
     }
@@ -65,7 +65,7 @@ export default function ConfirmPassword() {
                         name="Password"
                         rules={[{ required: true, message: 'Please input your Password!' }]}
                     >
-                        <Input placeholder="Please input your Password" value={password} onChange={handlePasswordChange}/>
+                        <Input.Password placeholder="Please input your Password" value={password} onChange={handlePasswordChange}/>
                     </Form.Item>
                     <Form.Item 
                         style={{ marginTop: '30px' }}
@@ -73,7 +73,7 @@ export default function ConfirmPassword() {
                         name="Confirm Password"
                         rules={[{ required: true, message: 'Please input your Password again' }]}
                     >
-                        <Input placeholder="Please input your Password Again" value={newpassword} onChange={handleNewPasswordChange}/>
+                        <Input.Password placeholder="Please input your Password Again" value={newpassword} onChange={handleNewPasswordChange}/>
                     </Form.Item>
                     
                     <Form.Item className="Submit" style={{ marginTop: '65px' }}>

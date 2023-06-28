@@ -19,13 +19,13 @@
 .timeline {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  grid-gap: 20px;
+  // grid-gap: 20px;
 }
 .container_timeline{
   background: #ffffff;
   padding: 20px;
   border-radius: 5px;
-  width: 400px;
+  width: 480px;
   height: 325px;
   max-width: 90%;
   margin: auto;
@@ -41,6 +41,12 @@
   margin: auto;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
 }
+.card-description{
+  display: inline-block;
+    height: 220px;
+    overflow: hidden;
+    width: 100%;
+}
 .recently_select_course{
   align-self: flex-start;
   position: relative;
@@ -51,7 +57,9 @@
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding: 20px;
+  // padding: 20px;
+  padding-left: 40px;
+  padding-right: 40px;
   border-radius: 5px;
   width: 1275px;
   height: 300px;
@@ -59,7 +67,7 @@
   margin: auto;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
   margin-bottom: 60px;
-  justify-content: center; 
+  justify-content: flex-start; 
   align-items: center;
 }
 .course-Page {
@@ -78,6 +86,7 @@
 }
 
 .overlay {
+  padding-left: 20px;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -107,7 +116,13 @@
   position: relative;
   font-family:  'Comic Sans MS';
 }
-
+.ant-list-item-meta-avatar{
+  width: 15%;
+}
+.ant-avatar {
+  width: 55px;
+  height: 55px;
+}
 .square-avatar {
   border-radius: 0;
 }
@@ -125,6 +140,7 @@
   margin-left: 3%;
   border-radius: 20px;
   display: block;
+  margin-top: 50px;
 }
 .card_and_calendar{
   display: grid;
@@ -159,7 +175,7 @@
   z-index: 1;
 }
 
-.card:hover .custom-card:before {
+.custom-card:hover:before {
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -174,16 +190,23 @@
   left: 55%;
 }
 
-.card:hover .button-container {
+.button-container.show {
   display: block;
 }
 .button-container button {
   margin: 0 100px;
 }
-
 .intro-card .ant-card-meta-avatar {
-  width: 'auto';
+  height: 255.66px;
+  width: 50%;
+  margin-top: 20px;
+}.intro-card .ant-card-meta-detail {
+  margin-top: 15px;
+  margin-left: 20px;
 }
+// .custom-card  .ant-card-meta-avatar {
+//   width: 50%;
+// }
 .calendar {
   background: #ffffff;
   padding: 20px;
@@ -224,6 +247,10 @@
 .calendar .ant-picker-calendar-full .ant-picker-calendar-header .ant-picker-calendar-year-select {
   margin: 0 5px;
 }
+.displaynon{
+  display: none;
+}
+
 @media (max-width: 1289px) {
   .timeline {
     grid-template-columns: 1fr;
@@ -239,7 +266,7 @@
     padding: 20px;
     border-radius: 5px;
     width: 800px;
-    height: 250px;
+    height: auto;
     max-width: 90%;
     margin: auto;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
@@ -287,7 +314,7 @@
     padding: 20px;
     border-radius: 5px;
     width: 380px;
-    height: 380px;
+    height: auto;
     max-width: 90%;
     margin: auto;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
@@ -299,20 +326,22 @@
     width: 405px;
   }
   .custom-card .ant-card-meta-avatar {
-    width: 60%;
+    // width: 60%;
+  }
+  .intro-card .ant-card-meta-detail {
+    margin-top: 20px;
+    margin-left: 30px;
   }
   .intro-card .ant-card-meta-avatar {
-    width: 60%;
+    width: 50%;
+    height: 170px;
+    margin-top: 20px;
   }
   .intro-card .ant-card-meta-avatar {
     width: 200px;
   }
   .card-title {
     font-size: 1em !important;
-  }
-  
-  .card-description {
-    font-size: 0.5em !important;
   }
   .calendar {
     width: 400px;
@@ -362,9 +391,6 @@
   font-size: 0.8em !important;
 }
 
-.card-description {
-  font-size: 0.6em !important;
-}
 .course-container {
   width: 300px;
 }
@@ -375,6 +401,11 @@
 .button-container.show {
   left: 48%;
   width: 380px;
+}
+.intro-card .ant-card-meta-avatar {
+  width: 50%;
+  height: 130px;
+  margin-top: 20px;
 }
 }
 

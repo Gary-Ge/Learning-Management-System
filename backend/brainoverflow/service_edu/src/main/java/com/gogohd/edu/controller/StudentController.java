@@ -42,14 +42,6 @@ public class StudentController {
                 studentService.getEnrolledCoursesByUserId(userId));
     }
 
-    @Operation(summary = "Search interested course (fuzzy matching)")
-    @GetMapping("courses/{courseName}")
-    public R getInterestedCourses(HttpServletRequest request, @PathVariable String courseName) {
-        String userId = (String) request.getAttribute("userId");
-        return R.success().message("Get all interested courses information success").
-                data("courses", studentService.getLikeCourseByCourseName(courseName));
-    }
-
     @Operation(summary = "Submit Assignment")
     @PostMapping("submit/{assignmentId}")
     public R submitAssignment(HttpServletRequest request, @PathVariable String assignmentId, MultipartFile[] files) {
@@ -72,5 +64,13 @@ public class StudentController {
         String userId = (String) request.getAttribute("userId");
         return R.success().message("Get assignments info success").data("assignments",
                 studentService.getAssignmentListByCourseId(userId, courseId));
+    }
+
+    @Operation(summary = "Download one submit")
+    @GetMapping("submit/{submitId}")
+    public R downloadSubmit(HttpServletRequest request, @PathVariable String submitId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Download submit success").data("fileUrl",
+                studentService.downloadSubmitBySubmitId(userId, submitId));
     }
 }

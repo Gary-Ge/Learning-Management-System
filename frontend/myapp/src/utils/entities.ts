@@ -1,3 +1,64 @@
+export class CourseLayoutDTO {
+  title: any;
+  category: any;
+  description: any;
+  cover: any;
+  hasForum: any;
+
+  constructor(title: any, category: any, description: any, cover: any, hasForum: any) {
+    this.title = title;
+    this.category = category;
+    this.description = description;
+    this.cover = cover;
+    this.hasForum = hasForum;
+  }
+}
+export class VideoLessonDTO {
+  title: any;
+  description: any;
+  cover: any;
+  youtubeLink: any;
+  type: any;
+
+  constructor(title: any, description: any, cover: any, youtubeLink: any, type: any) {
+    this.title = title;
+    this.description = description;
+    this.cover = cover;
+    this.youtubeLink = youtubeLink;
+    this.type = type;
+  }
+}
+export class FileUploadDTO {
+  files: any;
+
+  constructor(files: any) {
+    this.files = files;
+  }
+}
+export class TextLessonDTO {
+  title: any;
+  description: any;
+
+  constructor(title: any, description: any) {
+    this.title = title;
+    this.description = description;
+  }
+}
+export class AssignmentLessonDTO {
+  title: any;
+  description: any;
+  start: any;
+  end: any;
+  mark: any;
+
+  constructor(title: any, description: any, start: any, end: any, mark: any) {
+    this.title = title;
+    this.description = description;
+    this.start = start;
+    this.end = end;
+    this.mark = mark;
+  }
+}
 export class RegisterDTO {
     username: any;
     password: any;

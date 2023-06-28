@@ -68,11 +68,11 @@ public class SectionController {
     }
 
     @Operation(summary = "Upload a video cover")
-    @PostMapping("videoCover/{courseId}")
-    public R uploadVideoCover(HttpServletRequest request, @PathVariable String courseId, MultipartFile file) {
+    @PostMapping("videoCover")
+    public R uploadVideoCover(HttpServletRequest request, MultipartFile file) {
         String userId = (String) request.getAttribute("userId");
         return R.success().message("Upload video cover success").data("videoCover",
-                sectionService.uploadVideoCover(userId, courseId, file));
+                sectionService.uploadVideoCover(userId, file));
     }
 
     @Operation(summary = "Get one section info")

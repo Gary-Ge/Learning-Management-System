@@ -2,10 +2,12 @@ import'./studentcourse.less';
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
-import { Input, Button } from 'antd';
+import { Input, Button, Modal, message, Upload } from 'antd';
+import type { UploadProps } from 'antd';
 import { useLocation } from 'umi';
-import ReactPlayer from 'react-player'
-import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE } from '../utils/utils';
+import ReactPlayer from 'react-player';
+import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
+  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_2 from '../../../images/stu_icon_2.png';
 import stu_icon_3 from '../../../images/stu_icon_3.png';
@@ -68,35 +70,99 @@ let materials_list = [
     file_list: [], cover: '', type:''
   },
 ];
+interface List {
+  assFileId: string,
+  title: string
+}
+let assign_list = [  
+  {
+    key: '0', assid: '', title: '', start_time: '', end_time: '',
+    content: '',
+    ass_files: []as Array<List>,
+    submits:[]as Array<List>,
+  }
+];
 
 export default function IndexPage() {
-  const [isenrollflag, setisenrollflag] = useState(true);
+  // const [isenrollflag, setisenrollflag] = useState(true);
+  const token = getToken();
+  const { Dragger } = Upload;
+  const [fileList, setFileList] = useState<any[]>([]);
   const [datalist,setdataLists]= useState(data); // tabs course title
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
+  const [assignlist,setassignmentLists]= useState(assign_list);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const props = (key:number, id:string) => {
+    console.log('++key', key);
+    console.log('fileList', fileList);
+    return {
+      onRemove: (file:any) => {
+        const index = fileList[key].indexOf(file);
+        const newFileList = fileList[key].slice(); 
+        newFileList.splice(index, 1); 
+        fileList[key] = newFileList;
+        setFileList([...fileList]);
+      },
+      beforeUpload: (file:any) => {
+        console.log('++file', file);
+        fileList[key].push(file);
+        let copyfilelist = fileList.slice();
+        console.log('copyfilelist', copyfilelist);
+        // setFileList([...fileList, file]);
+        setFileList([...copyfilelist]);
+        console.log('fileList', fileList);
+        return false;
+      },
+      fileList: fileList[key],
+    };
+  }
+  
+  const headers = new Headers();
+  headers.append('Authorization',`Bearer ${token}`);
+  const upload = (assid:string, key:string) => {
+    const formData = new FormData(); 
+    console.log('fileList', fileList);
+    console.log('fileList upload',fileList);
+    fileList[Number(key)].forEach((file:any) => {
+      formData.append('files', file); 
+    });
+    
+    // return;
+    fetch(`${HOST_STUDENT}/submit/${assid}`, {
+    method: 'POST', 
+    headers: headers, 
+    body: formData
+    }) .then(res => res.json()).then(res => {
+      if (res.code == 20000) {
+        // window.alert(res.message);
+        message.success(`files uploaded successfully.`);
+        fileList[Number(key)] = []
+        setFileList([... fileList]);
+        // getallassginment submits
+        datalist.map((item:any)=>{
+          if (item.is_selected) {
+            console.log(item.id);
+            getallassignments(item.id);
+          }
+        })
+      }
+    })
+    .catch(err => { console.log(err);}) }
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   let courseid: any = query.get('courseid');
-  // console.log("---------");
-  // console.log(courseid);
-  // const [count, setCount] = useState(0);
-  // useEffect(() => {
-  //   setCount(count + 1);
-  //   console.log("count");
-  //   console.log(count);
-  // });
-  // 
-  const token = getToken(); // todo 
-  useEffect(() => {
-    // get course outline | true: get all course
-    getcourseinfo(courseid.toString(), true);
-    // getallcourse -> tabs title
 
+  useEffect(() => {
+    // getall course -> tabs title
+    getallcourse();
+    window.scrollTo(0, 0);
   },[]);
   // get course list -> get all sections
-  const getallcourse = (viewtitle:any) => {
+  const getallcourse = () => {
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
       headers: {
@@ -117,36 +183,29 @@ export default function IndexPage() {
       courselist.map((item: any, index: number) => {
         courseidlist.push(item.courseId);
       })
+      if (courselist.length == 0) {
+        setfunLists([]);
+        setdataLists([]);
+        return;
+      }
+      let currentcourseid = '';
       if (courseidlist.indexOf(courseid) == -1) { // no enroll 
-        setisenrollflag(false);
-        console.log('isenrollflag', isenrollflag); 
-        data.push({
-          key : '0',
-          id: courseid,
-          title: viewtitle,
-          is_selected: true,
-          isenroll: false
-        });
-        console.log('data', data);
+        console.log('wrong jump');
         courselist.map((item: any, index: number) => {
-          console.log(item.title, item.courseId);
+          // console.log(item.title, item.courseId);
           data.push({
-            key : (index+1).toString(),
+            key : index.toString(),
             id: item.courseId,
             title: item.title,
-            is_selected: false, 
+            is_selected: index == 0 ? true : false, 
             isenroll: true
-          });
-        });
-        setdataLists([...data]);
-        setfunLists([{
-          key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
-        }])
+          })
+        })
+        currentcourseid = courselist[0].courseId;
+
       } else { // all enroll
-        setisenrollflag(true);
-        console.log('isenrollflag', isenrollflag);
         courselist.map((item: any, index: number) => {
-          console.log(item.title, item.courseId);
+          // console.log(item.title, item.courseId);
           data.push({
             key : index.toString(),
             id: item.courseId,
@@ -155,22 +214,25 @@ export default function IndexPage() {
             isenroll: true
           })
         })
-        fun_list.map(item => {
-          item.is_selected = false;
-        });
-        fun_list[0].is_selected = true;
-        setfunLists([...fun_list]);
-        setdataLists([...data]);
-        console.log('++data',data);
-        getallsections(courseid.toString()); // get all sections
+        currentcourseid = courseid.toString();
       }
+      getcourseinfo(currentcourseid);
+      getallsections(currentcourseid); // get all sections
+      getallassignments(currentcourseid);// get all assignment
+      fun_list.map(item => {
+        item.is_selected = false;
+      });
+      fun_list[0].is_selected = true;
+      setfunLists([...fun_list]);
+      setdataLists([...data]);
+      // console.log('++data',data);
     })
     .catch(error => {
       console.log(error.message);
     });  
   }
   // get course outline
-  const getcourseinfo = (courseid:string, flag:boolean) => {
+  const getcourseinfo = (courseid:string) => {
     fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}/${courseid}`, {
       method: "GET",
       headers: {
@@ -195,9 +257,9 @@ export default function IndexPage() {
       outline[0].outline_content = res_data.description;
       setcourseoutline([...outline]);
       // console.log("setviewtitle",res_data.title);
-      if (flag) {
-        getallcourse(res_data.title);
-      }
+      // if (flag) {
+      //   getallcourse(res_data.title);
+      // }
       
     })
     .catch(error => {
@@ -272,40 +334,106 @@ export default function IndexPage() {
       console.log(error.message);
     }); 
   };
+  // get all assignments
+  const getallassignments = (courseid:string) => {
+    fetch(`${HOST_STUDENT}/assignments/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('get all sections');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log('getallassignments',res.data.assignments);
+      // if (res.data.assignments.length == 0) {
+      //   setassignmentLists([]);
+      // } else {
+      let  ass_fileList: never[][] = []
+      assign_list = []
+      let res_ass = res.data.assignments;
+      res_ass.map((item:any, idx:string)=>{
+        ass_fileList.push([])
+        assign_list.push({
+          key: idx,
+          assid: item.assignmentId,
+          title: item.title,
+          start_time: item.start,
+          end_time: item.end,
+          content: item.description,
+          ass_files: item.assFiles,
+          submits: item.submits
+        });
+      });
+      setFileList([...ass_fileList]);
+      setassignmentLists([...assign_list]);
+      console.log('assign_list', assign_list);
+    })
+    .catch(error => {
+      console.log(error.message);
+    }); 
+  };
+  // get one assignment info
+  // const getoneassignment = (ass_id:string, inneritem:any) => {
+  //   fetch(`${HOST_STUDENT}/assignment/${ass_id}`, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/x-www-form-urlencoded",
+  //       "Authorization": `Bearer ${token}`
+  //     }
+  //   })
+  //   .then(res => res.json())
+  //   .then(res => {
+  //     console.log('res');
+  //     if (res.code !== 20000) {
+  //       throw new Error(res.message)
+  //     }
+  //     console.log('get one ass:',res.data.assignment.assFiles);
+  //     inneritem.ass_files = res.data.assignment.assFiles
+  //     // inneritem.url = res.data.auth.playURL
+  //   });
+  // }
+
+  // get assignment download file
+  const getassigndownloadlink = (assFileId:string) => {
+    fetch(`${HOST_ASSIGNMENT}/assignment/assFile/${assFileId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log('assurl',res.data.fileUrl);
+      const w:any = window.open("about:blank");  
+      w.location.href = res.data.fileUrl;
+    })
+  }
 
   // click tabs title
   const onclickcourse = (idx:string, id:string) => {
-    // console.log(e.target.outerText);
-    console.log('id+++', id);
     data.map((item:any) => {
       item.is_selected = false;
     });
     data[idx].is_selected = true;
-    // e.target.className = "selected";
     setdataLists([...data]);
-    console.log('isenroll',data[idx].isenroll);
-    if (data[idx].isenroll) {
-      // updata left list
-      setisenrollflag(true);
-
-      fun_list.map(item => {
-        item.is_selected = false;
-      });
-      fun_list[0].is_selected = true;
-      setfunLists([...fun_list]);
-      console.log('++fun_list', fun_list);
-      // get materials
-      getallsections(id.toString());
-    } else {
-      //
-      setisenrollflag(false);
-      setfunLists([{
-        key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
-      }])
-      // console.log('++', funlist);
-    }
-    // update course outline
-    getcourseinfo(id, false);
+    fun_list.map(item => {
+      item.is_selected = false;
+    });
+    fun_list[0].is_selected = true;
+    setfunLists([...fun_list]);
+    
+    getallsections(id); // get materials
+    getallassignments(id); // update assignment
+    getcourseinfo(id); // update course outline
   };
 
   // click left list
@@ -335,7 +463,6 @@ export default function IndexPage() {
       console.log('getsourcelink', res.data.fileUrl);
       const w:any = window.open("about:blank");  
       w.location.href=res.data.fileUrl
-      // window.location.href = res.data.fileUrl; // todo download
     })
   }
   // download materials 1
@@ -345,12 +472,16 @@ export default function IndexPage() {
   };
   // download assignment
   const downLoadAss = (e:any) => {
-    console.log(e.target.id);
+    console.log('download',e.target.id);
+    getassigndownloadlink(e.target.id);
   };
-  // join a class
-  const joincourse = () => {
-    console.log('joincourse',courseid);
-    fetch(`${HOST_STUDENT}/student/${courseid}`, {
+  const downLoaduploadedfile = (e:any) => {
+    console.log('download uploadedfile',e.target.id);
+    // todo
+    getsubmitfile(e.target.id);
+  }
+  const getsubmitfile = (submitid:string) => {
+    fetch(`${HOST_STUDENT}/submit/${submitid}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -361,25 +492,17 @@ export default function IndexPage() {
     .then(res => {
       if (res.code !== 20000) {
         throw new Error(res.message)
-      } else {
-        fun_list.map(item => {
-          item.is_selected = false;
-        });
-        fun_list[0].is_selected = true;
-        setfunLists([...fun_list]);
-        getcourseinfo(courseid.toString(), true);
       }
+      console.log('submiturl',res.data.fileUrl);
+      const w:any = window.open("about:blank");  
+      w.location.href = res.data.fileUrl;
     })
   }
   // drop course 1
   const dropcourse = () => {
     console.log('dropdatalist', datalist);
-    datalist.map((item:any)=>{
-      if (item.is_selected) {
-        console.log(item.id);
-        deletedropcourse(item.id);
-      }
-    })
+    showModal();
+
   }
   // drop course 2
   const deletedropcourse = (courseid:string) => {
@@ -395,10 +518,30 @@ export default function IndexPage() {
       if (!res.success) {
         throw new Error(res.message)
       } else {
-        getcourseinfo(courseid.toString(), true);
+        getallcourse();
+        // getcourseinfo(courseid.toString(), true);
+        setIsModalOpen(false);
       }
     })
   }
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    
+    datalist.map((item:any)=>{
+      if (item.is_selected) {
+        console.log(item.id);
+        deletedropcourse(item.id);
+      }
+    })
+    
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -409,7 +552,9 @@ export default function IndexPage() {
             <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "selected": ""}>{course_item.title}</p>
             <p className={course_item.key == String(data.length - 1) ? "stu_title_bar": ""}>|</p></div>  )}
         </div>
-        <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div>
+        {
+          funlist.length != 0 ? <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div> : ''
+        }
       </div>
       <div className='stu_content'>
         <div className='stu_left_list'>
@@ -418,17 +563,18 @@ export default function IndexPage() {
             <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
           }
           {
-            isenrollflag ?           
+            funlist.length != 0 ?             
             <div className='stu_icon_last_list'>
-              <img src={stu_icon_7} className="stu_icon_list"/>
-              <img src={stu_icon_8} className="stu_icon_list"/>
-              <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
-            </div> : <Button type="primary" className='btn' onClick={joincourse}>Join</Button>
+            <img src={stu_icon_7} className="stu_icon_list"/>
+            <img src={stu_icon_8} className="stu_icon_list"/>
+            <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
+            </div> : ''
           }
 
+
         </div>
-        
-        <div className={funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
+
+        <div className={funlist.length != 0 && funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
           <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
           <div className='outline_img'><img src={courseoutline[0].coverimg}/></div>
           <div className='outline_title_second'>Course Teacher</div>
@@ -440,9 +586,8 @@ export default function IndexPage() {
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
         </div>
-       
-        { 
-          isenrollflag ? 
+       {
+          funlist.length != 0 ?         
           <div className={!funlist[1].is_selected && !funlist[2].is_selected ? 'display_non': 'wid100'}>
             <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
               {
@@ -453,7 +598,7 @@ export default function IndexPage() {
                 <div className='materials_title'>{item.title}</div>
                 <div className='materials_time'>{item.time}</div>
                 <div className='materials_img'><img src={item.cover}/></div>
-                {item.type == 'Text Section' ? <div className='materials_content'>{item.content}</div> : ''}
+                {item.type == 'Text Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
                 { item.file_list.map((itm:any, idx:number) => 
                   <div key={idx.toString()} className="downloadfile_wrap">
                     {itm.type == 'File' ? 
@@ -462,24 +607,66 @@ export default function IndexPage() {
                     </div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
                   </div>
                 )}
-                {item.type == 'Custom Video Section' ? <div className='materials_content'>{item.content}</div> : ''}
+                {item.type == 'Custom Video Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
                 <div className='dashline'></div>
 
               </div>)
               }
             </div>
             <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
-                <div className='ass_title'>Week1 Assignment: learning system</div>
-                <div className='ass_title_second'><img className='stu_timeicon' src={time_icon}/>Left Time: 3 days 1 hour 59 minutes</div>
-                <div className='ass_content'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
-                <div className='downloadfile' onClick={downLoadAss} id="1">Download file
-                  <img src={downloadicon} className="downloadicon"/>
-                </div>
-                <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div>
+              {
+                assignlist.length == 0 ? <div>There is no assignment now.</div> : ''
+              }
+              {
+                assignlist.map(_item =>
+                  <div key={_item.key} id={_item.assid} className="ass_wrap">
+                    <div className='ass_title'>{_item.title}</div>
+                    <div className='ass_title_second'>
+                      <img className='stu_timeicon' src={time_icon}/>
+                      start time : {_item.start_time}
+                    </div>
+                    <div className='ass_title_second'>
+                      <img className='stu_timeicon' src={time_icon}/>
+                      end time : {_item.end_time}
+                    </div>
+                    <div className='ass_content' dangerouslySetInnerHTML={{__html: _item.content}}></div>
+                    {
+                      _item.ass_files.map((initem:any, index:number) => {
+                        return(<div key={index} className='downloadfile' onClick={downLoadAss} id={initem.assFileId}>
+                          <img src={downloadicon} className="downloadicon"/>
+                          Download file : {initem.title}</div>)
+                      })
+                    }
+                    <div>
+                      <p className='uploadbtn'>My Uploaded files :</p>
+                      {
+                        _item.submits.map((initem:any, index:number) => {
+                          return (<a key={index} id={initem.submitId} className="mrt" onClick={downLoaduploadedfile}>{initem.title}</a>)
+                        })
+                      }
+                      
+                    </div>
+                    <Upload.Dragger
+                      {...props(Number(_item.key), _item.assid)} id={_item.assid} key={_item.key} className="uploadbtn dragwrap">
+                      <img src={uploadicon} className='uploadicon'/>
+                      <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                    </Upload.Dragger>
+                    <div className='wrapbtn'>
+                      <Button type="primary" className='uploadbtn mrt30' onClick={() => upload(_item.assid, _item.key)} >Upload</Button>
+                    </div>
+                    
+                    {/* <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div> */}
+                  </div>
+                )
+              }
             </div>
-          </div> : ''
-        }
+          </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
+       }
+
       </div>
+      <Modal title="Drop course" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <p>Are you sure you want to drop out of the course?</p>
+      </Modal>
       <Footer />
     </div>
   );
