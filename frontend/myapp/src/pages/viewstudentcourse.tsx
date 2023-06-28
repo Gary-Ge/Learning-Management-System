@@ -38,6 +38,7 @@ export default function IndexPage() {
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isjoinModalOpen, setjoinIsModalOpen] = useState(false);
+  const [viewbtnshow, setviewbtnshow] = useState(true);
   const [datalist,setdataLists]= useState(data); // tabs course title
   const [funlist,setfunLists]= useState(fun_list);
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
@@ -51,6 +52,7 @@ export default function IndexPage() {
     // get course outline
     getcourseinfo(courseid.toString());
     getallcourse(); // get all course to determin the wrong jump
+    window.scrollTo(0, 0);
   },[]);
   // get course list -> wrong jumpings need to go to student course page
   const getallcourse = () => {
@@ -75,6 +77,7 @@ export default function IndexPage() {
       if (courseidlist.indexOf(courseid) != -1) { // enroll 
         // show modal, enter button to gotostudentcourse
         showModal();
+        setviewbtnshow(false);
       }
     })
     .catch(error => {
@@ -175,6 +178,10 @@ export default function IndexPage() {
       messageApi.info('This feature is still being developed in sprint 2 !');
     }
   };
+  
+  const gotocoursepage = () => {
+    history.push(`/studentcourse?courseid=${courseid}&title=`);
+  }
 
   return (
     <div className='stu_wrap'>
@@ -196,7 +203,10 @@ export default function IndexPage() {
             funlist.map((item:any) => <div className={item.is_selected ? 'stu_active': ''} id={item.key} key={item.key} onClick={() => info(item.key)}>
             <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
           }
-          <Button type="primary" className='btn' onClick={joincourse}>Join</Button>
+          {
+            viewbtnshow ? <Button type="primary" className='btn' onClick={joincourse}>Join</Button> : <Button type="primary" className='btn' onClick={gotocoursepage}>course page</Button>
+          }
+          
         </div>
         {/* tab content right content: outline */}
         <div className='stu_right_content'>

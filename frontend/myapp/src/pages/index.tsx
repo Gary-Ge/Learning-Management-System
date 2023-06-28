@@ -92,13 +92,20 @@ export default function IndexPage() {
     date: detail.createdAt,
     id: detail.courseId,
     description: detail.description,
+    author: detail.creator.username
   }));
 
   function updateUserData(newUserData:any) {
     localStorage.setItem('userData', JSON.stringify(newUserData));
   }
 
+
   useEffect(() => {
+    // if(!token){
+    //   message.warning('Please login first!');
+    //   history.push('/login');
+    //   return;
+    // }
     fetch(`${HOST}${CHANGEFILE_URL}`, {
       method: "GET",
       headers: {
@@ -210,8 +217,6 @@ const onSearch = (value: string) => {
     console.log('search', res);
     setAllCourseDetails(res.data.courses);
     setCurrentPage(1); // todo
-    // console.log('+++',res.data.courses[0]);
-    // setFirstCourseDetails([res.data.courses[0]])
   })
   .catch(error => {
     console.log(error.message);
@@ -299,8 +304,7 @@ const onSearch = (value: string) => {
           const newHoveredId = course.id;
           setHoveredId(newHoveredId)
         }}
-        onMouseLeave={() =>  setHoveredId("")}
-      >
+        onMouseLeave={() =>  setHoveredId("")}>
         <Meta
           avatar={
             <Avatar 
@@ -312,7 +316,7 @@ const onSearch = (value: string) => {
           title={<span className='card-title' style={{ fontSize: '1.5em' }}>{course.title}</span>}
           description={
           <div>
-            <p style={{ fontSize: '1em' }}>{course.date}</p>
+            <p style={{ fontSize: '1em' }}>{course.date}    <span style={{marginLeft: '10px'}}>{course.author}</span></p>
             <p style={{ fontSize: '1em', marginBottom: '0px', wordWrap: 'break-word', textOverflow: 'ellipsis', overflow: 'hidden', height: '45px'}}>{course.description}</p>
           </div>}
         />

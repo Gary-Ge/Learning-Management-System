@@ -159,6 +159,7 @@ export default function IndexPage() {
   useEffect(() => {
     // getall course -> tabs title
     getallcourse();
+    window.scrollTo(0, 0);
   },[]);
   // get course list -> get all sections
   const getallcourse = () => {
