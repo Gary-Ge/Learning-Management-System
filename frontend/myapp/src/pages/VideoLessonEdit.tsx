@@ -45,6 +45,7 @@ const quillFormats = [
 ];
 const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; video: any }> = ({ onCancel, onSubmit, video }) => {
   const token = getToken();
+  const [fileList, setFileList] = useState<any[]>([]);
   const [title, setTitle] = useState("");
   const handleVideoTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -61,13 +62,17 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
   const handleUrlChange = (youtubeLink: any) => {
     setUrl(youtubeLink);
   };
+  const handleFileListChange = (newFileList: any[]) => {
+    setFileList(newFileList);
+    console.log(fileList)
+  }; 
   const [type, setType] = useState(0);
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
     // 处理提交逻辑
-    const dto = new VideoLessonDTO(title, description, cover, youtubeLink, type);
+    const dto = new VideoLessonDTO(fileList,title, description, cover, youtubeLink, type);
     const requestData = JSON.stringify(dto);
     fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${video.sectionId}`, {
       method: 'PUT',
@@ -168,9 +173,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
                 <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={video.sectionId} />
               </div>
-            </Form.Item>
-          )}
-          {/* <Form.Item
+              <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
                 Video Source
@@ -181,7 +184,9 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           </Form.Item>
           <Form.Item>
             <FileUploader onFileListChange={handleFileListChange}/>
-          </Form.Item> */}
+          </Form.Item> 
+            </Form.Item>
+          )}
           <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
