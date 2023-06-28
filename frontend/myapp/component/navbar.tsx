@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,Upload } from 'antd';
-import type { TabsProps } from 'antd';
 import './navbar.less'; 
 import { validEmail, validNotNull, ValidPassword,HOST, CHANGEFILE_URL,getToken} from '../src/utils/utils';
 import { UserOutlined,LogoutOutlined,PlusOutlined,LoadingOutlined } from '@ant-design/icons';
-import { useHistory } from 'umi';
+import { useHistory, useLocation } from 'umi';
 import { ChangeUserDTO } from '../src/utils/entities';
 import { useMediaPredicate } from "react-media-hook";
-
-
 import logo_l from '../../images/logo_l.png';
 import logo_s from '../../images/logo_s.png';
 
@@ -54,7 +51,27 @@ const TimeDisplay: React.FC = () => {
 };
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('1');
+  const tabs_list = [{
+    key: '1',
+    is_selected: true,
+    title: 'Student Dashboard'
+  },{
+    key: '2',
+    is_selected: false,
+    title: 'Staff Dashboard'
+  }]
+  const tabs_list2 = [{
+    key: '1',
+    is_selected: false,
+    title: 'Student Dashboard'
+  },{
+    key: '2',
+    is_selected: true,
+    title: 'Staff Dashboard'
+  }]
+  const location = useLocation();
+  const { pathname } = location;
+  const [tablist, settablist] = useState(pathname == '/staffcourse' ? tabs_list2 :tabs_list);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -68,7 +85,19 @@ export default function Dashboard() {
       avatarURL = parsedData.avatar;
     }
   }
-
+  const onclicktab = (e:any) => {
+    console.log('tabs',e.target.id);
+    tabs_list.map((item)=> {
+      item.is_selected = false
+    })
+    tabs_list[Number(e.target.id) - 1].is_selected = true
+    settablist([...tabs_list]);
+    if (e.target.id == '1') {
+      history.push('/')
+    } else {
+      history.push('/staffcourse')
+    }
+  }
   const [form] = Form.useForm();
 
   function getUserData() {
@@ -224,30 +253,6 @@ export default function Dashboard() {
       });
     }
   }
-    
-  
-
-  const onChange = (key: string) => {
-    setActiveTab(key);
-    console.log(key);
-    if (key == '1') {
-      history.push('/')
-    }else{
-      history.push('/staffcourse')
-    }
-  };
-  const items: TabsProps['items'] = [
-    {
-      key: '1',
-      label: biggerThan540 ? `Student Dashboard`: `Student`,
-      // children: <StudentDashboardContent />,
-    },
-    {
-      key: '2',
-      label: biggerThan540 ?`Staff Dashboard` : `Staff`,
-      // children: <StaffDashboardContent />,
-    }
-  ];
   const history = useHistory(); 
   const handleLogout = () => {
     localStorage.clear();
@@ -266,13 +271,13 @@ export default function Dashboard() {
           alt="LogoSVG" 
           className="hearder-logo-s"
         />
-        <Tabs    
-          defaultActiveKey="1"
-          activeKey={activeTab}
-          items={items}
-          onTabClick={onChange}
-          className="custom-tabs"
-        />
+        <div className='tabs_wrap'>
+          {
+            tablist.map((tab)=>{
+              return <div className={tab.is_selected ? 'tabs_active' : ''} key={tab.key} id={tab.key} onClick={onclicktab}>{tab.title}</div>
+            })
+          }
+        </div>
         <div className='header-right'>
           <div className='hear-right-inner'>
             <div className='TimeDisplay'>
