@@ -84,7 +84,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     })
     .then(res => res.json())
     .then(res => {
-      console.log('video_res_edit', res);
+      console.log('success');
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
