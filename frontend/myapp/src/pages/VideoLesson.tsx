@@ -16,6 +16,7 @@ import {getToken} from '../utils/utils'
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
+
 const quillModules = {
   toolbar: [
     [{ 'header': [1, 2, 3, false] }],
@@ -44,6 +45,7 @@ const quillFormats = [
   'background',
 ];
 const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+  const [fileList, setFileList] = useState<any[]>([]);
   const token = getToken();
   const [title, setTitle] = useState("");
   const handleVideoTitleChange = (e:any) => {
@@ -65,6 +67,10 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
+  const handleFileListChange = (newFileList: any[]) => {
+    setFileList(newFileList);
+    console.log(fileList)
+  }; 
   const handleSubmit = () => {
     // 处理提交逻辑
     if (!validNotNull(title)) {
@@ -75,7 +81,8 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
       alert('Please input a valid video description')
       return
     }
-    const dto = new VideoLessonDTO(title, description, cover, youtubeLink, type);
+    const dto = new VideoLessonDTO(fileList,title, description, cover, youtubeLink, type);
+    console.log(dto)
     const requestData = JSON.stringify(dto);
     fetch(`service-edu/edu-section/videoSection/${courseId}`, {
       method: 'POST',
@@ -173,24 +180,26 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
             </Form.Item>
           )}
           {type === 2 && (
+            <>
             <Form.Item>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
                 <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={courseId} />
               </div>
             </Form.Item>
-          )}
-          {/* <Form.Item
-            label={
-              <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Video Source
-              </Text>
-            }
-            name="video source"
-          >
-          </Form.Item>
-          <Form.Item>
+            <Form.Item
+              label={
+                <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
+                  Video Source
+                </Text>
+              }
+              name="video source"
+            >
+            </Form.Item>
+            <Form.Item>
             <FileUploader onFileListChange={handleFileListChange}/>
-          </Form.Item> */}
+          </Form.Item>
+            </>
+          )} 
           <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
