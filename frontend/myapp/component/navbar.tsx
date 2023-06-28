@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,Upload } from 'antd';
+import { Layout, Tabs, Typography, Avatar, Modal, Button,Form, Input,Upload, message } from 'antd';
 import './navbar.less'; 
 import { validEmail, validNotNull, ValidPassword,HOST, CHANGEFILE_URL,getToken} from '../src/utils/utils';
 import { UserOutlined,LogoutOutlined,PlusOutlined,LoadingOutlined } from '@ant-design/icons';
@@ -123,7 +123,7 @@ export default function Dashboard() {
       })
     })
     .catch(error => {
-      // alert(error.message);
+      message.error(error.message);
     });  
   }
   useEffect(() => {

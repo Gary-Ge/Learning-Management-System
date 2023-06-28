@@ -14,15 +14,13 @@ export class CourseLayoutDTO {
   }
 }
 export class VideoLessonDTO {
-  video: any;
   title: any;
   description: any;
   cover: any;
   youtubeLink: any;
   type: any;
 
-  constructor(video:any,title: any, description: any, cover: any, youtubeLink: any, type: any) {
-    this.video = video;
+  constructor(title: any, description: any, cover: any, youtubeLink: any, type: any) {
     this.title = title;
     this.description = description;
     this.cover = cover;

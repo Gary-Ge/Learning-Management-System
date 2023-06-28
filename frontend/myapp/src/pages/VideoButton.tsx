@@ -12,7 +12,7 @@ const VideoButton: React.FC<{ courseId: string; onSingleVideoSectionChange: (sec
   const token = getToken();
   const fetchTextSections = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSections/${courseId}`, {
+      const response = await fetch(`service-edu/edu-section/videoSections/${courseId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -56,26 +56,25 @@ const VideoButton: React.FC<{ courseId: string; onSingleVideoSectionChange: (sec
   };
 
   const handleDeleteClick = (sectionId: string) => {
-    // 处理删除图标点击事件
-    // console.log('click delete:', sectionId);
-    // fetch(`http://175.45.180.201:10900/service-edu/edu-section/section/${sectionId}`, {
-    //   method: 'DELETE',
-    //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded',
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // })
-    // .then(res => res.json())
-    // .then(res => {
-    //   // console.log('res', res)
-    //   if (res.code !== 20000) {
-    //     throw new Error(res.message)
-    //   }
-    //   fetchTextSections();
-    // })
-    // .catch(error => {
-    //   alert(error.message);
-    // });
+    console.log('click delete:', sectionId);
+    fetch(`/service-edu/edu-section/section/${sectionId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res)
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      fetchTextSections();
+    })
+    .catch(error => {
+      alert(error.message);
+    });
   };
 
   const [activeButton, setActiveButton] = useState<string | null>(null);

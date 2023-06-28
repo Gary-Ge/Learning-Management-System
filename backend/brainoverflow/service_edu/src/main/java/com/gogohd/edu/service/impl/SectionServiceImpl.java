@@ -253,19 +253,19 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
     }
 
     @Override
-    public String uploadVideoCover(String userId, String courseId, MultipartFile file) {
+    public String uploadVideoCover(String userId, MultipartFile file) {
         if (file == null) {
             throw new BrainException(ResultCode.ERROR, "No file");
         }
 
         // Check if this user has the authority to upload video cover for this section
-        LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
-        staffWrapper.eq(Staff::getUserId, userId);
-        staffWrapper.eq(Staff::getCourseId, courseId);
-        if (!staffMapper.exists(staffWrapper)) {
-            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to upload video cover for " +
-                    "this section");
-        }
+//        LambdaQueryWrapper<Staff> staffWrapper = new LambdaQueryWrapper<>();
+//        staffWrapper.eq(Staff::getUserId, userId);
+//        staffWrapper.eq(Staff::getCourseId, courseId);
+//        if (!staffMapper.exists(staffWrapper)) {
+//            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to upload video cover for " +
+//                    "this section");
+//        }
 
         String filename = file.getOriginalFilename();
         if (filename == null) {
@@ -276,7 +276,7 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
                 filenameLower.endsWith("png")) {
             // Generate a UUID for each cover and use the UUID as filename, pretending file overwriting
             String extension = filename.substring(filename.lastIndexOf("."));
-            String objectName = "video-cover/" + courseId + "/" + RandomUtils.generateUUID() + extension;
+            String objectName = "video-cover/" + userId + "/" + RandomUtils.generateUUID() + extension;
             // Upload the avatar
             OssUtils.uploadFile(file, objectName, filename, true);
             // Return the avatar URL

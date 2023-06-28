@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, Select  } from 'antd';
+import React, { useDebugValue, useEffect, useState } from 'react';
+import { Layout, theme, Typography, Button, Form, Input, Select, message  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {
@@ -13,6 +13,7 @@ import VideoUploadImageButton from './VideoUploadImageButton';
 import { validNotNull} from '../utils/utilsStaff';
 import { VideoLessonDTO } from '../utils/entities';
 import {getToken} from '../utils/utils'
+import { format } from 'prettier';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -43,8 +44,26 @@ const quillFormats = [
   'color',
   'background',
 ];
-const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; video: any }> = ({ onCancel, onSubmit, video }) => {
+const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; video: any; }> = ({ onCancel, onSubmit, video }) => {
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (video) {
+      setTitle(video.title);
+      setDescription(video.description);
+      setImageUrl(video.cover);
+      setVideoResourse(video.resources);
+
+      form.setFieldsValue({
+        "video title": video.title
+      })
+    }
+  }, [video]);
+
   const token = getToken();
+  const [videoResourse, setVideoResourse] = useState<any[]>([]);
+
   const [fileList, setFileList] = useState<any[]>([]);
   const [title, setTitle] = useState("");
   const handleVideoTitleChange = (e:any) => {
@@ -64,17 +83,15 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
   };
   const handleFileListChange = (newFileList: any[]) => {
     setFileList(newFileList);
-    console.log(fileList)
   }; 
-  const [type, setType] = useState(0);
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
     // 处理提交逻辑
-    const dto = new VideoLessonDTO(fileList,title, description, cover, youtubeLink, type);
+    const dto = new VideoLessonDTO(title, description, cover, youtubeLink, 2);
     const requestData = JSON.stringify(dto);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${video.sectionId}`, {
+    fetch(`service-edu/edu-section/videoSection/${video.sectionId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -88,12 +105,53 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      onSubmit();
+
+      if (fileList.length !== 0) {
+        if (fileList.length > 1) {
+          message.error('Please upload only one video file!');
+        }
+        const formData = new FormData();
+        formData.append('file', fileList[0]);
+
+        fetch(`/service-edu/edu-resource/video/${video.sectionId}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: formData
+        }).then(res => res.json())
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message)
+          }
+          message.success('Video lesson created successfully!')
+          onSubmit();
+        })
+      } else {
+        onSubmit();
+      }
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });        
   };
+
+  const openFile = (resourceId: string) => {
+    fetch(`service-edu/edu-resource/video/${resourceId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      window.open(res.data.auth.playURL);
+    })
+  }
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
       <Content 
@@ -113,7 +171,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Video Lesson</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -126,67 +184,55 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
             ]}
           >
             <Input 
-              placeholder="Input Title" 
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={title}
               onChange={handleVideoTitleChange}
             />
           </Form.Item>
-          <Form.Item 
-            label={
-              <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Video Type
-              </Text>
-            } 
-            name="video type" 
-          >
-            <Select
-              placeholder="Select Video Section Type"
-              style={{ fontFamily: 'Comic Sans MS', width: '100%' }}
-              onChange={(value: number) => {
-                setType(value);
-              }}
-            >
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={1}>YouTube Video Section</Select.Option>
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={2}>Custom Video Section</Select.Option>
-            </Select>
+          <Form.Item>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
+              <VideoUploadImageButton onImageUpload={handleImageUpload} url={cover} />
+            </div>
           </Form.Item>
-          {type === 1 && (
-            <Form.Item 
-              label={
-                <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                  Video URL
-                </Text>
-              } 
-              name="video url" 
-            >
-              <Input 
-                placeholder="URL" 
-                style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-                value={youtubeLink}
-                onChange={handleUrlChange}
-              />
-            </Form.Item>
-          )}
-          {type === 2 && (
-            <Form.Item>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-                <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={video.sectionId} />
-              </div>
-              <Form.Item
+          <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Video Source
+                Materials
               </Text>
             }
-            name="video source"
+            name="materials"
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader onFileListChange={handleFileListChange}/>
-          </Form.Item> 
-            </Form.Item>
-          )}
+            {videoResourse.map((resources: any) => (
+              <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                <Button
+                  // key={section.sectionId}
+                  // onClick={() => handleButtonClick(section.sectionId)}
+                  // onMouseEnter={() => handleButtonMouseEnter(section.sectionId)}
+                  // onMouseLeave={handleButtonMouseLeave}
+                  style={{ 
+                    border: 'none', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    width: '300px',
+                    // backgroundColor: activeButton === section.sectionId ? '#DAE8FC' : 'transparent',
+                    // color: activeButton === section.sectionId ? 'red' : 'black',
+                    fontFamily: 'Comic Sans MS'
+                  }}
+                  onClick={() => {
+                    openFile(resources.resourceId);
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                    {resources.title}
+                  </span>
+                </Button>
+              </div>
+              </>
+            ))}
+            <FileUploader onFileListChange={handleFileListChange} />
+          </Form.Item>
           <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -201,7 +247,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               <ReactQuill
                 modules={quillModules}
                 formats={quillFormats}
-                placeholder="You can input many words here..."
                 value={description}
                 onChange={handleVideoDescriptionChange}
               />

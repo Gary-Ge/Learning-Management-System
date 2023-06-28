@@ -13,9 +13,8 @@ import { utils } from 'umi';
 interface UploadImageButtonProps {
   onImageUpload: (url: string) => void;
   url: string;
-  courseId: string;
 }
-const VideoUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url, courseId }) => {
+const VideoUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url }) => {
   const token = getToken();
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -36,7 +35,7 @@ const VideoUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUploa
     setTempFile(file);
     const formData = new FormData();
     formData.append("file",  file);
-    fetch (`/service-edu/edu-section/videoCover/${courseId}`,{
+    fetch (`/service-edu/edu-section/videoCover`,{
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${token}`
