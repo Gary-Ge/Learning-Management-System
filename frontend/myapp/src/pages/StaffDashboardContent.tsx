@@ -218,7 +218,7 @@ const StaffDashboardContent: React.FC = () => {
               </div>
             </>
           }
-          visible={showModal}
+          open={showModal}
           onCancel={() => setShowModal(false)}
           closeIcon={<CloseOutlined />}
           footer={null}

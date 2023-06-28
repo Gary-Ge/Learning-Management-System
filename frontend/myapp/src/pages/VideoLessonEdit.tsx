@@ -96,6 +96,25 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     .catch(error => {
       alert(error.message);
     });    
+    // fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   body: requestData
+    // })
+    // .then(res => res.json())
+    // .then(res => {
+    //   // console.log('res', res);
+    //   if (res.code !== 20000) {
+    //     throw new Error(res.message)
+    //   }
+    //   onSubmit();
+    // })
+    // .catch(error => {
+    //   alert(error.message);
+    // });    
   };
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
@@ -154,6 +173,17 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={1}>YouTube Video Section</Select.Option>
               <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={2}>Custom Video Section</Select.Option>
             </Select>
+            <Input 
+              placeholder="URL" 
+              style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
+              value={youtubeLink}
+              onChange={handleUrlChange}
+            />
+          </Form.Item>
+          <Form.Item>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
+              <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={"courseId"} />
+            </div>
           </Form.Item>
           {type === 1 && (
             <Form.Item 

@@ -58,8 +58,8 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
     setImageUrl(url);
   };
   const [youtubeLink, setUrl] = useState("");
-  const handleUrlChange = (youtubeLink: any) => {
-    setUrl(youtubeLink);
+  const handleUrlChange = (e: any) => {
+    setUrl(e.target.value);
   };
   const [type, setType] = useState(0);
   const handleCancel = () => {
@@ -77,7 +77,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
     }
     const dto = new VideoLessonDTO(title, description, cover, youtubeLink, type);
     const requestData = JSON.stringify(dto);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
+    fetch(`service-edu/edu-section/videoSection/${courseId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -87,10 +87,10 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
     })
     .then(res => res.json())
     .then(res => {
-      console.log('video_res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      console.log('video_res', res);
       onSubmit();
     })
     .catch(error => {
