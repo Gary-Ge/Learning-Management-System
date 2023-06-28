@@ -3,7 +3,7 @@ import { Layout, Button } from 'antd';
 import './StaffDashboardContent.less';
 import {getToken} from '../utils/utils'
 import {
-  FileTextOutlined,
+  PlayCircleOutlined,
   DeleteOutlined
 } from '@ant-design/icons';
 
@@ -33,26 +33,26 @@ const VideoButton: React.FC<{ courseId: string; onSingleVideoSectionChange: (sec
 
   const handleSectionClick = (sectionId: string) => {
     // 处理菜单项点击事件
-    // console.log('click event:', sectionId);
-    // fetch(`http://175.45.180.201:10900/service-edu/edu-section/section/${sectionId}`, {
-    //   method: 'GET',
-    //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded',
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    // })
-    // .then(res => res.json())
-    // .then(res => {
-    //   // console.log('res', res)
-    //   if (res.code !== 20000) {
-    //     throw new Error(res.message)
-    //   }
-    //   const sectionData = res.data.section;
-    //   onSingleVideoSectionChange(sectionData);
-    // })
-    // .catch(error => {
-    //   alert(error.message);
-    // });
+    console.log('click event:', sectionId);
+    fetch(`http://175.45.180.201:10900/service-edu/edu-section/section/${sectionId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res)
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      const sectionData = res.data.section;
+      onSingleVideoSectionChange(sectionData);
+    })
+    .catch(error => {
+      alert(error.message);
+    });
   };
 
   const handleDeleteClick = (sectionId: string) => {
@@ -112,7 +112,7 @@ const VideoButton: React.FC<{ courseId: string; onSingleVideoSectionChange: (sec
               fontFamily: 'Comic Sans MS'
             }}
           >
-            <FileTextOutlined style={{ color: 'green', margin: '0' }} />
+            <PlayCircleOutlined style={{ color: 'orange', margin: '0' }} />
             {/* {section.title} */}
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
               {section.title.length > 12 ? section.title.substring(0, 7) + '...' : section.title}
