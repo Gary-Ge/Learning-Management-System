@@ -65,7 +65,7 @@ export default function ConfirmPassword() {
                         name="Password"
                         rules={[{ required: true, message: 'Please input your Password!' }]}
                     >
-                        <Input placeholder="Please input your Password" value={password} onChange={handlePasswordChange}/>
+                        <Input.Password placeholder="Please input your Password" value={password} onChange={handlePasswordChange}/>
                     </Form.Item>
                     <Form.Item 
                         style={{ marginTop: '30px' }}
@@ -73,7 +73,7 @@ export default function ConfirmPassword() {
                         name="Confirm Password"
                         rules={[{ required: true, message: 'Please input your Password again' }]}
                     >
-                        <Input placeholder="Please input your Password Again" value={newpassword} onChange={handleNewPasswordChange}/>
+                        <Input.Password placeholder="Please input your Password Again" value={newpassword} onChange={handleNewPasswordChange}/>
                     </Form.Item>
                     
                     <Form.Item className="Submit" style={{ marginTop: '65px' }}>

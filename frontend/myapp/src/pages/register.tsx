@@ -99,7 +99,7 @@ export default function LoginPage() {
             name="Password"
             rules={[{ required: true, message: 'Please input your password!' }]}
           >
-            <Input placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
+            <Input.Password placeholder="Please input your password" value={password} onChange={handlePasswordChange} />
           </Form.Item>
           <Form.Item className="Submit" style={{ marginTop: '60px' }}>
             <Button type="primary" onClick={handleSubmit}>Submit</Button>

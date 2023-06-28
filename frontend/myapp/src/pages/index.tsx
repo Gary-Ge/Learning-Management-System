@@ -19,9 +19,11 @@ const customizeRenderEmpty = () => (
     <p>Data Not Found</p>
   </div>
 );
-const userDataString = localStorage.getItem('userData');
-const userDataName = userDataString ? JSON.parse(userDataString) : null;
 const StudentDashboardContent: React.FC = () => {
+
+  const userDataString = localStorage.getItem('userData');
+  const userDataName = userDataString ? JSON.parse(userDataString) : null;
+
   return (
     <div style={{ marginLeft: '110px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
       <div>
@@ -108,11 +110,6 @@ export default function IndexPage() {
 
 
   useEffect(() => {
-    // if(!token){
-    //   message.warning('Please login first!');
-    //   history.push('/login');
-    //   return;
-    // }
     fetch(`${HOST}${CHANGEFILE_URL}`, {
       method: "GET",
       headers: {
