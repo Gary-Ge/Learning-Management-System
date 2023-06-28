@@ -67,18 +67,10 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
   };
   const handleSubmit = () => {
     // 处理提交逻辑
-    if (!validNotNull(title)) {
-      alert('Please input a valid video title')
-      return
-    }
-    if (!validNotNull(description)) {
-      alert('Please input a valid video description')
-      return
-    }
     const dto = new VideoLessonDTO(title, description, cover, youtubeLink, type);
     const requestData = JSON.stringify(dto);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
-      method: 'POST',
+    fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${video.sectionId}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -87,7 +79,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     })
     .then(res => res.json())
     .then(res => {
-      console.log('video_res', res);
+      console.log('video_res_edit', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -95,26 +87,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     })
     .catch(error => {
       alert(error.message);
-    });    
-    // fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    //   body: requestData
-    // })
-    // .then(res => res.json())
-    // .then(res => {
-    //   // console.log('res', res);
-    //   if (res.code !== 20000) {
-    //     throw new Error(res.message)
-    //   }
-    //   onSubmit();
-    // })
-    // .catch(error => {
-    //   alert(error.message);
-    // });    
+    });        
   };
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
@@ -134,17 +107,16 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           // border: '1px solid red'
         }}
       >
-        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Create Video Lesson</Title>
+        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Video Lesson</Title>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                  Video Title{console.log(video)}
+                  {video.sectionId}
               </Text>
             } 
             name="video title" 
             rules={[
-              { required: true, message: 'Please input the video title!' },
               { max: 100, message: 'The video title must be less than 100 characters!' },
             ]}
           >
@@ -179,11 +151,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               value={youtubeLink}
               onChange={handleUrlChange}
             />
-          </Form.Item>
-          <Form.Item>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-              <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={"courseId"} />
-            </div>
           </Form.Item>
           {type === 1 && (
             <Form.Item 
@@ -228,9 +195,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               </Text>
             }
             name="description"
-            rules={[
-              { required: true, message: 'Please input the video description!' },
-            ]}
           >
           </Form.Item>
           <Form.Item>
