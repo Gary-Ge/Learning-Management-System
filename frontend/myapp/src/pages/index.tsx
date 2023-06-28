@@ -6,6 +6,13 @@ import Footer from "../../component/footer"
 import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button,Pagination,message } from 'antd';
 import { SmileOutlined} from '@ant-design/icons';
 import {  HOST,CHANGEFILE_URL,getToken, HOST_STUDENT,COURSE_URL,HOST_COURSE} from '../utils/utils';
+function checkToken() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+      return false; // Token not found
+  }
+  return true;
+}
 const customizeRenderEmpty = () => (
   <div style={{ textAlign: 'center' }}>
     <SmileOutlined style={{ fontSize: 20 }} />
@@ -222,6 +229,13 @@ const onSearch = (value: string) => {
     console.log(error.message);
   });
 }
+useEffect(() => {
+  // Check the token immediately when the component mounts
+  if (!checkToken()) {
+    alert('you are not login')
+    history.push('/login');
+  }
+},[token])
 
   return (
       <div className='body_user'>
