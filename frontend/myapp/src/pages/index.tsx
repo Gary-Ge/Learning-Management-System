@@ -27,17 +27,17 @@ const StudentDashboardContent: React.FC = () => {
   return (
     <div style={{ marginLeft: '110px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
       <div>
-      {userDataName ? (
+      {/*{userDataName ? (
                 <>
                     Hi,
                     <br />
                     Welcome to our website ~~
                 </>
-            ) : (
+            ) : (*/}
                 <>Hi,
                 <br />
                 Welcome to our website ~~</>
-            )}
+            {/* )} */}
       </div>
     </div>
   );
