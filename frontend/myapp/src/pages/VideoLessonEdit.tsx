@@ -172,7 +172,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           {type === 2 && (
             <Form.Item>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-                <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={courseId} />
+                <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={video.sectionId} />
               </div>
             </Form.Item>
           )}
