@@ -43,7 +43,7 @@ const quillFormats = [
   'color',
   'background',
 ];
-const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; video: any }> = ({ onCancel, onSubmit, video }) => {
   const token = getToken();
   const [title, setTitle] = useState("");
   const handleVideoTitleChange = (e:any) => {
@@ -221,4 +221,4 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
   );
 };
 
-export default VideoLesson;
+export default VideoLessonEdit;

@@ -13,6 +13,21 @@ export class CourseLayoutDTO {
     this.hasForum = hasForum;
   }
 }
+export class VideoLessonDTO {
+  title: any;
+  description: any;
+  cover: any;
+  youtubeLink: any;
+  type: any;
+
+  constructor(title: any, description: any, cover: any, youtubeLink: any, type: any) {
+    this.title = title;
+    this.description = description;
+    this.cover = cover;
+    this.youtubeLink = youtubeLink;
+    this.type = type;
+  }
+}
 export class FileUploadDTO {
   files: any;
 

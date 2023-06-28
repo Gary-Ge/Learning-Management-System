@@ -25,8 +25,10 @@ import StreamLesson from './StreamLesson';
 import Assignment from './Assignment';
 import Quiz from './Quiz';
 import TextButton from './TextButton';
+import VideoButton from './VideoButton';
 import AssignmentButton from './AssignmentButton';
 import TextLessonEdit from './TextLessonEdit';
+import VideoLessonEdit from './VideoLessonEdit';
 import CourseLayoutEdit from './CourseLayoutEdit';
 import AssignmentEdit from './AssignmentEdit';
 
@@ -47,6 +49,7 @@ const StaffDashboardContent: React.FC = () => {
 
   const [textChangeFlag, setTextChangeFlag] = useState(false);
   const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
+  const [videoChangeFlag, setVideoChangeFlag] = useState(false);
   
   const handleAddCourses = () => {
     setSelectedOption('course');
@@ -140,6 +143,7 @@ const StaffDashboardContent: React.FC = () => {
   };
 
   const handleSubmitVideo = () => {
+    setVideoChangeFlag(!videoChangeFlag);
     setSelectedOption('close');
   };
   const [singleSection, setSingleSection] = useState(null);
@@ -148,6 +152,14 @@ const StaffDashboardContent: React.FC = () => {
     // console.log('sectionData', sectionData);
     setSingleSection(sectionData);
     setSelectedOption('editTextLesson');
+    // 执行其他操作
+  };
+  const [singleVideoSection, setVideoSection] = useState(null);
+  const handleSingleVideoSectionChange = (sectionData: any) => {
+    // 在这里处理 singleSection 参数
+    // console.log('sectionData', sectionData);
+    setVideoSection(sectionData);
+    setSelectedOption('editVideoLesson');
     // 执行其他操作
   };
   const [singleAssignment, setSingleAssignment] = useState(null);
@@ -167,6 +179,7 @@ const StaffDashboardContent: React.FC = () => {
                     alignItems: 'center' }}
       >
         <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
+        <VideoButton courseId={courseId} onSingleVideoSectionChange={handleSingleVideoSectionChange} changeFlag={videoChangeFlag} />
         <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
         {/* add course materials button */}
@@ -417,6 +430,9 @@ const StaffDashboardContent: React.FC = () => {
         )}
         {selectedOption === 'editTextLesson' && (
           <TextLessonEdit section={singleSection} onCancel={handleCancel} onSubmit={handleSubmitText} />
+        )}
+        {selectedOption === 'editVideoLesson' && (
+          <VideoLessonEdit video={singleVideoSection} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
