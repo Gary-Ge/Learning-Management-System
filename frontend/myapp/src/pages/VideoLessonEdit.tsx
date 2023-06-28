@@ -112,7 +112,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                  {video.sectionId}
+                Video Title
               </Text>
             } 
             name="video title" 
@@ -145,12 +145,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={1}>YouTube Video Section</Select.Option>
               <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value={2}>Custom Video Section</Select.Option>
             </Select>
-            <Input 
-              placeholder="URL" 
-              style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={youtubeLink}
-              onChange={handleUrlChange}
-            />
           </Form.Item>
           {type === 1 && (
             <Form.Item 
@@ -172,7 +166,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           {type === 2 && (
             <Form.Item>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-                <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={courseId} />
+                <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={video.sectionId} />
               </div>
             </Form.Item>
           )}
