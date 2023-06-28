@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a3d9c95-25fd-443a-9e5f-9eab7d9e6da9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/mapper/CourseMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/brainoverflow/service_edu/src/main/java/com/gogohd/edu/mapper/CourseMapper.java" afterDir="false" />
-    </list>
+    <list default="true" id="1a3d9c95-25fd-443a-9e5f-9eab7d9e6da9" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -101,7 +98,7 @@
       <workItem from="1687389924000" duration="28154000" />
       <workItem from="1687433867905" duration="45000" />
       <workItem from="1687433955784" duration="23733000" />
-      <workItem from="1687668049376" duration="958000" />
+      <workItem from="1687668049376" duration="1236000" />
     </task>
     <task id="LOCAL-00001" summary="Synchronize">
       <created>1687390494929</created>
@@ -145,7 +142,14 @@
       <option name="project" value="LOCAL" />
       <updated>1687510962827</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Return course according to creation time order">
+      <created>1687669239870</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1687669239871</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -173,6 +177,7 @@
     <MESSAGE value="UpdateAssignmentVo" />
     <MESSAGE value="The api of upload assignment and download assignment finished" />
     <MESSAGE value="Student search interested courses, upload assignments finished" />
-    <option name="LAST_COMMIT_MESSAGE" value="Student search interested courses, upload assignments finished" />
+    <MESSAGE value="Return course according to creation time order" />
+    <option name="LAST_COMMIT_MESSAGE" value="Return course according to creation time order" />
   </component>
 </project>
