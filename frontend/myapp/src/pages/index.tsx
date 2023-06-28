@@ -351,6 +351,7 @@ const onSearch = (value: string) => {
       defaultPageSize={3} 
       total={allcourses.length} 
       onChange={(page) => setCurrentPage(page)}
+      pageSizeOptions={[3]}
     />
    </div>
     </div>
