@@ -83,25 +83,25 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     }
     const dto = new VideoLessonDTO(title, description, cover, youtubeLink, type);
     const requestData = JSON.stringify(dto);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: requestData
-    })
-    .then(res => res.json())
-    .then(res => {
-      // console.log('res', res);
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-      onSubmit();
-    })
-    .catch(error => {
-      alert(error.message);
-    });    
+    // fetch(`http://175.45.180.201:10900/service-edu/edu-section/videoSection/${courseId}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   body: requestData
+    // })
+    // .then(res => res.json())
+    // .then(res => {
+    //   // console.log('res', res);
+    //   if (res.code !== 20000) {
+    //     throw new Error(res.message)
+    //   }
+    //   onSubmit();
+    // })
+    // .catch(error => {
+    //   alert(error.message);
+    // });    
   };
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
@@ -159,7 +159,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           </Form.Item>
           <Form.Item>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
-              <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={courseId} />
+              <VideoUploadImageButton onImageUpload={handleImageUpload} url="" courseId={"courseId"} />
             </div>
           </Form.Item>
           {/* <Form.Item
