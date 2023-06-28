@@ -347,7 +347,7 @@ const onSearch = (value: string) => {
     ))}
   <div className='course-Page'>
     <Pagination 
-      defaultCurrent={1} 
+      current={currentPage}
       defaultPageSize={3} 
       total={allcourses.length} 
       onChange={(page) => setCurrentPage(page)}
