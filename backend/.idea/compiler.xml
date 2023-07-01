@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="service_gateway" />
         <module name="service_edu" />
+        <module name="service_forum" />
         <module name="service_ucenter" />
         <module name="service_base" />
         <module name="service_eureka" />
@@ -24,6 +25,7 @@
       <module name="service_base" options="-parameters" />
       <module name="service_edu" options="-parameters" />
       <module name="service_eureka" options="-parameters" />
+      <module name="service_forum" options="-parameters" />
       <module name="service_gateway" options="-parameters" />
       <module name="service_ucenter" options="-parameters" />
     </option>
