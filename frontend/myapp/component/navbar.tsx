@@ -288,7 +288,7 @@ export default function Dashboard() {
             {
                 userData && avatarURL
                 ? <img src={avatarURL} style={{ width: '30px', height: '30px',borderRadius: '50%' }} onClick={handleAvatarClick} />
-                : <Avatar icon={<UserOutlined />} onClick={handleAvatarClick} />
+                : <Avatar icon={<UserOutlined />}  style={{cursor:'pointer',  width: '30px', height: '30px'}} onClick={handleAvatarClick} />
             }
             </div>
 

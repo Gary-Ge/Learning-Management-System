@@ -20,6 +20,8 @@ import stu_icon_9 from '../../../images/stu_icon_9.png';
 import downloadicon from '../../../images/download.png';
 import time_icon from '../../../images/timeicon.png';
 import uploadicon from '../../../images/uploadicon.png';
+import gototopicon from '../../../images/gototop.png';
+
 
 let data:any = [
   // {
@@ -74,7 +76,7 @@ interface List {
   assFileId: string,
   title: string
 }
-let assign_list = [  
+let assign_list = [
   {
     key: '0', assid: '', title: '', start_time: '', end_time: '',
     content: '',
@@ -96,8 +98,8 @@ export default function IndexPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const props = (key:number, id:string) => {
-    console.log('++key', key);
-    console.log('fileList', fileList);
+    // console.log('++key', key);
+    // console.log('fileList', fileList);
     return {
       onRemove: (file:any) => {
         const index = fileList[key].indexOf(file);
@@ -542,6 +544,9 @@ export default function IndexPage() {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  const gototop = () => {
+    window.scrollTo(0, 0);
+  }
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -664,6 +669,7 @@ export default function IndexPage() {
        }
 
       </div>
+      <div><img src={gototopicon} className="gotopicon" onClick={gototop}/></div>
       <Modal title="Drop course" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <p>Are you sure you want to drop out of the course?</p>
       </Modal>
