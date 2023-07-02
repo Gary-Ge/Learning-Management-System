@@ -31,6 +31,7 @@ import TextLessonEdit from './TextLessonEdit';
 import VideoLessonEdit from './VideoLessonEdit';
 import CourseLayoutEdit from './CourseLayoutEdit';
 import AssignmentEdit from './AssignmentEdit';
+import ShowMark from './ShowMark';
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -170,6 +171,12 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editAssignmentLesson');
     // 执行其他操作
   };
+  const handleShowMarks = (courseId: any) => {
+    setSelectedOption('showMarks');
+  };
+  const handleSubmitMark = () => {
+    setSelectedOption('close');
+  };
   const renderAdditionalButton = (courseId: string, courseTitle: string) => {
     return (
       <div style={{ textAlign: 'center', 
@@ -197,6 +204,7 @@ const StaffDashboardContent: React.FC = () => {
             ghost
             style={{ marginRight: '5%' }}
             icon={<TrophyOutlined />}
+            onClick={() => handleShowMarks(courseId)}
           ></Button>
           <Button 
             // key={courseId}
@@ -436,6 +444,9 @@ const StaffDashboardContent: React.FC = () => {
         )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
+        )}
+        {selectedOption === 'showMarks' && (
+          <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'close' && (
           // 没有选择时的内容
