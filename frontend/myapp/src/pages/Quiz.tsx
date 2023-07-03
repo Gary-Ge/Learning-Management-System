@@ -15,16 +15,27 @@ const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
 const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+  const [totalMarks, setTotalMarks] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
-  const [forms, setForms] = useState([]);
+  const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark: number }[]>([]);
   const addForm = () => {
     const newFormId = Date.now(); // Generate a unique ID for the new form
-    setForms([...forms, { id: newFormId, options: [], selectedOption: '', correctOptionId: '' }]);
-  };
-  const removeForm = (formId: any) => {
+    const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
+    const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
+    setForms([...forms, { id: newFormId, options: [newOptionId1, newOptionId2], selectedOption: 'sc', correctOptionId: '',mark: 0 }]);
+};
+const removeForm = (formId: number) => {
+  const formToRemove = forms.find((form) => form.id === formId);
+  if (formToRemove) {
     const updatedForms = forms.filter((form) => form.id !== formId);
     setForms(updatedForms);
-  };
+    if (formToRemove.mark) {
+      const totalMarks = forms.reduce((total, form) => (form.mark ? total + form.mark : total), 0);
+      const updatedTotalMarks = totalMarks - formToRemove.mark;
+      setTotalMarks(updatedTotalMarks);
+    }
+  }
+};
   const addOption = (formId: any) => {
     const updatedForms = forms.map((form) => {
       if (form.id === formId) {
@@ -40,7 +51,7 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
   const removeOption = (formId: any, optionId: any) => {
     const updatedForms = forms.map((form) => {
       if (form.id === formId) {
-        const updatedOptions = form.options.filter((id) => id !== optionId);
+        const updatedOptions = form.options.filter((id:any) => id !== optionId);
         return { ...form, options: updatedOptions };
       }
       return form;
@@ -66,10 +77,17 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
           }
   
           return { ...form, correctOptionId: updatedCorrectOptions };
-        } else {
+        } 
+        if (form.selectedOption === 'sc') {
           // 单项选择
-          return { ...form, correctOptionId: optionId };
+          if (form.correctOptionId === optionId.toString()) {
+            // 如果已经选中，那么点击就取消选中
+            return { ...form, correctOptionId: '' };
+          } else {
+            return { ...form, correctOptionId: optionId.toString() };
+          }
         }
+        
       }
       return form;
     });
@@ -84,6 +102,19 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
   
     setForms(updatedFormsWithClearedTextAnswer);
   };
+  const handleMarkChange = (formId:any, value:any) => {
+    let markValue = parseInt(value);
+    const updatedForms = forms.map((form) => {
+        if (form.id === formId) {
+            return { ...form, mark: markValue };
+        }
+        return form;
+    });
+    setForms(updatedForms);
+    let total = updatedForms.reduce((acc, form) => acc + (form.mark || 0), 0);
+    setTotalMarks(total);
+};
+
 
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
@@ -109,7 +140,7 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
           borderRadius: '10px',
           maxWidth: '800px',
           width: '100%',
-          margin: '30px auto',
+          margin: '90px auto',
           height: 'auto',
           // border: '1px solid red'
         }}
@@ -172,7 +203,7 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
             }
             name="startDateTime"
           >
-            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black' }} placeholder="Select Start Date and Time" showTime />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime />
           </Form.Item>
           <Form.Item
             label={
@@ -182,7 +213,7 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
             }
             name="endDateTime"
           >
-            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black' }} placeholder="Select Start Date and Time" showTime />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime />
           </Form.Item>
           {forms.map((form) => (
             <div 
@@ -198,12 +229,12 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
               }}
             >
               <div style={{ display: 'flex', marginBottom: '15px' }}>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1,marginRight: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
                     <UploadImageButton onImageUpload={handleImageUpload} url=""/>
                   </div>
                 </div>
-                <div style={{ flex: 2 }}>
+                <div style={{ flex: 2,marginLeft: '10px' }}>
                   <Form.Item
                     label={<Text style={{ fontFamily: 'Comic Sans MS' }}>Question</Text>}
                     name="question"
@@ -218,7 +249,7 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
                 </div>
               </div>
               <div style={{ display: 'flex', marginBottom: '5px' }}>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1,marginRight: '10px' }}>
                   <Text style={{ fontFamily: 'Comic Sans MS' }}>Question Type</Text>
                   <Select
                     placeholder="Select Option"
@@ -239,8 +270,8 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
                   </Select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: 'Comic Sans MS' }}>Mark</Text>
-                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '10px', fontFamily: 'Comic Sans MS' }} />
+                  <Text style={{ fontFamily: 'Comic Sans MS',marginLeft:'10px' }}>Mark</Text>
+                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => handleMarkChange(form.id, e.target.value)} />
                 </div>
               </div>
               {form.selectedOption === 'sc' && (
@@ -259,15 +290,18 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
                         onClick={() => removeOption(form.id, optionId)}
                       />
                       <Radio
-                        checked={form.correctOptionId === optionId}
-                        onChange={() => handleOptionSelection(form.id, optionId)}
+                          style = {{marginTop: '5px'}}
+                          checked={form.correctOptionId.toString() === optionId.toString()}
+                          onChange={() => handleOptionSelection(form.id, optionId)}
                       />
-                      {form.correctOptionId === optionId ? (
-                        <Tag color="green">Correct</Tag>
-                      ) : (
-                        <Tag color="red">Incorrect</Tag>
+                      {form.correctOptionId === optionId.toString() && (
+                          <Tag color="green" >Correct</Tag>
+                      )}
+                      {form.correctOptionId !== optionId.toString() && (
+                          <Tag color="red" >Incorrect</Tag>
                       )}
                     </div>
+                    
                   ))}
                   <Button
                     type="text"
@@ -296,14 +330,16 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
                         onClick={() => removeOption(form.id, optionId)}
                       />
                       <Checkbox
-                        checked={form.correctOptionId.includes(optionId)}
+                        style = {{marginTop: '5px'}}
+                        checked={form.correctOptionId.toString().includes(optionId.toString())}
                         onChange={() => handleOptionSelection(form.id, optionId)}
                       />
-                      {form.correctOptionId.includes(optionId) ? (
-                        <Tag color="green">Correct</Tag>
-                      ) : (
-                        <Tag color="red">Incorrect</Tag>
-                      )}
+                      {(form.correctOptionId && form.correctOptionId.toString().includes(optionId.toString())) ? (
+                      <Tag color="green" style = {{marginLeft: '10px'}}>Correct</Tag>
+                  ) : (
+                      <Tag color="red" style = {{marginLeft: '10px'}}>Incorrect</Tag>
+                  )}
+
                     </div>
                   ))}
                   <Button
@@ -334,14 +370,17 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
               />
             </div>
           ))}
-          <Form.Item>
+          <div style={{ display: 'flex', justifyContent: 'flex-end',fontFamily: 'Comic Sans MS' }}>
+            total mark:{totalMarks}
+          </div>
+          <Form.Item style={{display: 'flex', justifyContent: 'center',marginTop: '40px'}}>
             <Button icon={<PlusCircleOutlined />} onClick={addForm} style={{ color: '#0085FC' }}>Questions</Button>
           </Form.Item>
-          <Form.Item>
+          <Form.Item style={{display: 'flex', justifyContent: 'center', marginTop: '40px'}}>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
               Submit
             </Button>
-            <Button style={{ marginLeft: '10px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }} onClick={handleCancel}>
+            <Button style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }} onClick={handleCancel}>
               Cancel
             </Button>
           </Form.Item>
