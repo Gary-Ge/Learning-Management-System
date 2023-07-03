@@ -18,6 +18,7 @@
         <module>service_eureka</module>
         <module>service_edu</module>
         <module>service_forum</module>
+        <module>service_stream</module>
     </modules>
     <version>0.0.1-SNAPSHOT</version>
     <name>brainoverflow</name>
