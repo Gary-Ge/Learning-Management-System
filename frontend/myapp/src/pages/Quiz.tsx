@@ -17,7 +17,8 @@ const { Title, Text } = Typography;
 const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const [totalMarks, setTotalMarks] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
-  const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark: number }[]>([]);
+  const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark?: number; }[]>([]);
+  const [showTotalMark, setShowTotalMark] = useState(true);
   const addForm = () => {
     const newFormId = Date.now(); // Generate a unique ID for the new form
     const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
@@ -30,11 +31,13 @@ const removeForm = (formId: number) => {
     const updatedForms = forms.filter((form) => form.id !== formId);
     setForms(updatedForms);
     if (formToRemove.mark) {
-      const totalMarks = forms.reduce((total, form) => (form.mark ? total + form.mark : total), 0);
-      const updatedTotalMarks = totalMarks - formToRemove.mark;
-      setTotalMarks(updatedTotalMarks);
+      const totalMarks = updatedForms.reduce((total, form) => (form.mark ? total + form.mark : total), 0);
+      setTotalMarks(totalMarks);
     }
   }
+
+  // 检查 updatedForms 是否为空，如果为空，则将 showTotalMark 设置为 false
+  setShowTotalMark(forms.length > 0);
 };
   const addOption = (formId: any) => {
     const updatedForms = forms.map((form) => {
@@ -370,9 +373,11 @@ const removeForm = (formId: number) => {
               />
             </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'flex-end',fontFamily: 'Comic Sans MS' }}>
-            total mark:{totalMarks}
+          {showTotalMark && forms.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', fontFamily: 'Comic Sans MS' }}>
+            total mark: {totalMarks}
           </div>
+        )}
           <Form.Item style={{display: 'flex', justifyContent: 'center',marginTop: '40px'}}>
             <Button icon={<PlusCircleOutlined />} onClick={addForm} style={{ color: '#0085FC' }}>Questions</Button>
           </Form.Item>
