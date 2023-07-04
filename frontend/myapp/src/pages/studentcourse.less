@@ -63,7 +63,7 @@
   text-align: center;
   margin-right: 20px;
 }
-.stu_left_list div{
+.stu_left_list_title{
   height: 40px;
   width: 160px;
   line-height: 40px;
@@ -76,6 +76,25 @@
   background-color: #fff;
   cursor: pointer;
 }
+.ass_list_wrap{
+  background-color: #fff;
+  cursor: pointer;
+}
+.ass_list_wrap{
+  border-bottom: 1px dashed blue;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  // line-height: 30px;
+}
+.ass_list_wrap:last-child{
+  border: 0px;
+  margin-bottom: 10px;
+}
+.br{
+  border:1px solid red}
 .btn{
   width: 160px;
 }
@@ -98,6 +117,11 @@
   width: 160px;
   border: 1px dashed #97D077!important;
   background-color: #EBF3FF;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 18px;
 }
 .stu_icon_list{
   width: 24px;
@@ -138,12 +162,13 @@
   color: #3333FF;
   border: 1px solid #6C8EBF!important;
 }
+.ass_left_list_active{
+  background-color: #DAE8FC!important;
+}
 .display_non{
   display: none;
 }
-.materials_wrap{
-  
-}
+
 .materials_title{
   font-weight: bold;
   font-size: 20px;
@@ -199,17 +224,26 @@
 .ass_title{
   font-weight: bold;
   font-size: 20px;
-  margin-bottom: 15px;
-  margin-top: 15px;
+  margin-bottom: 30px;
+  margin-top: 20px;
   text-align: center;
+}
+.ass_time_wrap{
+  margin: 0 auto;
+  text-align: center;
+}
+.ass_start_time{
+  margin-right: 20px;
 }
 .ass_title_second{
   text-align: center;
   margin-top: 10px;
+  display: inline-block;
+  margin-bottom: 20px;
 }
 .ass_wrap{
   padding:20px;
-  border-bottom: 1px solid rebeccapurple;
+  // border-bottom: 1px solid rebeccapurple;
 }
 .stu_timeicon{
   width: 20px;

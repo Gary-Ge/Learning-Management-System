@@ -40,7 +40,17 @@ const fun_list = [
     key: '1', title: 'Materials', is_selected: false, img_link: stu_icon_3
   },
   {
-    key: '2', title: 'Assignments', is_selected: false, img_link: stu_icon_6
+    key: '2', title: 'Quizzes', is_selected: false, img_link: stu_icon_5
+  },
+  {
+    key: '3', title: 'Assignments', is_selected: false, img_link: stu_icon_6, 
+    ass_list:[{key: '0', id: '', title: 'ass1'},{key: '1', id: '', title: 'ass2'}]
+  },
+  {
+    key: '4', title: 'Join Class', is_selected: false, img_link: stu_icon_2
+  },
+  {
+    key: '5', title: 'Forums', is_selected: false, img_link: stu_icon_4
   },
 ];
   // {
@@ -49,9 +59,6 @@ const fun_list = [
 
   // {
   //   key: '3', title: 'Forums', is_selected: false, img_link: stu_icon_4
-  // },
-  // {
-  //   key: '4', title: 'Quizzes', is_selected: false, img_link: stu_icon_5
   // },
 
 const course_outline = [
@@ -79,7 +86,7 @@ interface List {
 let assign_list = [
   {
     key: '0', assid: '', title: '', start_time: '', end_time: '',
-    content: '',
+    content: '', is_selected: false,
     ass_files: []as Array<List>,
     submits:[]as Array<List>,
   }
@@ -96,6 +103,7 @@ export default function IndexPage() {
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
   const [assignlist,setassignmentLists]= useState(assign_list);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ass_left_list_show,set_ass_left_list_show]= useState(false);
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -147,7 +155,7 @@ export default function IndexPage() {
         datalist.map((item:any)=>{
           if (item.is_selected) {
             console.log(item.id);
-            getallassignments(item.id);
+            getallassignments(item.id, key);
           }
         })
       }
@@ -220,13 +228,14 @@ export default function IndexPage() {
       }
       getcourseinfo(currentcourseid);
       getallsections(currentcourseid); // get all sections
-      getallassignments(currentcourseid);// get all assignment
+      getallassignments(currentcourseid, '0');// get all assignment
       fun_list.map(item => {
         item.is_selected = false;
       });
       fun_list[0].is_selected = true;
       setfunLists([...fun_list]);
       setdataLists([...data]);
+      set_ass_left_list_show(false);
       // console.log('++data',data);
     })
     .catch(error => {
@@ -337,7 +346,7 @@ export default function IndexPage() {
     }); 
   };
   // get all assignments
-  const getallassignments = (courseid:string) => {
+  const getallassignments = (courseid:string, original_key: string) => {
     fetch(`${HOST_STUDENT}/assignments/${courseid}`, {
       method: "GET",
       headers: {
@@ -351,7 +360,6 @@ export default function IndexPage() {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log('getallassignments',res.data.assignments);
       // if (res.data.assignments.length == 0) {
       //   setassignmentLists([]);
       // } else {
@@ -368,7 +376,8 @@ export default function IndexPage() {
           end_time: item.end,
           content: item.description,
           ass_files: item.assFiles,
-          submits: item.submits
+          submits: item.submits,
+          is_selected: idx == original_key
         });
       });
       setFileList([...ass_fileList]);
@@ -379,26 +388,6 @@ export default function IndexPage() {
       console.log(error.message);
     }); 
   };
-  // get one assignment info
-  // const getoneassignment = (ass_id:string, inneritem:any) => {
-  //   fetch(`${HOST_STUDENT}/assignment/${ass_id}`, {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/x-www-form-urlencoded",
-  //       "Authorization": `Bearer ${token}`
-  //     }
-  //   })
-  //   .then(res => res.json())
-  //   .then(res => {
-  //     console.log('res');
-  //     if (res.code !== 20000) {
-  //       throw new Error(res.message)
-  //     }
-  //     console.log('get one ass:',res.data.assignment.assFiles);
-  //     inneritem.ass_files = res.data.assignment.assFiles
-  //     // inneritem.url = res.data.auth.playURL
-  //   });
-  // }
 
   // get assignment download file
   const getassigndownloadlink = (assFileId:string) => {
@@ -432,20 +421,25 @@ export default function IndexPage() {
     });
     fun_list[0].is_selected = true;
     setfunLists([...fun_list]);
+    set_ass_left_list_show(false);
     
     getallsections(id); // get materials
-    getallassignments(id); // update assignment
+    getallassignments(id, '0'); // update assignment
     getcourseinfo(id); // update course outline
   };
 
   // click left list
   const onclicklist = (e:any) => {
-    // console.log(e.target.id);
     funlist.map(item => {
       item.is_selected = false;
     });
     funlist[e.target.id].is_selected = true;
     setfunLists([...funlist]);
+    if(e.target.id == '3'){ // assignment show
+      set_ass_left_list_show(!ass_left_list_show);
+    } else {
+      set_ass_left_list_show(false);
+    }
   };
 
  // download materials 2
@@ -504,7 +498,6 @@ export default function IndexPage() {
   const dropcourse = () => {
     console.log('dropdatalist', datalist);
     showModal();
-
   }
   // drop course 2
   const deletedropcourse = (courseid:string) => {
@@ -526,19 +519,32 @@ export default function IndexPage() {
       }
     })
   }
+  // onclick to show ass content
+  const showasscontent = (e:any) => {
+    console.log(e.target.id);
+    console.log();
+    assign_list.map(item => {
+      item.is_selected = false;
+    });
+    assign_list.map(item => {
+      if (item.assid == e.target.id) {
+        item.is_selected = true
+      }
+    })
+    setassignmentLists([...assign_list]);
+    window.scrollTo(0, 0);
+  }
   const showModal = () => {
     setIsModalOpen(true);
   };
 
   const handleOk = () => {
-    
     datalist.map((item:any)=>{
       if (item.is_selected) {
         console.log(item.id);
         deletedropcourse(item.id);
       }
     })
-    
   };
 
   const handleCancel = () => {
@@ -564,8 +570,18 @@ export default function IndexPage() {
       <div className='stu_content'>
         <div className='stu_left_list'>
           {
-            funlist.map(item => <div className={item.is_selected ? 'stu_active': ''} onClick={onclicklist} id={item.key} key={item.key}>
-            <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
+            funlist.map(item => 
+            <div key={item.key}>
+              <div className={item.is_selected ? 'stu_active stu_left_list_title': 'stu_left_list_title'} onClick={onclicklist} id={item.key} key={item.key}>
+                <img src={item.img_link} className="stu_icon"/>{item.title}
+              </div>
+              <div className={item.key == '3' && item.is_selected && ass_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
+              {
+                assignlist.map(_itm => <div key={_itm.title} id={_itm.assid} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showasscontent}>{_itm.title}</div>)
+              }
+              </div>
+            </div>
+            )
           }
           {
             funlist.length != 0 ?             
@@ -575,8 +591,6 @@ export default function IndexPage() {
             <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
             </div> : ''
           }
-
-
         </div>
 
         <div className={funlist.length != 0 && funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
@@ -591,82 +605,87 @@ export default function IndexPage() {
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
         </div>
-       {
-          funlist.length != 0 ?         
-          <div className={!funlist[1].is_selected && !funlist[2].is_selected ? 'display_non': 'wid100'}>
-            <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
-              {
-                materialslist.length == 0 ? <div>there is no section now...</div> : ''
-              }
-              {
-                materialslist.map(item => <div className='materials_wrap' key={item.key}>
-                <div className='materials_title'>{item.title}</div>
-                <div className='materials_time'>{item.time}</div>
-                <div className='materials_img'><img src={item.cover}/></div>
-                {item.type == 'Text Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
-                { item.file_list.map((itm:any, idx:number) => 
-                  <div key={idx.toString()} className="downloadfile_wrap">
-                    {itm.type == 'File' ? 
-                    <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>
-                      <img src={downloadicon} className="downloadicon"/>Download file : {itm.title}
-                    </div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
-                  </div>
-                )}
-                {item.type == 'Custom Video Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
-                <div className='dashline'></div>
+        {
+            funlist.length != 0 ?         
+            <div className={funlist[0].is_selected ? 'display_non': 'wid100'}>
+              <div className={funlist[1].is_selected ? 'stu_right_content': 'display_non'}>
+                {
+                  materialslist.length == 0 ? <div>there is no section now...</div> : ''
+                }
+                {
+                  materialslist.map(item => <div className='materials_wrap' key={item.key}>
+                  <div className='materials_title'>{item.title}</div>
+                  <div className='materials_time'>{item.time}</div>
+                  <div className='materials_img'><img src={item.cover}/></div>
+                  {item.type == 'Text Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
+                  { item.file_list.map((itm:any, idx:number) => 
+                    <div key={idx.toString()} className="downloadfile_wrap">
+                      {itm.type == 'File' ? 
+                      <div className='downloadfile' onClick={downLoadMaterial} id={itm.resourceId}>
+                        <img src={downloadicon} className="downloadicon"/>Download file : {itm.title}
+                      </div> : <div><ReactPlayer controls url={itm.url} id={itm.resourceId} className='react-player' /><p className='video_title'>{itm.title}</p></div>}
+                    </div>
+                  )}
+                  {item.type == 'Custom Video Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
+                  <div className='dashline'></div>
 
-              </div>)
-              }
-            </div>
-            <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
-              {
-                assignlist.length == 0 ? <div>There is no assignment now.</div> : ''
-              }
-              {
-                assignlist.map(_item =>
-                  <div key={_item.key} id={_item.assid} className="ass_wrap">
-                    <div className='ass_title'>{_item.title}</div>
-                    <div className='ass_title_second'>
-                      <img className='stu_timeicon' src={time_icon}/>
-                      start time : {_item.start_time}
-                    </div>
-                    <div className='ass_title_second'>
-                      <img className='stu_timeicon' src={time_icon}/>
-                      end time : {_item.end_time}
-                    </div>
-                    <div className='ass_content' dangerouslySetInnerHTML={{__html: _item.content}}></div>
-                    {
-                      _item.ass_files.map((initem:any, index:number) => {
-                        return(<div key={index} className='downloadfile' onClick={downLoadAss} id={initem.assFileId}>
-                          <img src={downloadicon} className="downloadicon"/>
-                          Download file : {initem.title}</div>)
-                      })
-                    }
-                    <div>
-                      <p className='uploadbtn'>My Uploaded files :</p>
+                </div>)
+                }
+              </div>
+              <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
+                Quizzes
+              </div>
+              <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
+                {
+                  assignlist.length == 0 ? <div>There is no assignment now.</div> : ''
+                }
+                {
+                  assignlist.map(_item =>
+                    <div key={_item.key} id={_item.assid} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
+                      <div className='ass_title'>{_item.title}</div>
+                      <div className='ass_time_wrap'>
+                        <div className='ass_title_second ass_start_time'>
+                          <img className='stu_timeicon' src={time_icon}/>
+                          start time : {_item.start_time}
+                        </div>
+                        <div className='ass_title_second'>
+                          <img className='stu_timeicon' src={time_icon}/>
+                          end time : {_item.end_time}
+                        </div>
+                      </div>
+                      <div className='ass_content' dangerouslySetInnerHTML={{__html: _item.content}}></div>
                       {
-                        _item.submits.map((initem:any, index:number) => {
-                          return (<a key={index} id={initem.submitId} className="mrt" onClick={downLoaduploadedfile}>{initem.title}</a>)
+                        _item.ass_files.map((initem:any, index:number) => {
+                          return(<div key={index} className='downloadfile' onClick={downLoadAss} id={initem.assFileId}>
+                            <img src={downloadicon} className="downloadicon"/>
+                            Download file : {initem.title}</div>)
                         })
                       }
+                      <div>
+                        <p className='uploadbtn'>My Uploaded files :</p>
+                        {
+                          _item.submits.map((initem:any, index:number) => {
+                            return (<a key={index} id={initem.submitId} className="mrt" onClick={downLoaduploadedfile}>{initem.title}</a>)
+                          })
+                        }
+                        
+                      </div>
+                      <Upload.Dragger
+                        {...props(Number(_item.key), _item.assid)} id={_item.assid} key={_item.key} className="uploadbtn dragwrap">
+                        <img src={uploadicon} className='uploadicon'/>
+                        <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                      </Upload.Dragger>
+                      <div className='wrapbtn'>
+                        <Button type="primary" className='uploadbtn mrt30' onClick={() => upload(_item.assid, _item.key)} >Upload</Button>
+                      </div>
                       
+                      {/* <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div> */}
                     </div>
-                    <Upload.Dragger
-                      {...props(Number(_item.key), _item.assid)} id={_item.assid} key={_item.key} className="uploadbtn dragwrap">
-                      <img src={uploadicon} className='uploadicon'/>
-                      <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                    </Upload.Dragger>
-                    <div className='wrapbtn'>
-                      <Button type="primary" className='uploadbtn mrt30' onClick={() => upload(_item.assid, _item.key)} >Upload</Button>
-                    </div>
-                    
-                    {/* <div className='ass_upload'><img src={uploadicon} className='uploadicon'/>Drag files here to upload</div> */}
-                  </div>
-                )
-              }
-            </div>
-          </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
-       }
+                  )
+                }
+              </div>
+            </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
+        }
 
       </div>
       <div><img src={gototopicon} className="gotopicon" onClick={gototop}/></div>
