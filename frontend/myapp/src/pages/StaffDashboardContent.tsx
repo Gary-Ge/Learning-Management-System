@@ -100,7 +100,22 @@ const StaffDashboardContent: React.FC = () => {
       setCourseSubmitted(true);
     }
   }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSiderVisible(window.innerWidth > 768);
+    };
 
+    // Call the handleResize function when the component is mounted
+    handleResize();
+
+    // Subscribe to window resize events
+    window.addEventListener('resize', handleResize);
+
+    // Unsubscribe from window resize events when the component is unmounted
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    }
+  }, []);
   // useEffect(() => {
   //   console.log('courseIds:', courseIds);
   // }, [courseIds]);
@@ -461,7 +476,7 @@ const StaffDashboardContent: React.FC = () => {
           </>
         )}
       </Sider>
-      <Layout className="site-layout" style={{ marginLeft: contentMarginLeft, overflow: 'auto', backgroundColor: '#EFF1F6', marginTop: '65px' }}>
+      <Layout className="site-layout" style={{ marginLeft: contentMarginLeft, overflow: 'auto', backgroundColor: '#EFF1F6', marginTop: '100px' }}>
         {selectedOption === 'course' && (
           <CourseLayout onCancel={handleCancel} onSubmit={handleSubmitCourse} />
         )}

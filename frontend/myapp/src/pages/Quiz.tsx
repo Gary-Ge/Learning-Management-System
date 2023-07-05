@@ -145,6 +145,7 @@ const removeForm = (formId: number) => {
           width: '100%',
           margin: '90px auto',
           height: 'auto',
+          marginTop: '30px'
           // border: '1px solid red'
         }}
       >
