@@ -16,7 +16,8 @@ import {
   DesktopOutlined,
   QuestionCircleOutlined,
   FilePdfOutlined,
-  EditOutlined
+  EditOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 import CourseLayout from './CourseLayout';
 import TextLesson from './TextLesson';
@@ -26,12 +27,17 @@ import Assignment from './Assignment';
 import Quiz from './Quiz';
 import TextButton from './TextButton';
 import VideoButton from './VideoButton';
+import StreamButton from './StreamButton';
 import AssignmentButton from './AssignmentButton';
 import TextLessonEdit from './TextLessonEdit';
 import VideoLessonEdit from './VideoLessonEdit';
+import StreamLessonEdit from './StreamLessonEdit';
+import LinkBoard from './LinkBoard';
+import LinkBoardStu from './LinkBoardStu';
 import CourseLayoutEdit from './CourseLayoutEdit';
 import AssignmentEdit from './AssignmentEdit';
 import ShowMark from './ShowMark';
+import Newcalendar from './Calendar';
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -49,6 +55,7 @@ const StaffDashboardContent: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState('close');
 
   const [textChangeFlag, setTextChangeFlag] = useState(false);
+  const [streamChangeFlag, setStreamChangeFlag] = useState(false);
   const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   const [videoChangeFlag, setVideoChangeFlag] = useState(false);
   
@@ -65,6 +72,9 @@ const StaffDashboardContent: React.FC = () => {
     // console.log('courseSubmitted', courseId);
   };
   const [courses, setCourses] = useState<any[]>([]);
+  const handleAddCalendar = () => {
+    setSelectedOption('calendar');
+  }
 
   const fetchCourses = async () => {
     try {
@@ -90,7 +100,22 @@ const StaffDashboardContent: React.FC = () => {
       setCourseSubmitted(true);
     }
   }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSiderVisible(window.innerWidth > 768);
+    };
 
+    // Call the handleResize function when the component is mounted
+    handleResize();
+
+    // Subscribe to window resize events
+    window.addEventListener('resize', handleResize);
+
+    // Unsubscribe from window resize events when the component is unmounted
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    }
+  }, []);
   // useEffect(() => {
   //   console.log('courseIds:', courseIds);
   // }, [courseIds]);
@@ -134,6 +159,11 @@ const StaffDashboardContent: React.FC = () => {
     console.log('Submitted sectionId:', sectionId);
   };
 
+  const handleSubmitStream = () => {
+    setStreamChangeFlag(!streamChangeFlag);
+    setSelectedOption('close');
+  }
+
   const handleSubmitAssignment = () => {
     setAssignmentChangeFlag(!assignmentChangeFlag);
     setSelectedOption('close');
@@ -163,6 +193,14 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editVideoLesson');
     // 执行其他操作
   };
+  const [singleStreamSection, setStreamSection] = useState(null);
+  const handleSingleStreamSectionChange = (sectionData: any) => {
+    // 在这里处理 singleSection 参数
+    // console.log('sectionData', sectionData);
+    setStreamSection(sectionData);
+    setSelectedOption('editStreamLesson');
+    // 执行其他操作
+  };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
     // 在这里处理 singleAssignment 参数
@@ -187,6 +225,7 @@ const StaffDashboardContent: React.FC = () => {
       >
         <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
         <VideoButton courseId={courseId} onSingleVideoSectionChange={handleSingleVideoSectionChange} changeFlag={videoChangeFlag} />
+        <StreamButton courseId={courseId} onSingleStreamChange={handleSingleStreamSectionChange} changeFlag={streamChangeFlag} />
         <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
         {/* add course materials button */}
@@ -199,6 +238,7 @@ const StaffDashboardContent: React.FC = () => {
             style={{ marginRight: '5%' }}
             onClick={() => handleShowModal(courseId, courseTitle)}
           ></Button>
+          {/* <input defaultValue={token}></input> */}
           <Button 
             type="primary" 
             ghost
@@ -395,6 +435,17 @@ const StaffDashboardContent: React.FC = () => {
                 Add Courses
               </Button>
             </div>
+            <div style={{ textAlign: 'center',marginTop:'10px' }}>
+              <Button 
+                onClick={handleAddCalendar} 
+                icon={<CalendarOutlined />} 
+                type="primary" 
+                ghost
+                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
+              >
+               Calendar
+              </Button>
+            </div>
           </>
         ) : (
           <>
@@ -411,10 +462,21 @@ const StaffDashboardContent: React.FC = () => {
                 Add Courses
               </Button>
             </div>
+            <div style={{ textAlign: 'center',marginTop:'10px' }}>
+              <Button 
+                onClick={handleAddCalendar} 
+                icon={<CalendarOutlined />} 
+                type="primary" 
+                ghost
+                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
+              >
+               Calendar
+              </Button>
+            </div>
           </>
         )}
       </Sider>
-      <Layout className="site-layout" style={{ marginLeft: contentMarginLeft, overflow: 'auto', backgroundColor: '#EFF1F6' }}>
+      <Layout className="site-layout" style={{ marginLeft: contentMarginLeft, overflow: 'auto', backgroundColor: '#EFF1F6', marginTop: '100px' }}>
         {selectedOption === 'course' && (
           <CourseLayout onCancel={handleCancel} onSubmit={handleSubmitCourse} />
         )}
@@ -425,7 +487,7 @@ const StaffDashboardContent: React.FC = () => {
           <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
         {selectedOption === 'stream' && (
-          <StreamLesson onCancel={handleCancel} onSubmit={handleSubmitVideo} />
+          <StreamLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitStream} />
         )}
         {selectedOption === 'quiz' && (
           <Quiz courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
@@ -442,17 +504,25 @@ const StaffDashboardContent: React.FC = () => {
         {selectedOption === 'editVideoLesson' && (
           <VideoLessonEdit video={singleVideoSection} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
+        {selectedOption === 'editStreamLesson' && (
+          <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
+        )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
+          // <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
+          <LinkBoard courseId={selectedCourseId} />
+          // <LinkBoardStu courseId={selectedCourseId} />
+        )}
+        {selectedOption === 'calendar' && (
+          <Newcalendar />
         )}
         {selectedOption === 'close' && (
           // 没有选择时的内容
           <>
             <Layout style={{ minHeight: '100vh', backgroundColor: '#EFF1F6', textAlign: 'center' }}>
-              <div style={{ textAlign: 'center', paddingTop: '7%', }}>
+              <div style={{ textAlign: 'center', paddingTop: '20%', }}>
                 {/* <img 
                   src={"../../../images/teacher.png"} 
                   // style={{ width: '20%', height: 'auto', }} 

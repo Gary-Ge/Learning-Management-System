@@ -2,9 +2,10 @@ import'./studentcourse.less';
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
-import { Input, Button, Modal, message, Upload } from 'antd';
+import { Input, Button, Modal, message, Upload,Radio,Space,Checkbox,Form } from 'antd';
 import type { UploadProps } from 'antd';
 import { useLocation, useHistory } from 'umi';
+import { ClockCircleOutlined } from '@ant-design/icons';
 import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
   COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
@@ -91,6 +92,30 @@ let assign_list = [
     submits:[]as Array<List>,
   }
 ];
+/*quiz part*/
+const questions = [
+  {
+    id: 1,
+    type: 'radio',
+    question: 'What is the adk course?',
+    options: ['Comp9900', 'Comp9311', 'Comp9331', 'Comp9024']
+  },
+  {
+    id: 2,
+    type: 'checkbox',
+    question: 'What is the adk course?',
+    options: ['Comp9900', 'Comp9417', 'Comp9517', 'Comp9024']
+  },
+  {
+    id: 3,
+    type: 'text',
+    question: 'Write your favorite course.'
+  },
+];
+
+const handleSubmit = () => {
+  console.log('success')
+};
 
 export default function IndexPage() {
   // const [isenrollflag, setisenrollflag] = useState(true);
@@ -636,8 +661,91 @@ export default function IndexPage() {
                 }
               </div>
               <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
-                Quizzes
-              </div>
+                  <div style={{display: 'flex', justifyContent: 'center',fontSize: '2em'}}>
+                    Quiz 1 
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'flex-end',fontSize: '1em',marginTop: '20px'}}>
+                    <div>
+                      <ClockCircleOutlined />
+                    </div>
+                    <div style={{marginLeft: '20px'}}>
+                      Left Time 12:56
+                    </div>
+                  </div>
+                  {questions.map((question) => {
+                    if (question.type === 'radio') {
+                      return (
+                        <div style={{marginLeft: '10%'}} key={question.id}>
+                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
+                            {question.question}
+                          </div>
+                          <div>
+                            <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '30px'}}>
+                              <div style={{marginTop: '10px'}}>
+                              Answer:
+                              </div>
+                              <Radio.Group name={`radio-${question.id}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                                <Space direction="vertical">
+                                {question.options ? question.options.map((option, index) => (
+                                    <Radio value={index+1} key={index} style={{marginTop: '10px'}}>{option}</Radio>
+                                  )) : null}
+                                </Space>
+                              </Radio.Group>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    } else if (question.type === 'checkbox') {
+                      return (
+                        <div style={{marginLeft: '10%'}} key={question.id}>
+                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
+                            {question.question}
+                          </div>
+                          <div>
+                            <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '40px'}}>
+                            <div style={{marginTop: '10px'}}>
+                              Answer:
+                              </div>
+                              <Checkbox.Group name={`checkbox-${question.id}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                                <Space direction="vertical">
+                                  {question.options ? question.options.map((option, index) => (
+                                    <Checkbox value={index+1} key={index} style={{marginTop: '10px'}}>{option}</Checkbox>
+                                  )) : null}
+                                </Space>
+                              </Checkbox.Group>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    } else if (question.type === 'text') {
+                      return (
+                        <div style={{marginLeft: '10%'}} key={question.id}>
+                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
+                            {question.question}
+                          </div>
+                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '40px'}}>
+                            Answer:
+                          </div>
+                          <Input.TextArea
+                              placeholder="you can input many words here ..."
+                              style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '80%' }}
+                          />
+                        </div>
+                      );
+                    } else {
+                      return null;
+                    }
+                  })}
+
+                  <Form.Item style={{display: 'flex', justifyContent: 'flex-start', marginTop: '60px',marginLeft: '10%'}}>
+                    <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                      Save
+                    </Button>
+                    <Button style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }} onClick={handleCancel}>
+                      Cancel
+                    </Button>
+                  </Form.Item>
+                </div>
               <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
                 {
                   assignlist.length == 0 ? <div>There is no assignment now.</div> : ''
