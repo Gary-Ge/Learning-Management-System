@@ -178,8 +178,8 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
             >
             </Form.Item>
             <Form.Item>
-            <FileUploader onFileListChange={handleFileListChange}/>
-          </Form.Item>
+              <FileUploader onFileListChange={handleFileListChange}/>
+            </Form.Item>
             </>
           <Form.Item
             label={

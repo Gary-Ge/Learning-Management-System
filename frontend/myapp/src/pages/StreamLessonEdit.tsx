@@ -40,7 +40,7 @@ const quillFormats = [
   'color',
   'background',
 ];
-const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; stream: any }> = ({ onCancel, onSubmit, stream }) => {
   const token = getToken();
   const [title, setTitle] = useState("");
   const handleStreamTitleChange = (e:any) => {
@@ -117,7 +117,7 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
           // border: '1px solid red'
         }}
       >
-        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Create Stream Lesson</Title>
+        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Stream Lesson</Title>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
@@ -127,7 +127,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
             } 
             name="stream title" 
             rules={[
-              { required: true, message: 'Please input the stream title!' },
               { max: 100, message: 'The stream title must be less than 100 characters!' },
             ]}
           >
@@ -145,9 +144,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
               </Text>
             } 
             name="stream url" 
-            rules={[
-              { required: true, message: 'Please input the stream url!' },
-            ]}
           >
             <Input 
               placeholder="URL" 
@@ -163,9 +159,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
               </Text>
             }
             name="startDateTime"
-            rules={[
-              { required: true, message: 'Please input the stream start time!' },
-            ]}
           >
             <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleStreamStartChange} />
           </Form.Item>
@@ -176,9 +169,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
               </Text>
             }
             name="endDateTime"
-            rules={[
-              { required: true, message: 'Please input the stream end time!' },
-            ]}
           >
             <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleStreamEndChange} />
           </Form.Item>
@@ -189,9 +179,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
               </Text>
             }
             name="description"
-            rules={[
-              { required: true, message: 'Please input the stream description!' },
-            ]}
           >
           </Form.Item>
           <Form.Item>
@@ -229,4 +216,4 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
   );
 };
 
-export default StreamLesson;
+export default StreamLessonEdit;
