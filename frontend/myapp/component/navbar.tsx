@@ -18,6 +18,7 @@ function updateUserData(newUserData:any) {
 
 const { TabPane } = Tabs;
 
+
 const TimeDisplay: React.FC = () => {
     const [currentDate, setCurrentDate] = useState('');
     const [currentTime, setCurrentTime] = useState('');
@@ -77,6 +78,7 @@ export default function Dashboard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tempFile, setTempFile] = useState<File | null>(null);
+
   let avatarURL:any;
   let userData = localStorage.getItem('userData');
   if (userData) {

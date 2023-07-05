@@ -8,11 +8,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="service_gateway" />
+        <module name="service_stream" />
+        <module name="service_base" />
+        <module name="service_eureka" />
         <module name="service_edu" />
         <module name="service_forum" />
         <module name="service_ucenter" />
-        <module name="service_base" />
-        <module name="service_eureka" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -27,6 +28,7 @@
       <module name="service_eureka" options="-parameters" />
       <module name="service_forum" options="-parameters" />
       <module name="service_gateway" options="-parameters" />
+      <module name="service_stream" options="-parameters" />
       <module name="service_ucenter" options="-parameters" />
     </option>
   </component>

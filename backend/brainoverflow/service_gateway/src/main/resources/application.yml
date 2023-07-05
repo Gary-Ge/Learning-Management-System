@@ -28,6 +28,12 @@ spring:
               - Path=/service-edu/**
           filters:
               - StripPrefix=1
+        - id: service-stream
+          uri: lb://service-stream
+          predicates:
+              - Path=/service-stream/**
+          filters:
+              - StripPrefix=1
 
 knife4j:
   gateway:
