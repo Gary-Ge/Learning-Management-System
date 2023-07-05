@@ -16,7 +16,8 @@ import {
   DesktopOutlined,
   QuestionCircleOutlined,
   FilePdfOutlined,
-  EditOutlined
+  EditOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 import CourseLayout from './CourseLayout';
 import TextLesson from './TextLesson';
@@ -32,6 +33,7 @@ import VideoLessonEdit from './VideoLessonEdit';
 import CourseLayoutEdit from './CourseLayoutEdit';
 import AssignmentEdit from './AssignmentEdit';
 import ShowMark from './ShowMark';
+import Newcalendar from './Calendar';
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -65,6 +67,9 @@ const StaffDashboardContent: React.FC = () => {
     // console.log('courseSubmitted', courseId);
   };
   const [courses, setCourses] = useState<any[]>([]);
+  const handleAddCalendar = () => {
+    setSelectedOption('calendar');
+  }
 
   const fetchCourses = async () => {
     try {
@@ -395,6 +400,17 @@ const StaffDashboardContent: React.FC = () => {
                 Add Courses
               </Button>
             </div>
+            <div style={{ textAlign: 'center',marginTop:'10px' }}>
+              <Button 
+                onClick={handleAddCalendar} 
+                icon={<CalendarOutlined />} 
+                type="primary" 
+                ghost
+                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
+              >
+               Calendar
+              </Button>
+            </div>
           </>
         ) : (
           <>
@@ -409,6 +425,17 @@ const StaffDashboardContent: React.FC = () => {
                 style={{ color: '#0085FC', border: '1px solid #0085FC', textAlign: 'center', fontFamily: 'Comic Sans MS' }}
               >
                 Add Courses
+              </Button>
+            </div>
+            <div style={{ textAlign: 'center',marginTop:'10px' }}>
+              <Button 
+                onClick={handleAddCalendar} 
+                icon={<CalendarOutlined />} 
+                type="primary" 
+                ghost
+                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
+              >
+               Calendar
               </Button>
             </div>
           </>
@@ -448,11 +475,14 @@ const StaffDashboardContent: React.FC = () => {
         {selectedOption === 'showMarks' && (
           <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
+        {selectedOption === 'calendar' && (
+          <Newcalendar />
+        )}
         {selectedOption === 'close' && (
           // 没有选择时的内容
           <>
             <Layout style={{ minHeight: '100vh', backgroundColor: '#EFF1F6', textAlign: 'center' }}>
-              <div style={{ textAlign: 'center', paddingTop: '7%', }}>
+              <div style={{ textAlign: 'center', paddingTop: '20%', }}>
                 {/* <img 
                   src={"../../../images/teacher.png"} 
                   // style={{ width: '20%', height: 'auto', }} 
