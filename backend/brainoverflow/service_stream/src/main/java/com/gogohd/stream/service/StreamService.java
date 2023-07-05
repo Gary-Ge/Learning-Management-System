@@ -18,4 +18,12 @@ public interface StreamService extends IService<Stream> {
     Map<String, Object> getStreamById(String userId, String streamId);
 
     List<Map<String, Object>> getStreamListByCourseId(String userId, String courseId);
+
+    String startStream(String userId, String streamId);
+
+    void finishStream(String userId, String streamId);
+
+    String playStream(String userId, String streamId);
+
+    Boolean isPushing(String streamId);
 }

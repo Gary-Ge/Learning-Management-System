@@ -10,7 +10,6 @@ import com.gogohd.stream.mapper.StreamMapper;
 import com.gogohd.stream.service.ChatService;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,9 +19,6 @@ import java.util.Map;
 public class ChatServiceImpl implements ChatService {
     @Autowired
     private AmqpTemplate amqpTemplate;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     private StreamMapper streamMapper;
@@ -43,10 +39,9 @@ public class ChatServiceImpl implements ChatService {
                     "stream's chatroom");
         }
 
-//        if (stringRedisTemplate.opsForValue().get("stream://" + streamId) == null) {
-//            throw new BrainException(ResultCode.ERROR, "You cannot send message to this stream now, " +
-//                    "this stream lesson is not in progress");
-//        }
+        if (!stream.getInProgress()) {
+            throw new BrainException(ResultCode.ERROR, "This stream lesson is not started yet");
+        }
 
         // Fetch sender information
         R userResponse;
@@ -72,7 +67,7 @@ public class ChatServiceImpl implements ChatService {
         send.setUserId(userId);
         send.setMessage(message);
 
-        // Send message
+        // Send message to rabbitMQ
         amqpTemplate.convertAndSend("stream-chat", send);
     }
 }
