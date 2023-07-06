@@ -123,7 +123,6 @@ const removeForm = (formId: number) => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
-    // 处理提交逻辑
     onSubmit();
   };
   const [cover, setImageUrl] = useState("");
