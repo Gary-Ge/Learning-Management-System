@@ -1,4 +1,5 @@
 import'./studentcourse.less';
+import LinkBoardStu from "./LinkBoardStu";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
@@ -796,7 +797,7 @@ export default function IndexPage() {
                 }
               </div>
               <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
-                stream class
+                <LinkBoardStu courseId={'c35f0536ea524229d469405b44277878'}/>
               </div>
             </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }
