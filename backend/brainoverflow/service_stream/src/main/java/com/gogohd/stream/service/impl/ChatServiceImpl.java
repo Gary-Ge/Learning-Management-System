@@ -39,10 +39,6 @@ public class ChatServiceImpl implements ChatService {
                     "stream's chatroom");
         }
 
-        if (!stream.getInProgress()) {
-            throw new BrainException(ResultCode.ERROR, "This stream lesson is not started yet");
-        }
-
         // Fetch sender information
         R userResponse;
         try {

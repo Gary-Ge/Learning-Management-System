@@ -21,4 +21,6 @@ public class Message implements Serializable {
     private String avatar;
 
     private String email;
+
+    private Integer type = 0;
 }

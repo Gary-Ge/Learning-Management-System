@@ -21,10 +21,14 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> implements StreamService {
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public void createStream(String userId, String courseId, CreateStreamVo createStreamVo) {
@@ -80,7 +84,6 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
         stream.setCreatedBy(userId);
         stream.setUpdatedBy(userId);
         stream.setCourseId(courseId);
-        stream.setInProgress(false);
 
         // Insert record to database
         if (!save(stream)) {
@@ -169,7 +172,7 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
         result.put("end", stream.getEnd());
         result.put("createdAt", stream.getCreatedAt());
         result.put("updatedAt", stream.getUpdatedAt());
-        result.put("inProgress", stream.getInProgress());
+        result.put("inProgress", stringRedisTemplate.opsForValue().get("stream://" + streamId) != null);
 
         return result;
     }
@@ -194,7 +197,8 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
                     result.put("end", stream.getEnd());
                     result.put("createdAt", stream.getCreatedAt());
                     result.put("updatedAt", stream.getUpdatedAt());
-                    result.put("inProgress", stream.getInProgress());
+                    result.put("inProgress",
+                            stringRedisTemplate.opsForValue().get("stream://" + stream.getStreamId()) != null);
 
                     return result;
                 }).collect(Collectors.toList());
@@ -210,17 +214,16 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to start this stream lesson");
         }
 
-        if (stream.getInProgress()) {
-            throw new BrainException(ResultCode.ERROR, "This stream lesson is already started");
-        }
-        Stream start = new Stream();
-        start.setInProgress(true);
-        start.setStreamId(streamId);
-        if (baseMapper.updateById(start) != 1) {
-            throw new BrainException(ResultCode.ERROR, "Start stream lesson failed");
+        String pushUrl = stringRedisTemplate.opsForValue().get("stream://" + streamId);
+        if (pushUrl != null) {
+            return pushUrl;
         }
 
-        return StreamUtils.generatePushUrl(streamId);
+        pushUrl = StreamUtils.generatePushUrl(streamId);
+        stringRedisTemplate.opsForValue().set("stream://" + streamId, pushUrl, 10800L,
+                TimeUnit.SECONDS);
+
+        return pushUrl;
     }
 
     @Override
@@ -233,16 +236,11 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to finish this stream lesson");
         }
 
-        if (!stream.getInProgress()) {
+        if (stringRedisTemplate.opsForValue().get("stream://" + streamId) == null) {
             throw new BrainException(ResultCode.ERROR, "This stream lesson is already finished");
         }
 
-        Stream finish = new Stream();
-        finish.setInProgress(false);
-        finish.setStreamId(streamId);
-        if (baseMapper.updateById(finish) != 1) {
-            throw new BrainException(ResultCode.ERROR, "Finish stream lesson failed");
-        }
+        stringRedisTemplate.opsForValue().getAndDelete("stream://" + streamId);
     }
 
     @Override
@@ -256,7 +254,7 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to play this stream lesson");
         }
 
-        if (!stream.getInProgress()) {
+        if (stringRedisTemplate.opsForValue().get("stream://" + streamId) == null) {
             throw new BrainException(ResultCode.ERROR, "This stream lesson is not started yet");
         }
 
