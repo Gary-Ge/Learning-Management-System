@@ -38,6 +38,7 @@ import CourseLayoutEdit from './CourseLayoutEdit';
 import AssignmentEdit from './AssignmentEdit';
 import ShowMark from './ShowMark';
 import Newcalendar from './Calendar';
+import { useHistory } from 'umi';
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -215,6 +216,10 @@ const StaffDashboardContent: React.FC = () => {
   const handleSubmitMark = () => {
     setSelectedOption('close');
   };
+  const history = useHistory();
+  const gotoforum = () => {
+    history.push(`/teacherforums?courseid=`);
+  }
   const renderAdditionalButton = (courseId: string, courseTitle: string) => {
     return (
       <div style={{ textAlign: 'center', 
@@ -391,7 +396,7 @@ const StaffDashboardContent: React.FC = () => {
       >
         {courseSubmitted ? (
           <>
-            <div style={{ height: 'calc(100% - 27%)', overflow: 'auto', marginBottom: '15px' }}>
+            <div style={{ height: 'calc(100% - 31%)', overflow: 'auto', marginBottom: '15px' }}>
               <div style={{ textAlign: 'center', marginTop: '5%', marginBottom: '5%' }}>
                 <Collapse className="custom-collapse">
                   {courses.map((course) => (
@@ -420,6 +425,7 @@ const StaffDashboardContent: React.FC = () => {
                 style={{ width: '70%',  
                         fontFamily: 'Comic Sans MS' 
                       }}
+                onClick={gotoforum}
               >
                 Forum
               </Button>

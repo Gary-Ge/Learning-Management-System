@@ -124,7 +124,7 @@ export default function studentforums() {
     return(
         <div className='forum_wrap'>
             <Navbar />
-            <div className='stu_forum_title'>Student Course Forums</div>
+            <div className='stu_forum_title'>Teacher Course Forums</div>
             <div className='stu_title'>
                 <div className='stu_title_list'>
                 {datalist.map( (course_item:any)  => 

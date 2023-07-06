@@ -48,8 +48,17 @@
   .stu_title_bar{
     display: none;
   }
+  .display_non{
+    display: none;
+  }
   .mrt{
     margin-right: 10px;
+  }
+  .mt{
+    margin-top: 20px;
+  }
+  .mt5{
+    margin-top: 5px;
   }
   .stu_forum_tag_wrap{
     margin-top: 10px;
@@ -88,8 +97,12 @@
     margin-top: 20px;
     display: flex;
     flex-direction: row;
-    
     // align-items: center;
+  }
+  .stu_forum_thread_wrap{
+    padding-left: 90px;
+    padding-right: 20px;
+    margin-top: 20px;
   }
   .stu_forum_list{
     width: 450px;
@@ -109,7 +122,8 @@
     background-color: #fff;
     padding:10px;
     // height: calc(100vh - 187px);
-    height: 600px;
+    min-height: 600px;
+    padding-bottom: 30px;
   }
   .stu_forum_left_list{
     padding: 10px 20px 0px 20px;
@@ -132,9 +146,22 @@
     color: #B3B3B3;
     font-size: 13px;
   }
+  .mlt{
+    margin-left: 20px;
+  }
+  .mlt54{
+    margin-left: 54px;
+  }
+  .mlt90{
+    margin-left: 90px;
+  }
+  .pointer{
+    cursor: pointer;
+  }
 .stu_forum_left_list_wrap{
     padding-bottom: 20px;
     border-bottom: 2px solid #EDEDED;
+    cursor: pointer;
 }
 .create_wrap{
     padding: 20px;
@@ -171,4 +198,73 @@
     margin-top: 20px;
     margin-right: 50px;
     // margin-bottom: 30px;
+}
+.create_author_wrap{
+    text-align: right;
+    padding-right: 30px;
+}
+.empty_thread{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border: 1px dashed #9933FF; //  #9933FF #B1DDF0
+}
+.forum_avatar_wrap{
+    padding-left: 30px;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.padding_left{
+    padding-left: 4px;
+}
+.forum_default_avatar{
+    width: 50px;
+    height: 50px;
+}
+.forum_comment{
+    padding-left: 54px;
+    margin-bottom: 5px;
+}
+.forum_thread_avatar_wrap{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    // display: flex;
+    // flex-direction: row;
+    // align-items: center;
+    // justify-content: center;
+}
+.height25{
+    height: 25px;
+    padding: 2px;
+}
+.font_large{
+    font-size: 16px;
+}
+.font_weight{
+    font-weight: bold;
+}
+.line_h{
+    line-height: 30px;
+    font-size: 16px;
+}
+.thread_input_wrap{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.font_small{
+    font-size: 14px;
+}
+.forum_moment_avatar{
+    width: 40px;
+    height: 40px;
+}
+.forum_answer_wrap{
+    padding-left: 30px;
+    padding-top: 20px;
 }

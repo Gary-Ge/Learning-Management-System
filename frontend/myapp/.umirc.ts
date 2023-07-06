@@ -13,7 +13,8 @@ export default defineConfig({
     { path: '/viewstudentcourse', component: '@/pages/viewstudentcourse' },
     { path: '/forgetpassword', component: '@/pages/forgetpassword' },
     { path: '/confirmpassword', component: '@/pages/confirmpassword' },
-    { path: '/studentforums', component: '@/pages/studentforums' }
+    { path: '/studentforums', component: '@/pages/studentforums' },
+    { path: '/teacherforums', component: '@/pages/teacherforums' }
   ],
   fastRefresh: {},
   proxy: {
