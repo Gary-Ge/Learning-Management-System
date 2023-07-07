@@ -19,11 +19,11 @@ public class Quiz {
 
     private String description;
 
+    private Integer limitation;
+
     private LocalDateTime start;
 
     private LocalDateTime end;
-
-    private Integer limitation;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

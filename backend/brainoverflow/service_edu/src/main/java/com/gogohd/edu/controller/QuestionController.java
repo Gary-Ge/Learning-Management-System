@@ -22,6 +22,6 @@ public class QuestionController {
                             @RequestBody CreateQuestionVo createQuestionVo) {
         String userId = (String) request.getAttribute("userId");
         String questionId = questionService.createQuestion(userId, courseId, quizId, createQuestionVo);
-        return R.success().message("Create question success").data("quesstionId", questionId);
+        return R.success().message("Create question success").data("questionId", questionId);
     }
 }
