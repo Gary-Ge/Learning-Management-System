@@ -72,7 +72,7 @@ export default function Dashboard() {
   }]
   const location = useLocation();
   const { pathname } = location;
-  const [tablist, settablist] = useState(pathname == '/staffcourse' ? tabs_list2 :tabs_list);
+  const [tablist, settablist] = useState(pathname == '/staffcourse' || pathname == '/teacherforums' ? tabs_list2 :tabs_list);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");

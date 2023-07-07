@@ -1,11 +1,12 @@
 import'./studentcourse.less';
+import LinkBoardStu from "./LinkBoardStu";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
 import { Input, Button, Modal, message, Upload,Radio,Space,Checkbox,Form } from 'antd';
 import type { UploadProps } from 'antd';
+import { useLocation, useHistory } from 'umi';
 import { ClockCircleOutlined } from '@ant-design/icons';
-import { useLocation } from 'umi';
 import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
   COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
@@ -407,7 +408,7 @@ export default function IndexPage() {
       });
       setFileList([...ass_fileList]);
       setassignmentLists([...assign_list]);
-      console.log('assign_list', assign_list);
+      // console.log('assign_list', assign_list);
     })
     .catch(error => {
       console.log(error.message);
@@ -452,7 +453,7 @@ export default function IndexPage() {
     getallassignments(id, '0'); // update assignment
     getcourseinfo(id); // update course outline
   };
-
+  const history = useHistory();
   // click left list
   const onclicklist = (e:any) => {
     funlist.map(item => {
@@ -464,6 +465,9 @@ export default function IndexPage() {
       set_ass_left_list_show(!ass_left_list_show);
     } else {
       set_ass_left_list_show(false);
+    }
+    if(e.target.id == '5'){
+      history.push(`/studentforums?courseid=`);
     }
   };
 
@@ -791,6 +795,9 @@ export default function IndexPage() {
                     </div>
                   )
                 }
+              </div>
+              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
+                <LinkBoardStu courseId={'c35f0536ea524229d469405b44277878'}/>
               </div>
             </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }

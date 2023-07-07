@@ -15,11 +15,19 @@ public class Question {
 
     private String quizId;
 
-    private String description;
-
-    private String image;
+    private String cover;
 
     private Integer type;
+
+    private Integer mark;
+
+    private String content;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 
     private String a;
     private String b;
@@ -27,12 +35,11 @@ public class Question {
     private String d;
     private String e;
     private String f;
-
-    private String correct;
-
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedAt;
+    private int aCorrect;
+    private int bCorrect;
+    private int cCorrect;
+    private int dCorrect;
+    private int eCorrect;
+    private int fCorrect;
+    private String shortAnswer;
 }

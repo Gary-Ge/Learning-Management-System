@@ -6,6 +6,7 @@ import Footer from "../../component/footer"
 import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button,Pagination,message } from 'antd';
 import { SmileOutlined} from '@ant-design/icons';
 import {  HOST,CHANGEFILE_URL,getToken, HOST_STUDENT,COURSE_URL,HOST_COURSE} from '../utils/utils';
+import moment from 'moment';
 function checkToken() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -89,7 +90,7 @@ export default function IndexPage() {
   const [allcourseDetails, setAllCourseDetails] = useState<Array<any>>([]);
   const [firstcourseDetails, setFirstCourseDetails] = useState<Array<any>>([{cover: '',title:'',date:'',description:''}]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(moment().format('YYYY-MM-DD'));
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,

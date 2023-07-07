@@ -1,9 +1,11 @@
 package com.gogohd.stream.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gogohd.base.utils.R;
 import com.gogohd.stream.service.ChatService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +16,12 @@ import javax.servlet.http.HttpServletRequest;
 public class ChatController {
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @PostMapping("message/{streamId}/{message}")
     public R sendMessage(HttpServletRequest request, @PathVariable String streamId, @PathVariable String message) {

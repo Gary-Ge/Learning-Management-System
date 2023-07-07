@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, Select, Radio, Tag, Checkbox } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, Select, Radio, Tag, Checkbox,message } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import './Quiz.css';
@@ -10,6 +10,8 @@ import {
 } from '@ant-design/icons';
 import 'react-quill/dist/quill.snow.css';
 import UploadImageButton from './UploadImageButton';
+import { validNotNull } from '../utils/utilsStaff';
+import { QuizDTO } from '../utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -19,6 +21,29 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
   const [selectedOption, setSelectedOption] = useState('');
   const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark?: number; }[]>([]);
   const [showTotalMark, setShowTotalMark] = useState(true);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [limitation, setLimitation] = useState("");
+  const handleQuizTitleChange = (e:any) => {
+    setTitle(e.target.value);
+  };
+  const handleLimitationChange = (e:any) => {
+    setLimitation(e.target.value);
+  };
+  const handleQuizStartChange = (date: any) => {
+    if (date) {
+      const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
+      setStart(formattedDate);
+    }
+  };
+  const handleQuizEndChange = (date: any) => {
+    if (date) {
+      const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
+      setEnd(formattedDate);
+    }
+  };
   const addForm = () => {
     const newFormId = Date.now(); // Generate a unique ID for the new form
     const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
@@ -123,7 +148,40 @@ const removeForm = (formId: number) => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
-    // 处理提交逻辑
+    if (!validNotNull(title)) {
+      alert('Please input a valid quiz title')
+      return
+    }
+    if (!validNotNull(limitation)) {
+      alert('Please input a valid quiz li')
+      return
+    }
+    if (!validNotNull(start)) {
+      alert('Please input a valid quiz start')
+      return
+    }
+    if (!validNotNull(end) || (new Date(end)< new Date(start))) {
+      alert('Please input a valid quiz end')
+      return
+    }
+    const dto = new QuizDTO(title, description, start, end,limitation);
+    console.log(dto)
+    {/*fetch(`${HOST}${REGISTER_URL}`, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+      headers: HEADER
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      console.log(res.data.token)
+      message.success('Create quiz successfully!')
+    })
+    .catch(error => {
+      message.error(error.message)
+    });*/}
     onSubmit();
   };
   const [cover, setImageUrl] = useState("");
@@ -145,6 +203,7 @@ const removeForm = (formId: number) => {
           width: '100%',
           margin: '90px auto',
           height: 'auto',
+          marginTop: '30px'
           // border: '1px solid red'
         }}
       >
@@ -161,6 +220,7 @@ const removeForm = (formId: number) => {
             <Input 
               placeholder="Input Title" 
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
+              onChange={handleQuizTitleChange}
             />
           </Form.Item>
           <Form.Item 
@@ -171,33 +231,13 @@ const removeForm = (formId: number) => {
             } 
             name="quiz attempt time" 
           >
-            <Select
-              placeholder="Select Option"
-              style={{ fontFamily: 'Comic Sans MS', width: '100%' }}
-              onChange={(value) => {
-                setSelectedOption(value);
-              }}
-            >
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="Custom Options">Custom Options</Select.Option>
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="Limited">Limited</Select.Option>
-            </Select>
-          </Form.Item>
-          {selectedOption === 'Custom Options' && (
-            <Form.Item
-              label={
-                <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                  Custom Attempt Time
-                </Text>
-              }
-              name="customAttemptTime"
-            >
-              <Input
+            <Input
                 type="number"
                 placeholder="Input Number"
                 style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
+                onChange={handleLimitationChange}
               />
-            </Form.Item>
-          )}
+          </Form.Item>
           <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -206,7 +246,7 @@ const removeForm = (formId: number) => {
             }
             name="startDateTime"
           >
-            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime onOk={handleQuizStartChange} />
           </Form.Item>
           <Form.Item
             label={
@@ -216,7 +256,7 @@ const removeForm = (formId: number) => {
             }
             name="endDateTime"
           >
-            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime  onOk={handleQuizEndChange} />
           </Form.Item>
           {forms.map((form) => (
             <div 

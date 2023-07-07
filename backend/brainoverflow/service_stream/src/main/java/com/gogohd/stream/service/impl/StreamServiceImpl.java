@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
 import com.gogohd.base.utils.DateTimeUtils;
 import com.gogohd.base.utils.ResultCode;
+import com.gogohd.base.utils.StreamUtils;
 import com.gogohd.stream.entity.Stream;
 import com.gogohd.stream.entity.vo.CreateStreamVo;
 import com.gogohd.stream.entity.vo.UpdateStreamVo;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +33,8 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
     @Override
     public void createStream(String userId, String courseId, CreateStreamVo createStreamVo) {
         if (baseMapper.selectStaffCountById(userId, courseId) == 0) {
-            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to create stream lesson for this course");
+            throw new BrainException(ResultCode.NO_AUTHORITY,
+                    "You have no authority to create stream lesson for this course");
         }
 
         // Check if the not null values are null
@@ -72,7 +75,8 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             stream.setStart(startDate);
             stream.setEnd(endDate);
         } catch (DateTimeParseException e) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
+            throw new BrainException(ResultCode.ILLEGAL_ARGS,
+                    "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
         }
 
         stream.setTitle(title);
@@ -118,7 +122,8 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             stream.setStart(startDate);
             stream.setEnd(endDate);
         } catch (DateTimeParseException e) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
+            throw new BrainException(ResultCode.ILLEGAL_ARGS,
+                    "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
         }
 
         stream.setTitle(updateStreamVo.getTitle());
@@ -154,7 +159,8 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
         if (stream == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
         }
-        if (baseMapper.selectStaffCountById(userId, stream.getCourseId()) == 0) {
+        if (baseMapper.selectStaffCountById(userId, stream.getCourseId()) == 0 &&
+                baseMapper.selectStudentCountById(userId, stream.getCourseId()) == 0) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get this stream lesson info");
         }
 
@@ -173,8 +179,10 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
 
     @Override
     public List<Map<String, Object>> getStreamListByCourseId(String userId, String courseId) {
-        if (baseMapper.selectStaffCountById(userId, courseId) == 0) {
-            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get streams info of this course");
+        if (baseMapper.selectStaffCountById(userId, courseId) == 0 &&
+                baseMapper.selectStudentCountById(userId, courseId) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY,
+                    "You have no authority to get streams info of this course");
         }
 
         LambdaQueryWrapper<Stream> wrapper = new LambdaQueryWrapper<>();
@@ -189,9 +197,72 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
                     result.put("end", stream.getEnd());
                     result.put("createdAt", stream.getCreatedAt());
                     result.put("updatedAt", stream.getUpdatedAt());
-                    result.put("inProgress", stringRedisTemplate.opsForValue().get("stream://" + stream.getStreamId()) != null);
+                    result.put("inProgress",
+                            stringRedisTemplate.opsForValue().get("stream://" + stream.getStreamId()) != null);
 
                     return result;
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public String startStream(String userId, String streamId) {
+        Stream stream = baseMapper.selectById(streamId);
+        if (stream == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
+        }
+        if (baseMapper.selectStaffCountById(userId, stream.getCourseId()) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to start this stream lesson");
+        }
+
+        String pushUrl = stringRedisTemplate.opsForValue().get("stream://" + streamId);
+        if (pushUrl != null) {
+            return pushUrl;
+        }
+
+        pushUrl = StreamUtils.generatePushUrl(streamId);
+        stringRedisTemplate.opsForValue().set("stream://" + streamId, pushUrl, 10800L,
+                TimeUnit.SECONDS);
+
+        return pushUrl;
+    }
+
+    @Override
+    public void finishStream(String userId, String streamId) {
+        Stream stream = baseMapper.selectById(streamId);
+        if (stream == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
+        }
+        if (baseMapper.selectStaffCountById(userId, stream.getCourseId()) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to finish this stream lesson");
+        }
+
+        if (stringRedisTemplate.opsForValue().get("stream://" + streamId) == null) {
+            throw new BrainException(ResultCode.ERROR, "This stream lesson is already finished");
+        }
+
+        stringRedisTemplate.opsForValue().getAndDelete("stream://" + streamId);
+    }
+
+    @Override
+    public String playStream(String userId, String streamId) {
+        Stream stream = baseMapper.selectById(streamId);
+        if (stream == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
+        }
+        if (baseMapper.selectStaffCountById(userId, stream.getCourseId()) == 0 &&
+                baseMapper.selectStudentCountById(userId, stream.getCourseId()) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to play this stream lesson");
+        }
+
+        if (stringRedisTemplate.opsForValue().get("stream://" + streamId) == null) {
+            throw new BrainException(ResultCode.ERROR, "This stream lesson is not started yet");
+        }
+
+        return StreamUtils.generatePullUrl(streamId);
+    }
+
+    @Override
+    public Boolean isPushing(String streamId) {
+        return StreamUtils.isPushing(streamId);
     }
 }

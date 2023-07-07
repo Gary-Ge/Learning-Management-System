@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Row, Col } from 'antd';
 import { Layout, Typography, Button, Form, Input, Avatar  } from 'antd';
 import {
   CameraOutlined,
@@ -17,11 +18,10 @@ const { Title, Text } = Typography;
 
 const LinkBoardStu: React.FC<{ courseId: string }> = ({ courseId }) => {
   const token = getToken();
-  return (
-    <>
-    <Layout style={{ minHeight: '100vh' }}>
-      <Layout style={{  }}>        
-        <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px' }}>
+  return (  
+    <Row style= {{marginTop: '60px'}}>
+      <Col span={18}>
+        <Content style={{ background: '#fff', padding: '15px' }}>
           <Text style={{ fontFamily: 'Comic Sans MS', fontWeight: 'bold' }}>
             <UsergroupAddOutlined style={{ marginRight: '3px', fontSize: '20px' }} />
             Online People: 90
@@ -39,26 +39,19 @@ const LinkBoardStu: React.FC<{ courseId: string }> = ({ courseId }) => {
               <CameraOutlined style={{ fontSize: '25px', marginLeft: '20px' }} />
             </div>
           </div>
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'absolute', left: '0' }}>
             <div>
-              <Avatar icon={<UserOutlined style={{ fontSize: '80px' }} />}  style={{cursor:'pointer',  width: '80px', height: '80px'}} onClick={() => {}} />
+              <Avatar icon={<UserOutlined style={{ fontSize: '80px' }} />}  style={{cursor:'pointer',  width: '80px', height: '80px',marginTop: '10px'}} onClick={() => {}} />
             </div>
+            <div>
             <Text>Name</Text>
+            </div>
           </div>
         </Content>
-        <Footer
-          style={{
-            textAlign: 'center',
-            backgroundColor: '#EFF1F6',
-            fontFamily: 'Comic Sans MS',
-          }}
-        >
-          Copyright ©2023 All rights reserved  
-          <HeartFilled style={{ color: 'red', marginLeft: '5px' }} />
-        </Footer>
-      </Layout>
+        </Col>
+      <Col span={4} style= {{marginLeft: '20px'}}>
       <Sider width={250} style={{ background: '#f0f2f5' }}>
-        <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px', minHeight: '87vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px', minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
           <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', paddingBottom: 10, fontWeight: 'bold' }}>Chatting</Title>
           <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center' }}>
             <Input 
@@ -69,8 +62,8 @@ const LinkBoardStu: React.FC<{ courseId: string }> = ({ courseId }) => {
           </div>
         </Content>
       </Sider>
-    </Layout>
-    </>
+      </Col>
+    </Row>
   );
 };
 

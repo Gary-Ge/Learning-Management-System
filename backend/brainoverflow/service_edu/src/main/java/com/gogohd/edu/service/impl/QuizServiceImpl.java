@@ -41,22 +41,22 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         }
 
         if (ObjectUtils.isEmpty(createQuizVo.getTitle())) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment title cannot be empty");
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Quiz title cannot be empty");
         }
-        if (ObjectUtils.isEmpty(createQuizVo.getDescription())) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment description cannot be empty");
+        if (ObjectUtils.isEmpty(createQuizVo.getLimitation())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Quiz limitation cannot be empty");
         }
         if (ObjectUtils.isEmpty(createQuizVo.getStart())) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment start time cannot be empty");
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Quiz start time cannot be empty");
         }
         if (ObjectUtils.isEmpty(createQuizVo.getEnd())) {
-            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment end time cannot be empty");
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Quiz end time cannot be empty");
         }
 
         Quiz quiz = new Quiz();
         quiz.setTitle(createQuizVo.getTitle());
-        quiz.setDescription(createQuizVo.getDescription());
-
+        // quiz.setDescription(createQuizVo.getDescription());
+        quiz.setLimitation(createQuizVo.getLimitation());
         quiz.setStart(DateTimeUtils.stringToDateTime(createQuizVo.getStart()));
         quiz.setEnd(DateTimeUtils.stringToDateTime(createQuizVo.getEnd()));
 
