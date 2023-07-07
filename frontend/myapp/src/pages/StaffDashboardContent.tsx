@@ -223,7 +223,7 @@ const StaffDashboardContent: React.FC = () => {
             style={{ marginRight: '5%' }}
             onClick={() => handleShowModal(courseId, courseTitle)}
           ></Button>
-          {/* <input defaultValue={token}></input> */}
+          {/* <input defaultValue={courseId}></input> */}
           <Button 
             type="primary" 
             ghost

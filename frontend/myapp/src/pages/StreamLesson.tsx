@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {
@@ -64,10 +64,7 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
       setEnd(formattedDate);
     }
   };
-  const [url, setUrl] = useState("");
-  const handleUrlChange = (e: any) => {
-    setUrl(e.target.value);
-  };
+
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
@@ -89,14 +86,30 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
       alert('Please input a valid stream description')
       return
     }
-    if (!validNotNull(url)) {
-      alert('Please input a valid stream url')
-      return
-    }
-    const dto = new StreamLessonDTO(title, url, start, end, description);
+    const dto = new StreamLessonDTO(title, description, start, end);
     const requestData = JSON.stringify(dto);
-    
-    onSubmit();
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${courseId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: requestData
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('stream_res', res);
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      else {
+        message.success("Create stream success")
+        onSubmit();
+      }
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
   };
   
   return (
@@ -136,24 +149,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
               value={title}
               onChange={handleStreamTitleChange}
-            />
-          </Form.Item>
-          <Form.Item 
-            label={
-              <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Stream URL
-              </Text>
-            } 
-            name="stream url" 
-            rules={[
-              { required: true, message: 'Please input the stream url!' },
-            ]}
-          >
-            <Input 
-              placeholder="URL" 
-              style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={url}
-              onChange={handleUrlChange}
             />
           </Form.Item>
           <Form.Item
