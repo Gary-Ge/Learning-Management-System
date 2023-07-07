@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/backend/brainoverflow/brainoverflow.iml" filepath="$PROJECT_DIR$/backend/brainoverflow/brainoverflow.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/capstone-project-9900h09agogohd.iml" filepath="$PROJECT_DIR$/.idea/capstone-project-9900h09agogohd.iml" />
       <module fileurl="file://$PROJECT_DIR$/backend/brainoverflow/service_base/service_base.iml" filepath="$PROJECT_DIR$/backend/brainoverflow/service_base/service_base.iml" />
       <module fileurl="file://$PROJECT_DIR$/backend/brainoverflow/service_edu/service_edu.iml" filepath="$PROJECT_DIR$/backend/brainoverflow/service_edu/service_edu.iml" />
