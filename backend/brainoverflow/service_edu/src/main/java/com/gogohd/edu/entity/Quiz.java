@@ -17,8 +17,6 @@ public class Quiz {
 
     private String title;
 
-    private String description;
-
     private Integer limitation;
 
     private LocalDateTime start;
