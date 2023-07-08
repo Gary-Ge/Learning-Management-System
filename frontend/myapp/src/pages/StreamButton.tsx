@@ -7,8 +7,10 @@ import {
   DeleteOutlined
 } from '@ant-design/icons';
 import {getToken} from '../utils/utils'
+import { useHistory } from 'react-router-dom';
 
 const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamData: any) => void; onSingleStreamLinkChange: (StreamData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleStreamChange, onSingleStreamLinkChange, changeFlag }) => {
+  const history = useHistory();
   const [streams, setStreams] = useState<any[]>([]);
   const token = getToken();
 
@@ -114,6 +116,7 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
       }
       const streamData = res.data.stream;
       onSingleStreamLinkChange(streamData);
+      // history.push(`/staffcourse/${streamData.streamId}`);
     })
     .catch(error => {
       alert(error.message);

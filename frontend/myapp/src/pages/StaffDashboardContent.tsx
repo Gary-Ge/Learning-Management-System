@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider } from 'antd';
+import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider, message } from 'antd';
 import './StaffDashboardContent.less';
 import Navbar from "../../component/navbar"
 import {getToken} from '../utils/utils'
@@ -39,6 +39,7 @@ import AssignmentEdit from './AssignmentEdit';
 import ShowMark from './ShowMark';
 import Newcalendar from './Calendar';
 import { useHistory } from 'umi';
+import { Route, Switch, useParams, useLocation } from 'react-router-dom';
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -216,6 +217,7 @@ const StaffDashboardContent: React.FC = () => {
   };
   const handleShowMarks = (courseId: any) => {
     setSelectedOption('showMarks');
+    setSelectedCourseId(courseId);
   };
   const handleSubmitMark = () => {
     setSelectedOption('close');
@@ -380,7 +382,6 @@ const StaffDashboardContent: React.FC = () => {
       </div>
     );
   };
-  
   return (
     <>
     <Navbar />
@@ -524,8 +525,7 @@ const StaffDashboardContent: React.FC = () => {
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
-          // <LinkBoardStu courseId={selectedCourseId} />
+          <ShowMark courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />

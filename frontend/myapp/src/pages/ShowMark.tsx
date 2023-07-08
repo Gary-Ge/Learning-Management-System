@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, Select  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
@@ -12,92 +12,40 @@ import { TextLessonDTO } from '../utils/entities';
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
-const ShowMark: React.FC<{ onCancel: () => void; onSubmit: () => void }> = ({ onCancel, onSubmit }) => {
+const ShowMark: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const token = getToken();
-  const [title, setTitle] = useState("");
-  const handleTextTitleChange = (e:any) => {
-    setTitle(e.target.value);
-  };
-  const [description, setDescription] = useState("");
-  const handleTextDescriptionChange = (value: string) => {
-    setDescription(value);
-  };
-  // upload resource
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [curCourseId, setCourseId] = useState(courseId);
 
-  const handleFileListChange = (newFileList: any[]) => {
-    setFileList(newFileList);
+  const [assOptions, setAssOptions] = useState<any[]>([]);
+  const fetchAssOptions = () => {
+    // 发起 fetch 请求获取选项数据
+    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${curCourseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedAssignments = data.data.assignments;
+      setAssOptions(fetchedAssignments);
+      // console.log('data', fetchedAssignments);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
   };
+  useEffect(() => {
+    fetchAssOptions();
+  }, []);
+
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
     // 处理提交逻辑
-    if (!validNotNull(title)) {
-      alert('Please input a valid text title')
-      return
-    }
-    if (!validNotNull(description)) {
-      alert('Please input a valid text description')
-      return
-    }
-    const dto = new TextLessonDTO(title, description);
-    const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    // console.log(courseId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/textSection/${courseId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: requestData
-    })
-    .then(res => res.json())
-    .then(res => {
-      // console.log('res', res);
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-      console.log('sectionId', res.data.sectionId);
-      const sectionID = res.data.sectionId;
-      
-      // Upload File, if any
-      if (fileList.length > 0) {
-        const formData = new FormData();
-
-        fileList.forEach((file) => {
-          formData.append("files", file);
-        });
-        
-        fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${sectionID}`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData
-        })
-        .then(res => res.json())
-        .then(res => {
-          if (res.code !== 20000) {
-            throw new Error(res.message);
-          }
-          onSubmit(sectionID);
-        })
-        .catch(error => {
-          alert(error.message);
-        });
-      } else {
-        onSubmit(sectionID);
-      }
-      // history.push('/'); // redirect to login page, adjust as needed
-    })
-    .catch(error => {
-      alert(error.message);
-    });
     
   };
   return (
@@ -135,9 +83,15 @@ const ShowMark: React.FC<{ onCancel: () => void; onSubmit: () => void }> = ({ on
               //   setForms(updatedForms);
               // }}
             >
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="sc">Assignment</Select.Option>
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="mc">Quiz</Select.Option>
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="st">Total grade</Select.Option>
+              {(assOptions || []).map((assOption) => (
+                <Select.Option
+                  key={assOption.assignmentId}
+                  style={{ fontFamily: 'Comic Sans MS', color: 'black' }}
+                  value={assOption.title}
+                >
+                  {assOption.title}
+                </Select.Option>
+              ))}
             </Select>
             
           </Form.Item>

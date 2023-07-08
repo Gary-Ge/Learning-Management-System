@@ -7,6 +7,7 @@ export default defineConfig({
   routes: [
     { path: '/', component: '@/pages/index' },
     { path: '/staffcourse', component: '@/pages/StaffDashboardContent' },
+    // { path: '/staffcourse/:streamId', component: '@/pages/StaffDashboardContent' },
     { path: '/login', component: '@/pages/login' },
     { path: '/register', component: '@/pages/register' },
     { path: '/studentcourse', component: '@/pages/studentcourse' },
