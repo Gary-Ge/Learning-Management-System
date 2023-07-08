@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import {getToken} from '../utils/utils'
 
-const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleStreamChange, changeFlag }) => {
+const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamData: any) => void; onSingleStreamLinkChange: (StreamData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleStreamChange, onSingleStreamLinkChange, changeFlag }) => {
   const [streams, setStreams] = useState<any[]>([]);
   const token = getToken();
 
@@ -99,6 +99,25 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
 
   const handleLinkButtonClick = (streamId: string) => {
     setActiveLinkButton(streamId);
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${streamId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res)
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      const streamData = res.data.stream;
+      onSingleStreamLinkChange(streamData);
+    })
+    .catch(error => {
+      alert(error.message);
+    });
   };
   const handleLinkButtonMouseEnter = (streamId: string) => {
     if (activeLinkButton !== streamId) {
