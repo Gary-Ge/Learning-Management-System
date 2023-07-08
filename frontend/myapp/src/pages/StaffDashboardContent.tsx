@@ -202,6 +202,10 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editStreamLesson');
     // 执行其他操作
   };
+  const handleSingleStreamLinkSectionChange = (sectionData: any) => {
+    setStreamSection(sectionData);
+    setSelectedOption('streamLink');
+  };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
     // 在这里处理 singleAssignment 参数
@@ -230,7 +234,7 @@ const StaffDashboardContent: React.FC = () => {
       >
         <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
         <VideoButton courseId={courseId} onSingleVideoSectionChange={handleSingleVideoSectionChange} changeFlag={videoChangeFlag} />
-        <StreamButton courseId={courseId} onSingleStreamChange={handleSingleStreamSectionChange} changeFlag={streamChangeFlag} />
+        <StreamButton courseId={courseId} onSingleStreamChange={handleSingleStreamSectionChange} onSingleStreamLinkChange={handleSingleStreamLinkSectionChange} changeFlag={streamChangeFlag} />
         <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
         {/* add course materials button */}
@@ -399,7 +403,7 @@ const StaffDashboardContent: React.FC = () => {
             <div style={{ height: 'calc(100% - 31%)', overflow: 'auto', marginBottom: '15px' }}>
               <div style={{ textAlign: 'center', marginTop: '5%', marginBottom: '5%' }}>
                 <Collapse className="custom-collapse">
-                  {courses.map((course) => (
+                  {(courses || []).map((course) => (
                     <Panel 
                       header={course.title} 
                       key={course.courseId} 
@@ -513,12 +517,14 @@ const StaffDashboardContent: React.FC = () => {
         {selectedOption === 'editStreamLesson' && (
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
         )}
+        {selectedOption === 'streamLink' && (
+          <LinkBoard stream={singleStreamSection} />
+        )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          // <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
-          <LinkBoard courseId={selectedCourseId} />
+          <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
           // <LinkBoardStu courseId={selectedCourseId} />
         )}
         {selectedOption === 'calendar' && (
