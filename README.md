@@ -1,5 +1,156 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.7.9
+
+主要是论坛相关
+
+- 创建/更新/删除POST的接口已经可用
+
+- 获取一门课程论坛中的全部POST的接口为`/service-forum/forum-post/posts/{courseId}`
+
+  - 响应如下，该接口只返回POST的基本信息，不会返回回复
+
+    ```json
+    {
+      "success": true,
+      "code": 20000,
+      "message": "Get all the posts information success",
+      "data": {
+        "posts": [
+          {
+            "createdAt": "2023-07-08 20:41:48",
+            "postBy": {
+              "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+              "userId": "cd1d8d8914ce34f307449e085428901d",
+              "email": "920060768a@qq.com",
+              "username": "Bohan Zhang"
+            },
+            "postId": "4dfccbc944c64f30822946672fe9326c",
+            "title": "This is the post 2",
+            "category": "Assignment 2",
+            "content": "This is the content of post 2",
+            "updatedAt": "2023-07-08 20:41:48"
+          },
+          {
+            "createdAt": "2023-07-08 20:41:35",
+            "postBy": {
+              "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+              "userId": "cd1d8d8914ce34f307449e085428901d",
+              "email": "920060768a@qq.com",
+              "username": "Bohan Zhang"
+            },
+            "postId": "64071a53529718d567a5d05659ea4d72",
+            "title": "This is the post 1",
+            "category": "Assignment 1",
+            "content": "This is the content of post 1",
+            "updatedAt": "2023-07-08 20:41:35"
+          }
+        ]
+      }
+    }
+    ```
+
+- 获取一门课程论坛中某一个类别的全部POST的接口为`/service-forum/forum-post/posts/{courseId}/{categoryId}`
+
+  - 响应同上，不会返回回复
+
+- 获取一门课程论坛中某一个POST的接口为`/service-forum/forum-post/post/{postId}`
+
+  - 响应如下，该接口会返回回复
+
+    ```json
+    {
+      "success": true,
+      "code": 20000,
+      "message": "Get post information success",
+      "data": {
+        "post": {
+          "createdAt": "2023-07-08 20:41:35",
+          "replies": [
+            {
+              "createdAt": "2023-07-08 22:46:39",
+              "subReplies": [
+                {
+                  "createdAt": "2023-07-08 23:01:15",
+                  "replyId": "16e1ffb02f9ef54faa201903dd243869",
+                  "replyBy": {
+                    "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                    "userId": "cd1d8d8914ce34f307449e085428901d",
+                    "email": "920060768a@qq.com",
+                    "username": "Bohan Zhang"
+                  },
+                  "content": "reply reply 1",
+                  "updatedAt": "2023-07-08 23:01:15"
+                },
+                {
+                  "createdAt": "2023-07-08 23:02:13",
+                  "replyId": "aad1c4c8a4df1e0fba146546d0f2c309",
+                  "replyTo": {
+                    "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                    "userId": "cd1d8d8914ce34f307449e085428901d",
+                    "email": "920060768a@qq.com",
+                    "username": "Bohan Zhang"
+                  },
+                  "replyBy": {
+                    "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                    "userId": "cd1d8d8914ce34f307449e085428901d",
+                    "email": "920060768a@qq.com",
+                    "username": "Bohan Zhang"
+                  },
+                  "content": "reply reply 7",
+                  "updatedAt": "2023-07-08 23:02:13"
+                },
+                {
+                  "createdAt": "2023-07-08 23:02:16",
+                  "replyId": "6e81832c6f4ce62e2b0c1f76a700de84",
+                  "replyTo": {
+                    "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                    "userId": "cd1d8d8914ce34f307449e085428901d",
+                    "email": "920060768a@qq.com",
+                    "username": "Bohan Zhang"
+                  },
+                  "replyBy": {
+                    "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                    "userId": "cd1d8d8914ce34f307449e085428901d",
+                    "email": "920060768a@qq.com",
+                    "username": "Bohan Zhang"
+                  },
+                  "content": "reply reply 8",
+                  "updatedAt": "2023-07-08 23:02:16"
+                }
+              ],
+              "replyId": "7991bf372f237fe9202bb06d2ddde249",
+              "replyBy": {
+                "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                "userId": "cd1d8d8914ce34f307449e085428901d",
+                "email": "920060768a@qq.com",
+                "username": "Bohan Zhang"
+              },
+              "content": "Reply 1",
+              "updatedAt": "2023-07-08 22:46:39"
+            }
+          ],
+          "postBy": {
+            "user_id": "cd1d8d8914ce34f307449e085428901d",
+            "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+            "email": "920060768a@qq.com",
+            "username": "Bohan Zhang"
+          },
+          "postId": "64071a53529718d567a5d05659ea4d72",
+          "title": "This is the post 1",
+          "category": "Assignment 1",
+          "content": "This is the content of post 1",
+          "updatedAt": "2023-07-08 20:41:35"
+        }
+      }
+    }
+    ```
+
+- 更新/删除回复的接口可用
+- 回复一个POST的接口为`/service-forum/forum-reply/post/{postId}/reply`
+- 回复另一个回复的接口为`/service-forum/forum-reply/reply/{replyId}/reply`
+- 创建/更新/删除POST类别的接口可用
+
 ## Update 2023.7.6
 
 - 创建/更新/删除stream lesson的接口已经可用
