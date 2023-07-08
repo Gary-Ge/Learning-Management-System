@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker  } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import {
@@ -42,6 +42,9 @@ const quillFormats = [
 ];
 const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; stream: any }> = ({ onCancel, onSubmit, stream }) => {
   const token = getToken();
+
+  const [streamInfor, setStreamInfor] = useState(stream);
+
   const [title, setTitle] = useState("");
   const handleStreamTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -64,39 +67,55 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
       setEnd(formattedDate);
     }
   };
-  const [url, setUrl] = useState("");
-  const handleUrlChange = (e: any) => {
-    setUrl(e.target.value);
-  };
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
+  
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    console.log('stream', stream);
+    setTitle(stream.title);
+    setStart(stream.start);
+    setEnd(stream.end);
+    setDescription(stream.description);
+
+    setStreamInfor(stream);
+
+    form.setFieldsValue({
+      "stream title": stream.title,
+      "description content": stream.description,
+      "start": stream.start,
+      "end": stream.end,
+    })
+  }, [stream])
+
   const handleSubmit = () => {
     // 处理提交逻辑
-    if (!validNotNull(title)) {
-      alert('Please input a valid stream title')
-      return
-    }
-    if (!validNotNull(start)) {
-      alert('Please input a valid stream start time')
-      return
-    }
-    if (!validNotNull(end)) {
-      alert('Please input a valid stream end time')
-      return
-    }
-    if (!validNotNull(description)) {
-      alert('Please input a valid stream description')
-      return
-    }
-    if (!validNotNull(url)) {
-      alert('Please input a valid stream url')
-      return
-    }
-    const dto = new StreamLessonDTO(title, url, start, end, description);
+    const dto = new StreamLessonDTO(title, description, start, end);
     const requestData = JSON.stringify(dto);
-    
-    onSubmit();
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: requestData
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res);
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      else {
+        message.success('Stream updated successfully');
+        onSubmit();
+      }
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
   };
   
   return (
@@ -118,7 +137,7 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Stream Lesson</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -131,25 +150,9 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
             ]}
           >
             <Input 
-              placeholder="Input Title" 
+              placeholder={stream.title}
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={title}
               onChange={handleStreamTitleChange}
-            />
-          </Form.Item>
-          <Form.Item 
-            label={
-              <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Stream URL
-              </Text>
-            } 
-            name="stream url" 
-          >
-            <Input 
-              placeholder="URL" 
-              style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={url}
-              onChange={handleUrlChange}
             />
           </Form.Item>
           <Form.Item
@@ -160,7 +163,7 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
             }
             name="startDateTime"
           >
-            <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleStreamStartChange} />
+            <DatePicker placeholder={stream.start} showTime onOk={handleStreamStartChange} />
           </Form.Item>
           <Form.Item
             label={
@@ -170,7 +173,7 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
             }
             name="endDateTime"
           >
-            <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleStreamEndChange} />
+            <DatePicker placeholder={stream.end} showTime onOk={handleStreamEndChange} />
           </Form.Item>
           <Form.Item
             label={

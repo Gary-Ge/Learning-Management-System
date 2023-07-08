@@ -14,7 +14,7 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
 
   const fetchStreamSections = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${courseId}`, {
+      const response = await fetch(`http://175.45.180.201:10900/service-stream/stream-basic/streams/${courseId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -23,7 +23,7 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
       });
 
       const data = await response.json();
-      const fetchedSections = data.data.assignments;
+      const fetchedSections = data.data.streams;
       setStreams(fetchedSections);
     } catch (error) {
       alert(error);
@@ -33,10 +33,10 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
     fetchStreamSections(); // 初始加载章节数据
   }, [changeFlag]);
 
-  const handleDeleteClick = (assignmentId: string) => {
+  const handleDeleteClick = (streamId: string) => {
     // 处理删除图标点击事件
     // console.log('click delete:', sectionId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${assignmentId}`, {
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${streamId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -56,10 +56,10 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
     });
   };
 
-  const handleSectionClick = (assignmentId: string) => {
+  const handleSectionClick = (streamId: string) => {
     // 处理菜单项点击事件
     // console.log('click event:', sectionId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${assignmentId}`, {
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${streamId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -72,8 +72,8 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      const assignmentData = res.data.assignment;
-      onSingleStreamChange(assignmentData);
+      const streamData = res.data.stream;
+      onSingleStreamChange(streamData);
     })
     .catch(error => {
       alert(error.message);
@@ -82,33 +82,27 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
 
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
-  const handleButtonClick = (assignmentId: string) => {
-    setActiveButton(assignmentId);
-    handleSectionClick(assignmentId);
+  const handleButtonClick = (streamId: string) => {
+    setActiveButton(streamId);
+    handleSectionClick(streamId);
   };
-  const handleButtonMouseEnter = (assignmentId: string) => {
-    if (activeButton !== assignmentId) {
-      setActiveButton(assignmentId);
+  const handleButtonMouseEnter = (streamId: string) => {
+    if (activeButton !== streamId) {
+      setActiveButton(streamId);
     }
   };
   const handleButtonMouseLeave = () => {
     setActiveButton(null);
   };
 
-  const handleLinkClick = (assignmentId: string) => {
-    // 处理菜单项点击事件
-    
-  };
-
   const [activeLinkButton, setActiveLinkButton] = useState<string | null>(null);
 
-  const handleLinkButtonClick = (assignmentId: string) => {
-    setActiveLinkButton(assignmentId);
-    handleLinkClick(assignmentId);
+  const handleLinkButtonClick = (streamId: string) => {
+    setActiveLinkButton(streamId);
   };
-  const handleLinkButtonMouseEnter = (assignmentId: string) => {
-    if (activeLinkButton !== assignmentId) {
-      setActiveLinkButton(assignmentId);
+  const handleLinkButtonMouseEnter = (streamId: string) => {
+    if (activeLinkButton !== streamId) {
+      setActiveLinkButton(streamId);
     }
   };
   const handleLinkButtonMouseLeave = () => {
@@ -121,17 +115,17 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
           <Button
-            key={stream.assignmentId}
-            onClick={() => handleButtonClick(stream.assignmentId)}
-            onMouseEnter={() => handleButtonMouseEnter(stream.assignmentId)}
+            key={stream.streamId}
+            onClick={() => handleButtonClick(stream.streamId)}
+            onMouseEnter={() => handleButtonMouseEnter(stream.streamId)}
             onMouseLeave={handleButtonMouseLeave}
             style={{ 
               border: 'none', 
               display: 'flex', 
               alignItems: 'center', 
               width: '130px',
-              backgroundColor: activeButton === stream.assignmentId ? '#DAE8FC' : 'transparent',
-              color: activeButton === stream.assignmentId ? 'red' : 'black',
+              backgroundColor: activeButton === stream.streamId ? '#DAE8FC' : 'transparent',
+              color: activeButton === stream.streamId ? 'red' : 'black',
               fontFamily: 'Comic Sans MS'
             }}
           >
@@ -146,22 +140,22 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
             style={{ color: 'red', cursor: 'pointer', width: '30px' }}
             onClick={(e) => {
               e.stopPropagation();
-              handleDeleteClick(stream.assignmentId);
+              handleDeleteClick(stream.streamId);
             }} 
           />
         </div>
         <Button
-          key={stream.assignmentId}
-          onClick={() => handleLinkButtonClick(stream.assignmentId)}
-          onMouseEnter={() => handleLinkButtonMouseEnter(stream.assignmentId)}
+          key={stream.streamId+stream.streamId}
+          onClick={() => handleLinkButtonClick(stream.streamId)}
+          onMouseEnter={() => handleLinkButtonMouseEnter(stream.streamId)}
           onMouseLeave={handleLinkButtonMouseLeave}
           style={{ 
             border: 'none', 
             display: 'flex', 
             alignItems: 'center', 
             width: '130px',
-            backgroundColor: activeButton === stream.assignmentId ? '#DAE8FC' : 'transparent',
-            color: activeButton === stream.assignmentId ? 'red' : 'black',
+            backgroundColor: activeLinkButton === stream.streamId ? '#DAE8FC' : 'transparent',
+            color: activeLinkButton === stream.streamId ? 'red' : 'black',
             fontFamily: 'Comic Sans MS'
           }}
         >

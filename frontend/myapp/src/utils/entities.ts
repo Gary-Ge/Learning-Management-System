@@ -15,17 +15,15 @@ export class CourseLayoutDTO {
 }
 export class StreamLessonDTO {
   title: any;
-  url: any;
+  description: any;
   start: any;
   end: any;
-  description: any;
   
-  constructor(title: any, url: any, start: any, end: any, description: any) {
+  constructor(title: any, description: any, start: any, end: any) {
     this.title = title;
-    this.url = url;
+    this.description = description;
     this.start = start;
     this.end = end;
-    this.description = description;
   }
 }
 export class VideoLessonDTO {
