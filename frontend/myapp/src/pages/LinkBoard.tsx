@@ -27,6 +27,23 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   useEffect(() => {
     const headers = new Headers();
     headers.append('Authorization', `Bearer ${token}`);
+    // start
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('res', res);
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
     const interval = setInterval(() => {
       fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/status`, {
         method: "GET",
@@ -45,22 +62,6 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
     if (pushStarted && FlvJs.isSupported()) {
       const videoElement = videoRef.current;
       videoElement.muted = true; // 必须设置为静⾳播放，否则⾃动播放⽆法开始，⽤户可以⼿动打开声⾳
-      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => res.json())
-      .then(res => {
-        // console.log('res', res);
-        if (res.code !== 20000) {
-          throw new Error(res.message)
-        }
-      })
-      .catch(error => {
-        message.error(error.message);
-      });
       fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/play`, {
         method: 'GET',
         headers: {
@@ -73,13 +74,10 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
         if (res.code !== 20000) {
           throw new Error(res.message)
         }
-        setUrlLink(res.data.playUrl);
-      })
-      .then(() => {
         const flvPlayer = FlvJs.createPlayer({
           type: 'flv',
           isLive: true,
-          url: urlLink,
+          url: res.data.playUrl,
         });
         flvPlayer.attachMediaElement(videoRef.current);
         flvPlayer.load();
@@ -97,7 +95,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       })
       .catch(error => {
         message.error(error.message);
-      });
+      });      
     }
   }, [pushStarted, urlLink]);
   // chat
@@ -118,31 +116,32 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
         throw new Error(res.message)
       }
       setUserId(res.data.user.userId);
+      const socket = new SockJS(`http://175.45.180.201:10940/ws?streamId=${stream.streamId}`); 
+      const client = new Client({
+        // webSocketFactory: () => socket,
+        // onConnect: () => {
+        //   client.subscribe(`/topic/stream/${stream.streamId}`, (message) => {
+        //     const data = JSON.parse(message.body)
+        //     if (data.type === 0) { // 判断事件类型
+        //       setMessages(prevMessages => [...prevMessages, data])
+        //     }
+        //     console.log(data)
+        //   }, {
+        //     id:  `${res.data.user.userId}`
+        //   })
+        // }
+      })
+      // client.activate();
+      // stompClient.current = client
+      // return () => {
+      //   client.deactivate()
+      // }
     })
     .catch(error => {
       message.error(error.message);
     });
 
-    const socket = new SockJS(`http://175.45.180.201:10940/ws?streamId=${stream.streamId}`); 
-    // const client = new Client({
-      // webSocketFactory: () => socket,
-      // onConnect: () => {
-      //   client.subscribe(`/topic/stream/${stream.streamId}`, (message) => {
-      //     const data = JSON.parse(message.body)
-      //     if (data.type === 0) { // 判断事件类型
-      //       setMessages(prevMessages => [...prevMessages, data])
-      //     }
-      //     console.log(data)
-      //   }, {
-      //     id:  `${userId}`
-      //   })
-      // }
-    // })
-    // client.activate();
-    // stompClient.current = client
-    // return () => {
-    //   client.deactivate()
-    // }
+    
   }, [])
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
