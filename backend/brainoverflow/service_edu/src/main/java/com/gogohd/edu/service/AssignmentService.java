@@ -26,4 +26,6 @@ public interface AssignmentService extends IService<Assignment> {
     String downloadAssignment(String userId, String assFileId);
 
     void deleteAssignmentFile(String userId, String assFileId);
+
+    void markAssignmentByStaffId(String userId, String studentId, String assignmentId, float teacherMark);
 }

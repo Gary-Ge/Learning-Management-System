@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,8 +68,23 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         quiz.setTitle(createQuizVo.getTitle());
         // quiz.setDescription(createQuizVo.getDescription());
         quiz.setLimitation(createQuizVo.getLimitation());
-        quiz.setStart(DateTimeUtils.stringToDateTime(createQuizVo.getStart()));
-        quiz.setEnd(DateTimeUtils.stringToDateTime(createQuizVo.getEnd()));
+
+        try {
+            LocalDateTime start = DateTimeUtils.stringToDateTime(createQuizVo.getStart());
+            LocalDateTime end = DateTimeUtils.stringToDateTime(createQuizVo.getEnd());
+
+            if (!start.isBefore(end)) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "The start time should be earlier than the end time");
+            }
+            if (!end.isAfter(LocalDateTime.now())) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "The end time should be later than current time");
+            }
+
+            quiz.setStart(start);
+            quiz.setEnd(end);
+        } catch (DateTimeParseException e) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The format of date time should be 'yyyy-MM-dd HH:mm:ss'");
+        }
 
         quiz.setCourseId(courseId);
 

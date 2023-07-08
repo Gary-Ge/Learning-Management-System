@@ -22,4 +22,8 @@ public interface StudentService extends IService<Student> {
     List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId);
 
     Object downloadSubmitBySubmitId(String userId, String submitId);
+
+//    void submitQuiz(String userId, String quizId, Map<String, String> answers);
+
+    void submitQuestion(String userId, String questionId, String optionIds, String content);
 }

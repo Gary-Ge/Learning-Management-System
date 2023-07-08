@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
@@ -32,6 +33,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private StudentMapper studentMapper;
+
+    @Autowired
+    private AnswerMapper answerMapper;
 
     private final String NO_AUTHORITY_GET = "You have no authority to get question information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this question";
@@ -162,6 +166,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
             }
         }
+    }
+
+    private void isStaff(String userId, String courseId) {
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, courseId);
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
+       }
     }
 
     @Override
@@ -339,4 +352,88 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             throw new BrainException(ResultCode.ERROR, "Failed to update the question");
         }
     }
+
+    @Override
+    public Object getStudentAnswerByQuestionId(String userId, String studentId, String questionId) {
+        Question question = baseMapper.selectById(questionId);
+        if (question == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Question does not exist");
+        }
+
+        // Check if this user has authority to get student question answer information
+        isStaffOrStudent(userId, quizMapper.selectById(question.getQuizId()).getCourseId());
+
+        LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Answer::getStudentId, studentId);
+        wrapper.eq(Answer::getQuestionId, questionId);
+        return answerMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String studentId, String quizId) {
+        if (quizMapper.selectById(quizId) == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
+        }
+
+        isStaffOrStudent(userId, quizMapper.selectById(quizId).getCourseId());
+
+        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Question::getQuizId, quizId);
+        wrapper.orderByAsc(Question::getCreatedAt);
+
+        List<Question> questionList = baseMapper.selectList(wrapper);
+
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (Question question : questionList) {
+            LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
+            answerWrapper.eq(Answer::getStudentId, studentId);
+            answerWrapper.eq(Answer::getQuestionId, question.getQuestionId());
+            Answer answer = answerMapper.selectOne(answerWrapper);
+
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("question", question);
+            resultMap.put("answer", answer);
+
+            resultList.add(resultMap);
+        }
+
+        return resultList;
+    }
+
+    @Override
+    @Transactional
+    public void markQuestionByStaffId(String userId, String studentId, String questionId, float teacherMark) {
+        // Get the question
+        Question question = baseMapper.selectById(questionId);
+        if (question == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Question does not exist");
+        }
+
+        // Check if the user is a staff member
+        isStaff(userId, quizMapper.selectById(question.getQuizId()).getCourseId());
+
+        // Get the answer for the student and question
+        LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Answer::getStudentId, studentId);
+        wrapper.eq(Answer::getQuestionId, questionId);
+        Answer answer = answerMapper.selectOne(wrapper);
+
+        // Calculate the maximum mark for the question
+        float maxMark = question.getMark();
+
+        // Calculate the mark for the answer based on teacherMark
+//        int mark = calculateMarkForAnswer(answer, teacherMark);
+
+        // Ensure that the mark does not exceed the maximum mark
+        float mark = Math.min(teacherMark, maxMark);
+
+        // Update the mark in the Answer table
+        answer.setMark(mark);
+        answerMapper.updateById(answer);
+    }
+
+//    // Calculate the mark for an answer based on teacherMark
+//    private int calculateMarkForAnswer(Answer answer, int teacherMark) {
+//        return teacherMark;
+//    }
 }
