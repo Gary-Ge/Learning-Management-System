@@ -15,7 +15,7 @@ public class UpdateQuestionVo {
     private Integer type;
 
     @Schema(description = "The mark of this question", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer mark;
+    private Float mark;
 
     private String a;
     private String b;
