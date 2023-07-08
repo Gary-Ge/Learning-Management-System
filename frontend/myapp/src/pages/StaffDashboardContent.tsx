@@ -60,6 +60,7 @@ const StaffDashboardContent: React.FC = () => {
   const [streamChangeFlag, setStreamChangeFlag] = useState(false);
   const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   const [videoChangeFlag, setVideoChangeFlag] = useState(false);
+  const [markChangeFlag, setMarkChangeFlag] = useState(false);
   
   const handleAddCourses = () => {
     setSelectedOption('course');
@@ -215,10 +216,65 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editAssignmentLesson');
     // 执行其他操作
   };
-  const handleShowMarks = (courseId: any) => {
-    setSelectedOption('showMarks');
-    setSelectedCourseId(courseId);
+
+  const [assOptions, setAssOptions] = useState<any[]>([]);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
+  const fetchOptions = (courseId: string) => {
+    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedCourse = data.data.course;
+      setSingleCourse(fetchedCourse);
+      // console.log('data', fetchedCourse);
+      // console.log('data_courseId', data.data.course.courseId);
+      // console.log('data_title', data.data.course.title);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+    // 发起 fetch 请求获取选项数据
+    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedAssignments = data.data.assignments;
+      setAssOptions(fetchedAssignments);
+      // console.log('data', fetchedAssignments);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}/students`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      const fetchedStudents = data.data.students;
+      setAllStudents(fetchedStudents);
+      // console.log('data', fetchedStudents);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
   };
+  
   const handleSubmitMark = () => {
     setSelectedOption('close');
   };
@@ -255,7 +311,12 @@ const StaffDashboardContent: React.FC = () => {
             ghost
             style={{ marginRight: '5%' }}
             icon={<TrophyOutlined />}
-            onClick={() => handleShowMarks(courseId)}
+            onClick={() => {
+              setSelectedOption('showMarks');
+              setSelectedCourseId(courseId);
+              fetchOptions(courseId);
+            }}
+            // onClick={() => handleShowMarks(courseId)}
           ></Button>
           <Button 
             // key={courseId}
@@ -525,7 +586,7 @@ const StaffDashboardContent: React.FC = () => {
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          <ShowMark courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitMark} />
+          <ShowMark allStudents={allStudents} assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />
