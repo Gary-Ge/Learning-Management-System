@@ -26,4 +26,6 @@ public class Answer {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
+
+    private Float mark;
 }

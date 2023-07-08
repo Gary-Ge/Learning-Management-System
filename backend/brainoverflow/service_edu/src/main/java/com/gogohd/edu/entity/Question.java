@@ -19,7 +19,7 @@ public class Question {
 
     private Integer type;
 
-    private Integer mark;
+    private Float mark;
 
     private String content;
 

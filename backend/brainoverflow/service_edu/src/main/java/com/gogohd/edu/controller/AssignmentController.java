@@ -87,4 +87,13 @@ public class AssignmentController {
         assignmentService.deleteAssignmentFile(userId, assFileId);
         return R.success().message("Delete assignment file success");
     }
+
+    @Operation(summary = "Mark an assignment by staff")
+    @PutMapping("assignment/{assignmentId}/mark")
+    public R markAssignmentByStaffId(HttpServletRequest request, @PathVariable String assignmentId,
+                                     @RequestParam String studentId, @RequestParam float teacherMark) {
+        String userId = (String) request.getAttribute("userId");
+        assignmentService.markAssignmentByStaffId(userId, studentId, assignmentId, teacherMark);
+        return R.success().message("Assignment marked successfully");
+    }
 }

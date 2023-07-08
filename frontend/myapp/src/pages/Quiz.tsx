@@ -12,6 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 import UploadImageButton from './UploadImageButton';
 import { validNotNull } from '../utils/utilsStaff';
 import { QuizDTO } from '../utils/entities';
+import {  getToken } from '../utils/utils';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -22,10 +23,10 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
   const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark?: number; }[]>([]);
   const [showTotalMark, setShowTotalMark] = useState(true);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [limitation, setLimitation] = useState("");
+  const token = getToken()
   const handleQuizTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
@@ -164,24 +165,29 @@ const removeForm = (formId: number) => {
       alert('Please input a valid quiz end')
       return
     }
-    const dto = new QuizDTO(title, description, start, end,limitation);
+    console.log(token)
+    console.log(courseId)
+    const dto = new QuizDTO(title, start,end,limitation);
     console.log(dto)
-    {/*fetch(`${HOST}${REGISTER_URL}`, {
+    fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
       method: 'POST',
-      body: JSON.stringify(dto),
-      headers: HEADER
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(dto)
     })
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log(res.data.token)
       message.success('Create quiz successfully!')
     })
     .catch(error => {
+      console.log(error)
       message.error(error.message)
-    });*/}
+    })
     onSubmit();
   };
   const [cover, setImageUrl] = useState("");

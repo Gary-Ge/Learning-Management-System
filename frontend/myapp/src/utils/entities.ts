@@ -114,14 +114,12 @@ export class RegisterDTO {
   }
   export class QuizDTO {
     title: any;
-    description: any;
     start :any;
     end : any;
     limitation: any;
   
-    constructor(title: any,description: any,start: any,end:any,limitation: any) {
+    constructor(title: any,start: any,end:any,limitation: any) {
       this.title = title;
-      this.description = description;
       this.start = start;
       this.end = end;
       this.limitation = limitation;

@@ -10,6 +10,7 @@ import com.gogohd.edu.entity.vo.CreateAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
 import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.AssignmentService;
+import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,9 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
 
     @Autowired
     private AssFileMapper assFileMapper;
+
+    @Autowired
+    private SubmitMapper submitMapper;
 
     private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this section";
@@ -369,4 +373,37 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             throw new BrainException(ResultCode.ERROR, "Delete file failed");
         }
     }
+
+    private void isStaff(String userId, String courseId) {
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, courseId);
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void markAssignmentByStaffId(String userId, String studentId, String assignmentId, float teacherMark) {
+        // Check if the user is a staff member
+        isStaff(userId, baseMapper.selectById(assignmentId).getCourseId());
+
+        // Get the submission for the student and assignment
+        LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Submit::getSubmittedBy, studentId);
+        wrapper.eq(Submit::getAssignmentId, assignmentId);
+        Submit submission = submitMapper.selectOne(wrapper);
+
+        if (submission == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Submission does not exist");
+        }
+
+        float mark = Math.min(teacherMark, baseMapper.selectById(assignmentId).getMark());
+
+        // Update the mark in the Submit table
+        submission.setMark(mark);
+        submitMapper.updateById(submission);
+    }
+
 }
