@@ -42,6 +42,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
 
     private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this section";
+    private final String NO_AUTHORITY_UPDATE = "You have no authority to update this assignment";
     private final String NO_AUTHORITY_DOWNLOAD = "You have no authority to download this section";
 
     @Override
@@ -156,6 +157,9 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
 
     @Override
     public List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId) {
+        if (courseMapper.selectById(courseId) == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course does not exist");
+        }
         // Check if this user has authority to get this assignment information
         isStaffOrStudent(userId, courseId);
 
@@ -227,7 +231,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     @Override
     @Transactional
     public void updateAssignment(String userId, String assignmentId, UpdateAssignmentVo updateAssignmentVo) {
-        checkAssignmentValidity(userId, assignmentId, "You have no authority to update this assignment");
+        checkAssignmentValidity(userId, assignmentId, NO_AUTHORITY_UPDATE);
 
         if (ObjectUtils.isEmpty(updateAssignmentVo.getStart())) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment start time cannot be empty");

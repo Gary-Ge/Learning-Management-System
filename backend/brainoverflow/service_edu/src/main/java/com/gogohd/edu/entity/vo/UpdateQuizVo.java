@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class CreateQuizVo {
+public class UpdateQuizVo {
     @Schema(description = "The title of this quiz", requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
 

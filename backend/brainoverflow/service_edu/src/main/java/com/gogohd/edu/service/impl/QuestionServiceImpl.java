@@ -5,20 +5,22 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
 import com.gogohd.base.utils.DateTimeUtils;
 import com.gogohd.base.utils.ResultCode;
-import com.gogohd.edu.entity.Course;
-import com.gogohd.edu.entity.Question;
-import com.gogohd.edu.entity.Quiz;
-import com.gogohd.edu.entity.Staff;
+import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateQuestionVo;
-import com.gogohd.edu.mapper.CourseMapper;
-import com.gogohd.edu.mapper.QuestionMapper;
-import com.gogohd.edu.mapper.QuizMapper;
-import com.gogohd.edu.mapper.StaffMapper;
+import com.gogohd.edu.entity.vo.UpdateQuestionVo;
+import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.QuestionService;
 import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
@@ -27,6 +29,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Autowired
     private QuizMapper quizMapper;
+
+    @Autowired
+    private StudentMapper studentMapper;
+
+    private final String NO_AUTHORITY_GET = "You have no authority to get question information";
+    private final String NO_AUTHORITY_DELETE = "You have no authority to delete this question";
+    private final String NO_AUTHORITY_UPDATE = "You have no authority to update this question";
+
 
     @Override
     public String createQuestion(String userId, String courseId, String quizId, CreateQuestionVo createQuestionVo) {
@@ -138,5 +148,195 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         baseMapper.insert(question);
 
         return question.getQuizId();
+    }
+
+    private void isStaffOrStudent(String userId, String courseId) {
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, courseId);
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+            studentWrapper.eq(Student::getCourseId, courseId);
+            studentWrapper.eq(Student::getUserId, userId);
+            if (!studentMapper.exists(studentWrapper)) {
+                throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
+            }
+        }
+    }
+
+    @Override
+    public Map<String, Object> getQuestionById(String questionId, String userId) {
+        Question question = baseMapper.selectById(questionId);
+        if (question == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Question does not exist");
+        }
+
+        // Check if this user has authority to get this assignment information
+        isStaffOrStudent(userId, quizMapper.selectById(question.getQuizId()).getCourseId());
+
+        // Construct the result
+        Map<String, Object> result = new HashMap<>();
+        Field[] fields = question.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                result.put(field.getName(), field.get(question));
+            } catch (IllegalAccessException e) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "Failed to insert to result of question");
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getQuestionListByQuizId(String userId, String quizId) {
+        if (quizMapper.selectById(quizId) == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
+        }
+
+        isStaffOrStudent(userId, quizMapper.selectById(quizId).getCourseId());
+
+        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Question::getQuizId, quizId);
+        wrapper.orderByAsc(Question::getCreatedAt);
+
+        return baseMapper.selectList(wrapper).stream()
+                .map(question -> {
+                    Map<String, Object> result = new HashMap<>();
+                    Field[] fields = question.getClass().getDeclaredFields();
+                    for (Field field : fields) {
+                        try {
+                            field.setAccessible(true);
+                            result.put(field.getName(), field.get(question));
+                        } catch (IllegalAccessException e) {
+                            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Failed to insert to result of question");
+                        }
+                    }
+
+                    return result;
+                }).collect(Collectors.toList());
+    }
+
+    private void checkQuestionValidity(String userId, String questionId, String noAuthority) {
+        Question question = (baseMapper.selectById(questionId));
+        if  (question == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Question does not exist");
+        }
+
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, quizMapper.selectById(question.getQuizId()).getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, noAuthority);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteQuestion(String userId, String questionId) {
+        checkQuestionValidity(userId, questionId, NO_AUTHORITY_DELETE);
+
+        if (baseMapper.deleteById(questionId) < 1) {
+            throw new BrainException(ResultCode.ERROR, "Delete assignment failed");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateQuestion(String userId, String questionId, UpdateQuestionVo updateQuestionVo) {
+        checkQuestionValidity(userId, questionId, NO_AUTHORITY_UPDATE);
+
+        if (ObjectUtils.isEmpty(updateQuestionVo.getContent())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Question content cannot be empty");
+        }
+        if (ObjectUtils.isEmpty(updateQuestionVo.getType())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Question type cannot be empty");
+        }
+        if (ObjectUtils.isEmpty(updateQuestionVo.getMark())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Question mark cannot be empty");
+        }
+
+        Question question = new Question();
+        question.setQuestionId(questionId);
+        question.setContent(updateQuestionVo.getContent());
+        question.setType(updateQuestionVo.getType());
+        question.setMark(updateQuestionVo.getMark());
+        question.setCover(ObjectUtils.isEmpty(updateQuestionVo.getCover()) ? "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/cover/default/default-cover.jpg" : updateQuestionVo.getCover());
+
+        switch (updateQuestionVo.getType()) {
+            case 0: // single choice
+                if (ObjectUtils.isEmpty(updateQuestionVo.getA()) || ObjectUtils.isEmpty(updateQuestionVo.getB())) {
+                    throw new BrainException(ResultCode.ILLEGAL_ARGS, "Options A and B cannot be empty for single-choice question");
+                }
+                question.setA(updateQuestionVo.getA());
+                question.setB(updateQuestionVo.getB());
+                question.setC(ObjectUtils.isEmpty(updateQuestionVo.getC()) ? "" : updateQuestionVo.getC());
+                question.setD(ObjectUtils.isEmpty(updateQuestionVo.getD()) ? "" : updateQuestionVo.getD());
+                question.setE(ObjectUtils.isEmpty(updateQuestionVo.getE()) ? "" : updateQuestionVo.getE());
+                question.setF(ObjectUtils.isEmpty(updateQuestionVo.getF()) ? "" : updateQuestionVo.getF());
+
+                int correctCount = 0;
+                if (updateQuestionVo.getACorrect() == 1) correctCount++;
+                if (updateQuestionVo.getBCorrect() == 1) correctCount++;
+                if (updateQuestionVo.getCCorrect() == 1) correctCount++;
+                if (updateQuestionVo.getDCorrect() == 1) correctCount++;
+                if (updateQuestionVo.getECorrect() == 1) correctCount++;
+                if (updateQuestionVo.getFCorrect() == 1) correctCount++;
+                if (correctCount != 1) {
+                    throw new BrainException(ResultCode.ILLEGAL_ARGS, "Single-choice question must have one correct answer");
+                }
+
+                question.setACorrect(updateQuestionVo.getACorrect());
+                question.setBCorrect(updateQuestionVo.getBCorrect());
+                question.setCCorrect(updateQuestionVo.getCCorrect());
+                question.setDCorrect(updateQuestionVo.getDCorrect());
+                question.setECorrect(updateQuestionVo.getECorrect());
+                question.setFCorrect(updateQuestionVo.getFCorrect());
+                break;
+
+            case 1: // multi choice
+                if (ObjectUtils.isEmpty(updateQuestionVo.getA()) || ObjectUtils.isEmpty(updateQuestionVo.getB())) {
+                    throw new BrainException(ResultCode.ILLEGAL_ARGS, "Options A and B cannot be empty for multiple-choice question");
+                }
+                question.setA(updateQuestionVo.getA());
+                question.setB(updateQuestionVo.getB());
+                question.setC(ObjectUtils.isEmpty(updateQuestionVo.getC()) ? "" : updateQuestionVo.getC());
+                question.setD(ObjectUtils.isEmpty(updateQuestionVo.getD()) ? "" : updateQuestionVo.getD());
+                question.setE(ObjectUtils.isEmpty(updateQuestionVo.getE()) ? "" : updateQuestionVo.getE());
+                question.setF(ObjectUtils.isEmpty(updateQuestionVo.getF()) ? "" : updateQuestionVo.getF());
+
+                question.setACorrect(updateQuestionVo.getACorrect());
+                question.setBCorrect(updateQuestionVo.getBCorrect());
+                question.setCCorrect(updateQuestionVo.getCCorrect());
+                question.setDCorrect(updateQuestionVo.getDCorrect());
+                question.setECorrect(updateQuestionVo.getECorrect());
+                question.setFCorrect(updateQuestionVo.getFCorrect());
+                break;
+
+            case 2: // short answer
+                question.setA("");
+                question.setB("");
+                question.setC("");
+                question.setD("");
+                question.setE("");
+                question.setF("");
+                question.setACorrect(0);
+                question.setBCorrect(0);
+                question.setCCorrect(0);
+                question.setDCorrect(0);
+                question.setECorrect(0);
+                question.setFCorrect(0);
+                question.setShortAnswer(updateQuestionVo.getShortAnswer());
+                break;
+
+            default:
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "Invalid question type");
+        }
+
+        int result = baseMapper.updateById(question);
+        if (result == 0) {
+            throw new BrainException(ResultCode.ERROR, "Failed to update the question");
+        }
     }
 }
