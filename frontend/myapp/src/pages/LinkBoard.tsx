@@ -117,7 +117,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       }
       setUserId(res.data.user.userId);
       const socket = new SockJS(`http://175.45.180.201:10940/ws?streamId=${stream.streamId}`); 
-      const client = new Client({
+      // const client = new Client({
         // webSocketFactory: () => socket,
         // onConnect: () => {
         //   client.subscribe(`/topic/stream/${stream.streamId}`, (message) => {
@@ -130,7 +130,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
         //     id:  `${res.data.user.userId}`
         //   })
         // }
-      })
+      // })
       // client.activate();
       // stompClient.current = client
       // return () => {
