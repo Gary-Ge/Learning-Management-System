@@ -3,6 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/backend.iml" filepath="$PROJECT_DIR$/.idea/backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/brainoverflow/service_base/service_base.iml" filepath="$PROJECT_DIR$/brainoverflow/service_base/service_base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/brainoverflow/service_edu/service_edu.iml" filepath="$PROJECT_DIR$/brainoverflow/service_edu/service_edu.iml" />
+      <module fileurl="file://$PROJECT_DIR$/brainoverflow/service_eureka/service_eureka.iml" filepath="$PROJECT_DIR$/brainoverflow/service_eureka/service_eureka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/brainoverflow/service_gateway/service_gateway.iml" filepath="$PROJECT_DIR$/brainoverflow/service_gateway/service_gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/brainoverflow/service_ucenter/service_ucenter.iml" filepath="$PROJECT_DIR$/brainoverflow/service_ucenter/service_ucenter.iml" />
     </modules>
   </component>
 </project>

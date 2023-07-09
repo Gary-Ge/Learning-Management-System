@@ -3,20 +3,20 @@ package com.gogohd.edu.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
-import com.gogohd.base.utils.DateTimeUtils;
 import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateQuestionVo;
+import com.gogohd.edu.entity.vo.MarkQuestionVo;
 import com.gogohd.edu.entity.vo.UpdateQuestionVo;
 import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.QuestionService;
-import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +40,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     private final String NO_AUTHORITY_GET = "You have no authority to get question information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this question";
     private final String NO_AUTHORITY_UPDATE = "You have no authority to update this question";
-
 
     @Override
     public String createQuestion(String userId, String courseId, String quizId, CreateQuestionVo createQuestionVo) {
@@ -402,7 +401,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     @Transactional
-    public void markQuestionByStaffId(String userId, String questionId, float teacherMark) {
+    public void markQuestionByStaffId(String userId, String studentId, String questionId, MarkQuestionVo markQuestionVo) {
         // Get the question
         Question question = baseMapper.selectById(questionId);
         if (question == null) {
@@ -414,26 +413,32 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         // Get the answer for the student and question
         LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Answer::getUserId, userId);
+        wrapper.eq(Answer::getUserId, studentId);
         wrapper.eq(Answer::getQuestionId, questionId);
-        Answer answer = answerMapper.selectOne(wrapper);
+        List<Answer> answers = answerMapper.selectList(wrapper);
 
-        // Calculate the maximum mark for the question
-        float maxMark = question.getMark();
+        if (answers.size() == 0) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Cannot find answers from this student");
+        }
 
-        // Calculate the mark for the answer based on teacherMark
-//        int mark = calculateMarkForAnswer(answer, teacherMark);
+        if (ObjectUtils.isEmpty(markQuestionVo.getMark())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The mark cannot be empty");
+        }
 
-        // Ensure that the mark does not exceed the maximum mark
-        float mark = Math.min(teacherMark, maxMark);
+        Float mark = markQuestionVo.getMark();
+        Quiz quiz = quizMapper.selectById(baseMapper.selectById(answers.get(0).getQuestionId()).getQuizId());
+        if (LocalDateTime.now().isBefore(quiz.getEnd())) {
+            throw new BrainException(ResultCode.ERROR,
+                    "You cannot mark the question before the due date of the quiz");
+        }
+        if (mark < 0 || mark > question.getMark()) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS,
+                    "Mark should be larger or equal to 0 and less or equal to the mark upper bound");
+        }
 
-        // Update the mark in the Answer table
+        // Update mark
+        Answer answer = new Answer();
         answer.setMark(mark);
-        answerMapper.updateById(answer);
+        answerMapper.update(answer, wrapper);
     }
-
-//    // Calculate the mark for an answer based on teacherMark
-//    private int calculateMarkForAnswer(Answer answer, int teacherMark) {
-//        return teacherMark;
-//    }
 }

@@ -2,6 +2,7 @@ package com.gogohd.edu.controller;
 
 import com.gogohd.base.utils.R;
 import com.gogohd.edu.entity.vo.CreateQuestionVo;
+import com.gogohd.edu.entity.vo.MarkQuestionVo;
 import com.gogohd.edu.entity.vo.UpdateQuestionVo;
 import com.gogohd.edu.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,11 +81,11 @@ public class QuestionController {
     }
 
     @Operation(summary = "Mark a question by staff")
-    @PutMapping("question/{questionId}/mark")
+    @PutMapping("question/{questionId}/mark/{userId}")
     public R markQuestionByStaffId(HttpServletRequest request, @PathVariable String questionId,
-                                   @RequestParam float teacherMark) {
-        String userId = (String) request.getAttribute("userId");
-        questionService.markQuestionByStaffId(userId, questionId, teacherMark);
+                                   @PathVariable String userId, @RequestBody MarkQuestionVo markQuestionVo) {
+        String markerUserId = (String) request.getAttribute("userId");
+        questionService.markQuestionByStaffId(markerUserId, userId, questionId, markQuestionVo);
         return R.success().message("Question marked by staff successfully");
     }
 }
