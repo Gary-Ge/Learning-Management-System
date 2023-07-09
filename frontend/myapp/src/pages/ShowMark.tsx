@@ -136,6 +136,7 @@ const ShowMark: React.FC<{ allStudents: any; course: any; assInfor: any; onCance
             <Form.Item style={{  }}>
               {assignment === "assignment" &&
                 <>
+                {/* {selectedAssignmentId} */}
                 <div style={{ overflowX: 'auto', width: '100%' }}>
                   <Table style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} key={selectedAssignmentId} dataSource={dataSource} columns={columns} />
                 </div>
