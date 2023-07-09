@@ -17,8 +17,10 @@ public class UserInterceptor implements HandshakeInterceptor {
         HttpServletRequest httpServletRequest = servletRequest.getServletRequest();
 
         String streamId = httpServletRequest.getParameter("streamId");
+        String userId = httpServletRequest.getParameter("userId");
 
         attributes.put("streamId", streamId);
+        attributes.put("userId", userId);
         return true;
     }
 

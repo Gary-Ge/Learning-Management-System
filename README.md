@@ -1,5 +1,27 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.7.9#3
+
+- 新的websocket连接方式
+
+  - 安装库
+
+    ```
+    npm install --save react-stomp
+    ```
+
+  - 连接，使用组件（先导包）
+
+    ```react
+    <SockJsClient
+              url='http://localhost:10940/ws?streamId=${streamId}&userId=${userId}'
+              topics={['/topic/stream/${streamId}']}
+              onMessage={(msg) => { // 这里处理事件
+                console.log(msg) //这里不用JSON.Parse，据我观察这个msg已经被转换成对象了
+              }}
+              ref={ (client) => { stompClient.current = client }} // 这行我也不知道有什么用，好像去掉也是可以的 />
+    ```
+
 ## Update 2023.7.9#2
 
 - 获取一个assignment的所有提交的接口可用，位于`service-edu/edu-assignment/assignment/{assignmentId}/submits`
