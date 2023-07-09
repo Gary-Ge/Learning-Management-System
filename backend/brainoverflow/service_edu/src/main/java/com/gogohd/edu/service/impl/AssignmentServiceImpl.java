@@ -7,6 +7,7 @@ import com.gogohd.base.utils.DateTimeUtils;
 import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateAssignmentVo;
+import com.gogohd.edu.entity.vo.MarkAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
 import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.AssignmentService;
@@ -22,9 +23,7 @@ import com.gogohd.base.utils.RandomUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -384,8 +383,68 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getSubmitsByAssignmentId(String userId, String assignmentId) {
+        Assignment assignment = baseMapper.selectById(assignmentId);
+        if (assignment == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exist");
+        }
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, assignment.getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY,
+                    "You have no authority to get the submits of this assignment");
+        }
+
+        List<Map<String, Object>> maps = baseMapper.selectSubmitsByAssignmentId(assignmentId);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String prevId = null;
+        for (Map<String, Object> map: maps) {
+            String currentId = (String) map.get("user_id");
+
+            Map<String, Object> submit = new HashMap<>();
+            submit.put("submitId", map.get("submit_id"));
+            submit.put("name", map.get("name"));
+            submit.put("createdAt", map.get("created_at"));
+
+            // A new submit
+            if (!Objects.equals(prevId, currentId)) {
+                Map<String, Object> tmp = new HashMap<>();
+                tmp.put("userId", currentId);
+                tmp.put("username", map.get("username"));
+                tmp.put("email", map.get("email"));
+                tmp.put("avatar", map.get("avatar"));
+                tmp.put("mark", map.get("mark") == null ? -1 : map.get("mark"));
+                tmp.put("files", new LinkedList<>());
+                result.add(tmp);
+
+                prevId = currentId;
+            }
+
+            // Add this file to file list
+            ((List<Map<String, Object>>) result.get(result.size() - 1).get("files")).add(submit);
+        }
+
+        Map<String, Object> finalResult = new HashMap<>();
+        finalResult.put("assignmentId", assignment.getAssignmentId());
+        finalResult.put("title", assignment.getTitle());
+        finalResult.put("description", assignment.getDescription());
+        finalResult.put("start", assignment.getStart());
+        finalResult.put("end", assignment.getEnd());
+        finalResult.put("createdAt", assignment.getCreatedAt());
+        finalResult.put("updatedAt", assignment.getUpdatedAt());
+        finalResult.put("mark", assignment.getMark());
+        finalResult.put("submits", result);
+
+        return finalResult;
+    }
+
+    @Override
     @Transactional
-    public void markAssignmentByStaffId(String userId, String studentId, String assignmentId, float teacherMark) {
+    public void markAssignmentByStaffId(String userId, String studentId, String assignmentId,
+                                        MarkAssignmentVo markAssignmentVo) {
         // Check if the user is a staff member
         isStaff(userId, baseMapper.selectById(assignmentId).getCourseId());
 
@@ -393,17 +452,30 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         LambdaQueryWrapper<Submit> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Submit::getSubmittedBy, studentId);
         wrapper.eq(Submit::getAssignmentId, assignmentId);
-        Submit submission = submitMapper.selectOne(wrapper);
+        List<Submit> submits = submitMapper.selectList(wrapper);
 
-        if (submission == null) {
-            throw new BrainException(ResultCode.NOT_FOUND, "Submission does not exist");
+        if (submits.size() == 0) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Cannot find submission from this student");
         }
 
-        float mark = Math.min(teacherMark, baseMapper.selectById(assignmentId).getMark());
+        if (ObjectUtils.isEmpty(markAssignmentVo.getMark())) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The mark cannot be empty");
+        }
 
-        // Update the mark in the Submit table
-        submission.setMark(mark);
-        submitMapper.updateById(submission);
+        Float mark = markAssignmentVo.getMark();
+        Assignment assignment = baseMapper.selectById(submits.get(0).getAssignmentId());
+        if (LocalDateTime.now().isBefore(assignment.getEnd())) {
+            throw new BrainException(ResultCode.ERROR,
+                    "You cannot mark the submits before the due date of the assignment");
+        }
+        if (mark < 0 || mark > assignment.getMark()) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS,
+                    "Mark should be larger or equal to 0 and less or equal to the mark upper bound");
+        }
+
+        // Update mark
+        Submit submit = new Submit();
+        submit.setMark(mark);
+        submitMapper.update(submit, wrapper);
     }
-
 }

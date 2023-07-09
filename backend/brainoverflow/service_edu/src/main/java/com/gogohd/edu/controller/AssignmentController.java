@@ -2,6 +2,7 @@ package com.gogohd.edu.controller;
 
 import com.gogohd.base.utils.R;
 import com.gogohd.edu.entity.vo.CreateAssignmentVo;
+import com.gogohd.edu.entity.vo.MarkAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
 import com.gogohd.edu.service.AssignmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,12 +89,20 @@ public class AssignmentController {
         return R.success().message("Delete assignment file success");
     }
 
-    @Operation(summary = "Mark an assignment by staff")
-    @PutMapping("assignment/{assignmentId}/mark")
-    public R markAssignmentByStaffId(HttpServletRequest request, @PathVariable String assignmentId,
-                                     @RequestParam String studentId, @RequestParam float teacherMark) {
+    @Operation(summary = "Get all the submits of an assignment")
+    @GetMapping("assignment/{assignmentId}/submits")
+    public R getSubmits(HttpServletRequest request, @PathVariable String assignmentId) {
         String userId = (String) request.getAttribute("userId");
-        assignmentService.markAssignmentByStaffId(userId, studentId, assignmentId, teacherMark);
+        return R.success().message("Get submits files success").data("assignment",
+                assignmentService.getSubmitsByAssignmentId(userId, assignmentId));
+    }
+
+    @Operation(summary = "Mark an assignment by staff")
+    @PutMapping("assignment/{assignmentId}/mark/{userId}")
+    public R markAssignment(HttpServletRequest request, @PathVariable String assignmentId,
+                            @PathVariable String userId, @RequestBody MarkAssignmentVo markAssignmentVo) {
+        String markerUserId = (String) request.getAttribute("userId");
+        assignmentService.markAssignmentByStaffId(markerUserId, userId, assignmentId, markAssignmentVo);
         return R.success().message("Assignment marked successfully");
     }
 }
