@@ -13,6 +13,7 @@ import UploadImageButton from './UploadImageButton';
 import { validNotNull } from '../utils/utilsStaff';
 import { QuizDTO } from '../utils/entities';
 import {  getToken } from '../utils/utils';
+import { useEffect } from 'react';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -26,6 +27,7 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [limitation, setLimitation] = useState("");
+  const [quizId, setQuizId] = useState("");
   const token = getToken()
   const handleQuizTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -182,6 +184,7 @@ const removeForm = (formId: number) => {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
+      setQuizId(res.data.quizId)
       message.success('Create quiz successfully!')
     })
     .catch(error => {
@@ -194,6 +197,11 @@ const removeForm = (formId: number) => {
   const handleImageUpload = (url: any) => {
     setImageUrl(url);
   };
+  useEffect(() => {
+    if (quizId) {
+      console.log(quizId);
+    }
+  }, [quizId]);
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
       <Content 
