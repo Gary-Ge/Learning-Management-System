@@ -513,4 +513,22 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         submit.setMark(mark);
         submitMapper.update(submit, wrapper);
     }
+
+    @Override
+    public String downloadSubmitBySubmitId(String userId, String submitId) {
+        Submit submit = submitMapper.selectById(submitId);
+        if (submit == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Submit not exist");
+        }
+
+        Assignment assignment = baseMapper.selectById(submit.getAssignmentId());
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, assignment.getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to download this submit");
+        }
+
+        return OssUtils.downloadFile(submit.getSource().substring(6));
+    }
 }

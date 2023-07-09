@@ -34,4 +34,6 @@ public interface AssignmentService extends IService<Assignment> {
                                  MarkAssignmentVo markAssignmentVo);
 
     Map<String, Object> getSubmitsByAssignmentId(String userId, String assignmentId);
+
+    String downloadSubmitBySubmitId(String userId, String submitId);
 }

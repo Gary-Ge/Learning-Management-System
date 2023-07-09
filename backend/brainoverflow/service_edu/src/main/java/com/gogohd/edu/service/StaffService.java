@@ -10,5 +10,9 @@ public interface StaffService extends IService<Staff> {
 
     Object getStaffedCourseListByUserId(String userId);
 
+<<<<<<< Updated upstream
     Object getStaffedStreamListDateByUserId(String userId);
+=======
+    Object getStaffedCourseListWithForumByUserId(String userId);
+>>>>>>> Stashed changes
 }
