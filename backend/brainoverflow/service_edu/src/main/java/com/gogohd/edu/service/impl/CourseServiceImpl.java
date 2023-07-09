@@ -8,16 +8,10 @@ import com.gogohd.base.utils.R;
 import com.gogohd.base.utils.RandomUtils;
 import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.client.OpenFeignClient;
-import com.gogohd.edu.entity.Category;
-import com.gogohd.edu.entity.Course;
-import com.gogohd.edu.entity.Staff;
-import com.gogohd.edu.entity.Student;
+import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateCourseVo;
 import com.gogohd.edu.entity.vo.UpdateCourseVo;
-import com.gogohd.edu.mapper.CategoryMapper;
-import com.gogohd.edu.mapper.CourseMapper;
-import com.gogohd.edu.mapper.StaffMapper;
-import com.gogohd.edu.mapper.StudentMapper;
+import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.CourseService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +19,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
+import sun.jvm.hotspot.utilities.StreamMonitor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {
@@ -45,6 +41,15 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
 
     @Autowired
     private StudentMapper studentMapper;
+
+    @Autowired
+    private SectionMapper sectionMapper;
+
+    @Autowired
+    private AssignmentMapper assignmentMapper;
+
+    @Autowired
+    private QuizMapper quizMapper;
 
     private final String TITLE_EXISTS = "Course title has been used, please change the course title";
 
@@ -339,4 +344,16 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
                     return map;
                 }).collect(Collectors.toList());
     }
+
+    @Override
+    public List<Map<String, Object>> selectCourseWithMaterials(String courseId) {
+        // Retrieve the course by courseId
+        Course course = baseMapper.selectById(courseId);
+        if (course == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course not found");
+        }
+
+        return baseMapper.selectCourseWithMaterials(courseId);
+    }
+
 }

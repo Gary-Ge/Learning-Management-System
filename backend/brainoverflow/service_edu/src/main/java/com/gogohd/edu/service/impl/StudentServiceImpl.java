@@ -393,7 +393,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // Delete previous question submissions
         LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Answer::getStudentId, userId);
+        wrapper.eq(Answer::getUserId, userId);
         wrapper.eq(Answer::getQuestionId, questionId);
 
         if (answerMapper.selectOne(wrapper) != null) {
@@ -402,7 +402,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // Create a new answer record
         Answer answer = new Answer();
-        answer.setStudentId(userId);
+        answer.setUserId(userId);
         answer.setQuestionId(questionId);
 
         // Based on the question type, set the appropriate data
@@ -431,4 +431,15 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         }
     }
 
+    @Override
+    public Object getEnrolledStreamListDateByUserId(String userId) {
+        return baseMapper.selectStreamDateByStudent(userId).stream()
+                .map(record -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("course_title", record.get("course_title"));
+                    map.put("stream_title", record.get("stream_title"));
+                    map.put("start", record.get("start"));
+                    return map;
+                }).collect(Collectors.toList());
+    }
 }

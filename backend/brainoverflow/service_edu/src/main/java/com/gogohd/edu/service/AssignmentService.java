@@ -18,6 +18,8 @@ public interface AssignmentService extends IService<Assignment> {
 
     List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId);
 
+    List<Map<String, Object>> getAssignmentListDueByCourseId(String userId, String courseId);
+
     void deleteAssignment(String userId, String assignmentId);
 
     void updateAssignment(String userId, String assignmentId, UpdateAssignmentVo updateAssignmentVo);

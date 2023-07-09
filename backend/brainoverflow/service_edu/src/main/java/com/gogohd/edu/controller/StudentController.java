@@ -89,4 +89,13 @@ public class StudentController {
         studentService.submitQuestion(userId, questionId, optionIds, content);
         return R.success().message("Submit question success");
     }
+
+    @Operation(summary = "Get all the streams start date this user is a student of")
+    @GetMapping("streams/date")
+    public R getEnrolledStreamListDateByUserId(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get enrolled live courses success").data("courses",
+                studentService.getEnrolledStreamListDateByUserId(userId));
+    }
+
 }

@@ -354,7 +354,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public Object getStudentAnswerByQuestionId(String userId, String studentId, String questionId) {
+    public Object getStudentAnswerByQuestionId(String userId, String questionId) {
         Question question = baseMapper.selectById(questionId);
         if (question == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Question does not exist");
@@ -364,13 +364,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         isStaffOrStudent(userId, quizMapper.selectById(question.getQuizId()).getCourseId());
 
         LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Answer::getStudentId, studentId);
+        wrapper.eq(Answer::getUserId, userId);
         wrapper.eq(Answer::getQuestionId, questionId);
         return answerMapper.selectOne(wrapper);
     }
 
     @Override
-    public List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String studentId, String quizId) {
+    public List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String quizId) {
         if (quizMapper.selectById(quizId) == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
         }
@@ -386,7 +386,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Question question : questionList) {
             LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
-            answerWrapper.eq(Answer::getStudentId, studentId);
+            answerWrapper.eq(Answer::getUserId, userId);
             answerWrapper.eq(Answer::getQuestionId, question.getQuestionId());
             Answer answer = answerMapper.selectOne(answerWrapper);
 
@@ -402,7 +402,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     @Transactional
-    public void markQuestionByStaffId(String userId, String studentId, String questionId, float teacherMark) {
+    public void markQuestionByStaffId(String userId, String questionId, float teacherMark) {
         // Get the question
         Question question = baseMapper.selectById(questionId);
         if (question == null) {
@@ -414,7 +414,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         // Get the answer for the student and question
         LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Answer::getStudentId, studentId);
+        wrapper.eq(Answer::getUserId, userId);
         wrapper.eq(Answer::getQuestionId, questionId);
         Answer answer = answerMapper.selectOne(wrapper);
 

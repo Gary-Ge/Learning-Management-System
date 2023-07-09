@@ -20,9 +20,9 @@ public interface QuestionService extends IService<Question> {
 
     void updateQuestion(String userId, String questionId, UpdateQuestionVo updateQuestionVo);
 
-    Object getStudentAnswerByQuestionId(String userId, String studentId, String questionId);
+    Object getStudentAnswerByQuestionId(String userId, String questionId);
 
-    List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String studentId, String quizId);
+    List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String quizId);
 
-    void markQuestionByStaffId(String userId, String studentId, String questionId, float teacherMark);
+    void markQuestionByStaffId(String userId, String questionId, float teacherMark);
 }

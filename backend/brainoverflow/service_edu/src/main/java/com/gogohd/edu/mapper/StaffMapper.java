@@ -17,4 +17,11 @@ public interface StaffMapper extends BaseMapper<Staff> {
             "left join USERS on COURSES.created_by=USERS.user_id where course_id in " +
             "(select course_id from STAFFS where STAFFS.user_id=#{userId}) order by COURSES.created_at")
     List<Map<String, Object>> selectCoursesWithCreators(@Param("userId") String userId);
+
+    @Select("SELECT COURSES.title AS course_title, STREAMS.title AS stream_title, STREAMS.start " +
+            "FROM STREAMS " +
+            "INNER JOIN COURSES ON STREAMS.course_id = COURSES.course_id " +
+            "INNER JOIN STAFFS ON STAFFS.course_id = COURSES.course_id " +
+            "WHERE STAFFS.user_id = #{userId}")
+    List<Map<String, Object>> selectStreamDateWithCreators(@Param("userId") String userId);
 }

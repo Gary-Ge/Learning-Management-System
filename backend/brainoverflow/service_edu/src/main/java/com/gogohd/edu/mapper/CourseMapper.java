@@ -27,4 +27,14 @@ public interface CourseMapper extends BaseMapper<Course> {
             "STUDENTS stu where stu.user_id=#{userId}) and course_id not in " +
             "(select course_id from STAFFS stf where stf.user_id=#{userId}) order by COURSES.created_at")
     List<Map<String, Object>> selectAllCourses(@Param("userId") String userId);
+
+    @Select("SELECT " +
+            "SECTION.section_id, SECTION.title AS section_title, SECTION.description AS section_description, " +
+            "SECTION.cover AS section_cover, SECTION.type, " +
+            "SECTION.created_by AS section_created_by, SECTION.updated_by AS section_updated_by, " +
+            "SECTION.created_at AS section_created_at, SECTION.updated_at AS section_updated_at " +
+            "FROM COURSES COURSE " +
+            "LEFT JOIN SECTIONS SECTION ON COURSE.course_id = SECTION.course_id " +
+            "WHERE COURSE.course_id = #{courseId}")
+    List<Map<String, Object>> selectCourseWithMaterials(@Param("courseId") String courseId);
 }

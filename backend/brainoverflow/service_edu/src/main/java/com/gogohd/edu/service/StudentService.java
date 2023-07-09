@@ -26,4 +26,6 @@ public interface StudentService extends IService<Student> {
 //    void submitQuiz(String userId, String quizId, Map<String, String> answers);
 
     void submitQuestion(String userId, String questionId, String optionIds, String content);
+
+    Object getEnrolledStreamListDateByUserId(String userId);
 }

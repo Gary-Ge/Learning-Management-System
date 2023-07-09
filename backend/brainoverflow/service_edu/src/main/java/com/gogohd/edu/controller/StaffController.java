@@ -26,4 +26,12 @@ public class StaffController {
         return R.success().message("Get staffed courses information success").data("courses",
                 staffService.getStaffedCourseListByUserId(userId));
     }
+
+    @Operation(summary = "Get all the streams start date this user is a staff of")
+    @GetMapping("streams/date")
+    public R getEnrolledStreamListDateByUserId(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get teach live courses success").data("courses",
+                staffService.getStaffedStreamListDateByUserId(userId));
+    }
 }

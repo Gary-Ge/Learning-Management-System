@@ -51,4 +51,16 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                     return map;
                 }).collect(Collectors.toList());
     }
+
+    @Override
+    public Object getStaffedStreamListDateByUserId(String userId) {
+        return baseMapper.selectStreamDateWithCreators(userId).stream()
+                .map(record -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("course_title", record.get("course_title"));
+                    map.put("stream_title", record.get("stream_title"));
+                    map.put("start", record.get("start"));
+                    return map;
+                }).collect(Collectors.toList());
+    }
 }
