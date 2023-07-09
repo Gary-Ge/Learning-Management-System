@@ -1,5 +1,61 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.7.9#2
+
+- 获取一个assignment的所有提交的接口可用，位于`service-edu/edu-assignment/assignment/{assignmentId}/submits`
+
+  - 响应如下
+
+    ```json
+    {
+      "success": true,
+      "code": 20000,
+      "message": "Get submits files success",
+      "data": {
+        "assignment": {
+          "submits": [ // 所有提交的学生
+            {
+              "files": [ // 该学生提交的文件列表
+                {
+                  "createdAt": "2023-07-04 22:14:25",
+                  "name": "Homework2 ass test.pdf",
+                  "submitId": "0bc13eaac862fa30e9b414bc129398ef"
+                }
+              ],
+              "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/default/default-avatar.svg",
+              "userId": "d5d81af3467ac8ba5112e4f6229fb7dc",
+              "email": "123@gmail.com",
+              "mark": 15.63, // 该学生当前分数，如果这里是-1则说明该学生还没有被评分
+              "username": "yung"
+            }
+          ],
+          "createdAt": "2023-07-02 18:46:54",
+          "start": "2023-07-02 18:46:01",
+          "description": "<p><span style=\"color: rgb(0, 0, 0);\">This course explores machine learning as the algorithmic approach to learning from data. The course also covers key aspects of data mining, which is understood as the application of machine learning tools to obtain insight from data. Algorithms are placed in the context of their theoretical foundations in order to understand their derivation and correct application. Topics include linear models for regression and classification, local methods (nearest neighbor), neural networks, tree learning, kernel machines, unsupervised learning, ensemble learning, computational and statistical learning theory, and Bayesian learning. To expand and extend the development of theory and algorithms presented in lectures, practical applications will be given in tutorials and programming tasks during the project.</span></p><p><span style=\"color: rgb(0, 0, 0);\"><span class=\"ql-cursor\">\ufeff</span>This course is taught to emphasize that theory, algorithms and empirical work are essential inter-dependent components of machine learning. Teaching is mainly focused on lectures and assessed practical work on topics in machine learning, with tutorials to expand and reinforce the lecture content. Assessment is by two marked homework, a project and a final exam. The assignments are aimed at giving students an opportunity for active learning in a structured way with submission deadlines. The purpose is to give students practical experience of machine learning and relate lecture material to real applications. The second assignment has a broad scope and should be treated as a small-scale project with the submission of software and a written report.</span></p>",
+          "end": "2023-07-06 18:46:07",
+          "title": "comp9417-Assignment2",
+          "assignmentId": "175c29115e4bf765cfd0d518502d3349",
+          "mark": 30, // 该assignment的分数上限
+          "updatedAt": "2023-07-02 18:46:54"
+        }
+      }
+    }
+    ```
+
+- 为学生的提交打分的接口已经可用，位于`service-edu/edu-assignment/assignment/{assignmentId}/mark/{userId}`，注意这里的`userId`指的是要打分的学生的userId
+
+  - 该接口的请求体格式为
+
+    ```json
+    {
+      "mark": 0
+    }
+    ```
+
+    mark应当为一个整数或浮点数，且大于等于0小于等于该assignment的分数上限，不符合要求的格式会被拒绝
+
+  - 该接口同样可以用于修改学生的分数
+
 ## Update 2023.7.9
 
 主要是论坛相关
