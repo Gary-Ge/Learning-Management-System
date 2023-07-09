@@ -187,7 +187,7 @@ const QuizEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; quiz: any
             }
             name="startDateTime"
           >
-            <DatePicker placeholder={quiz.start} showTime onOk={handleStreamStartChange} />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder={quiz.start} showTime onOk={handleStreamStartChange} />
           </Form.Item>
           <Form.Item
             label={
@@ -197,7 +197,7 @@ const QuizEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; quiz: any
             }
             name="endDateTime"
           >
-            <DatePicker placeholder={quiz.end} showTime onOk={handleStreamEndChange} />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder={quiz.end} showTime onOk={handleStreamEndChange} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
