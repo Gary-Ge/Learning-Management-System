@@ -27,17 +27,13 @@ export default defineConfig({
       'target': 'http://175.45.180.201:10900/',// to do localhost:8000
       'changeOrigin': true,
     },
-<<<<<<< HEAD
     '/service-forum': {
       'target': 'http://175.45.180.201:10900/',// to do localhost:8000
       'changeOrigin': true,
     },
-    
-=======
     '/service-stream': {
       'target': 'http://175.45.180.201:10900/',// to do localhost:8000
       'changeOrigin': true,
     },    
->>>>>>> 1bb1bb057fa934abdcf124db5c15e0dd9099a17f
   },
 });
