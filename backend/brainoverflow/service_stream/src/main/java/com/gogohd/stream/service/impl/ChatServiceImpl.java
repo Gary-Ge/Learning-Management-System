@@ -10,6 +10,7 @@ import com.gogohd.stream.mapper.StreamMapper;
 import com.gogohd.stream.service.ChatService;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,9 @@ public class ChatServiceImpl implements ChatService {
 
     @Autowired
     private OpenFeignClient openFeignClient;
+
+    @Value("${queues.chat}")
+    private String chatQueue;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -64,6 +68,6 @@ public class ChatServiceImpl implements ChatService {
         send.setMessage(message);
 
         // Send message to rabbitMQ
-        amqpTemplate.convertAndSend("stream-chat", send);
+        amqpTemplate.convertAndSend(chatQueue, send);
     }
 }

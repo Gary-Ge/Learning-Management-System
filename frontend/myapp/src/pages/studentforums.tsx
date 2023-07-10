@@ -4,6 +4,7 @@ import Navbar from "../../component/navbar";
 import Footer from "../../component/footer";
 import { Input, Button, Modal, message, Upload, Radio } from 'antd';
 import type { RadioChangeEvent } from 'antd';
+import { getToken } from '../utils/utils';
 import { useLocation } from 'umi';
 import emptyimg from '../../../images/teacher.png';
 import defaultimg from '../../../images/defaultimg.png';
@@ -80,7 +81,26 @@ export default function studentforums() {
     const [create_thread_content, set_create_thread_content] = useState('');
     const [create_thread_author, set_create_thread_author] = useState('');
     const [showcontentflag, set_showcontentflag] = useState('0');
-
+    const token = getToken();
+    useEffect(() => {
+        // getall course 
+        // getallcourses_haveforum
+    },[]);
+    const getallcourses_haveforum = () => {
+        // fetch(`${HOST_STUDENT}${COURSE_URL}`, {
+        //     method: "GET",
+        //     headers: {
+        //       "Content-Type": "application/x-www-form-urlencoded",
+        //       "Authorization": `Bearer ${token}`
+        //     }
+        //   })
+        //   .then(res => res.json())
+        //   .then(res => {
+        //     if (res.code !== 20000) {
+        //       throw new Error(res.message)
+        //     }
+        // })
+    }
 
       // click tabs title
     const onclickcourse = (idx:string, id:string) => {
@@ -135,9 +155,9 @@ export default function studentforums() {
                 <Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/>
             </div>
             <div className='stu_forum_tag_wrap'>
-                <div className='stu_forum_tag tag_general tag_active'>General</div>
-                <div className='stu_forum_tag tag_quiz'>Quiz</div>
-                <div className='stu_forum_tag tag_ass'>Assignment</div>
+                <div className='stu_forum_tag tag_blue tag_active'>General</div>
+                <div className='stu_forum_tag tag_red'>Quiz</div>
+                <div className='stu_forum_tag tag_pink'>Assignment</div>
                 <Button type="primary" className='btn_add' onClick={createthread}>+ New Thread</Button>
             </div>
             <div className='stu_forum_content_wrap'>
@@ -152,13 +172,13 @@ export default function studentforums() {
                                     <div className='stu_forum_left_list_content'>
                                         <div className='display_flex'>
                                             {
-                                                _item.tag == 'General' ? <div className='stu_forum_tag tag_general'>General</div> : ''
+                                                _item.tag == 'General' ? <div className='stu_forum_tag tag_blue'>General</div> : ''
                                             }
                                             {
-                                                _item.tag == 'Quiz' ? <div className='stu_forum_tag tag_quiz'>Quiz</div> : ''
+                                                _item.tag == 'Quiz' ? <div className='stu_forum_tag tag_red'>Quiz</div> : ''
                                             }
                                             {
-                                                _item.tag == 'Assignment' ? <div className='stu_forum_tag tag_quiz tag_ass'>Assignment</div> : ''
+                                                _item.tag == 'Assignment' ? <div className='stu_forum_tag tag_red tag_pink'>Assignment</div> : ''
                                             }
                                             <div className='gray6'>{_item.time}</div>
                                         </div>
@@ -213,7 +233,7 @@ export default function studentforums() {
                             <div className='mrt font_large'>Armin Chitizadeh</div>
                             <div className='gray6'>11/06/2023 12:00:00</div>
                         </div>
-                        <div className='stu_forum_tag tag_general height25'>General</div>
+                        <div className='stu_forum_tag tag_blue height25'>General</div>
                     </div>
                     <div className='stu_forum_thread_wrap'>
                         <div className='line_h'>

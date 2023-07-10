@@ -52,11 +52,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                 String sessionId = accessor.getSessionId();
                 String streamId = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("streamId");
+                String userId = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("userId");
 
                 if(StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
-                    // Get userId
-                    String userId = accessor.getSubscriptionId();
-
                     onlineUsers.userJoin(sessionId, userId, streamId);
                 } else if(StompCommand.DISCONNECT.equals(accessor.getCommand())){
                     onlineUsers.userLeave(sessionId, streamId);
@@ -66,7 +64,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
             @Override
             public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-                ChannelInterceptor.super.postSend(message, channel, sent);
+
             }
         });
     }

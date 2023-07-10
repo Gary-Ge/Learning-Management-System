@@ -13,7 +13,7 @@ public class Answer {
     @TableId(value = "answer_id", type = IdType.ASSIGN_UUID)
     private String answerId;
 
-    private String studentId;
+    private String userId;
 
     private String questionId;
 

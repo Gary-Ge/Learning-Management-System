@@ -28,10 +28,12 @@ import Quiz from './Quiz';
 import TextButton from './TextButton';
 import VideoButton from './VideoButton';
 import StreamButton from './StreamButton';
+import QuizButton from './QuizButton';
 import AssignmentButton from './AssignmentButton';
 import TextLessonEdit from './TextLessonEdit';
 import VideoLessonEdit from './VideoLessonEdit';
 import StreamLessonEdit from './StreamLessonEdit';
+import QuizEdit from './quizEdit';
 import LinkBoard from './LinkBoard';
 import LinkBoardStu from './LinkBoardStu';
 import CourseLayoutEdit from './CourseLayoutEdit';
@@ -60,6 +62,7 @@ const StaffDashboardContent: React.FC = () => {
   const [streamChangeFlag, setStreamChangeFlag] = useState(false);
   const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   const [videoChangeFlag, setVideoChangeFlag] = useState(false);
+  const [quizChangeFlag, setQuizChangeFlag] = useState(false);
   const [markChangeFlag, setMarkChangeFlag] = useState(false);
   
   const handleAddCourses = () => {
@@ -173,6 +176,7 @@ const StaffDashboardContent: React.FC = () => {
   };
 
   const handleSubmitQuiz = () => {
+    setQuizChangeFlag(!quizChangeFlag);
     setSelectedOption('close');
   };
 
@@ -194,6 +198,14 @@ const StaffDashboardContent: React.FC = () => {
     // console.log('sectionData', sectionData);
     setVideoSection(sectionData);
     setSelectedOption('editVideoLesson');
+    // 执行其他操作
+  };
+  const [singleQuizSection, setQuizSection] = useState(null);
+  const handlesingleQuizSectionChange = (sectionData: any) => {
+    // 在这里处理 singleSection 参数
+    // console.log('sectionData', sectionData);
+    setQuizSection(sectionData);
+    setSelectedOption('editQuizLesson');
     // 执行其他操作
   };
   const [singleStreamSection, setStreamSection] = useState(null);
@@ -275,6 +287,7 @@ const StaffDashboardContent: React.FC = () => {
       >
         <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
         <VideoButton courseId={courseId} onSingleVideoSectionChange={handleSingleVideoSectionChange} changeFlag={videoChangeFlag} />
+        <QuizButton courseId={courseId} onSingleQuizSectionChange={handlesingleQuizSectionChange} changeFlag={quizChangeFlag} />
         <StreamButton courseId={courseId} onSingleStreamChange={handleSingleStreamSectionChange} onSingleStreamLinkChange={handleSingleStreamLinkSectionChange} changeFlag={streamChangeFlag} />
         <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
@@ -539,7 +552,7 @@ const StaffDashboardContent: React.FC = () => {
           <TextLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitText} />
         )}
         {selectedOption === 'video' && (
-          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
+          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
         )}
         {selectedOption === 'stream' && (
           <StreamLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitStream} />
@@ -558,6 +571,9 @@ const StaffDashboardContent: React.FC = () => {
         )}
         {selectedOption === 'editVideoLesson' && (
           <VideoLessonEdit video={singleVideoSection} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
+        )}
+        {selectedOption === 'editQuizLesson' && (
+          <QuizEdit quiz={singleQuizSection} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
         )}
         {selectedOption === 'editStreamLesson' && (
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />

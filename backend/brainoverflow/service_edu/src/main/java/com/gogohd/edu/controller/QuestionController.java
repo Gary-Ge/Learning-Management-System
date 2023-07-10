@@ -2,6 +2,7 @@ package com.gogohd.edu.controller;
 
 import com.gogohd.base.utils.R;
 import com.gogohd.edu.entity.vo.CreateQuestionVo;
+import com.gogohd.edu.entity.vo.MarkQuestionVo;
 import com.gogohd.edu.entity.vo.UpdateQuestionVo;
 import com.gogohd.edu.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,29 +65,27 @@ public class QuestionController {
     }
 
     @Operation(summary = "Get the student's answer for a question")
-    @GetMapping("question/{studentId}/{questionId}/answer")
-    public R getStudentAnswerByQuestionId(HttpServletRequest request, @PathVariable String studentId,
-                                          @PathVariable String questionId) {
+    @GetMapping("question/{questionId}/answer")
+    public R getStudentAnswerByQuestionId(HttpServletRequest request, @PathVariable String questionId) {
         String userId = (String) request.getAttribute("userId");
-        Object answer = questionService.getStudentAnswerByQuestionId(userId, studentId, questionId);
+        Object answer = questionService.getStudentAnswerByQuestionId(userId, questionId);
         return R.success().message("Get student's answer for question success").data("answer", answer);
     }
 
     @Operation(summary = "Get the student's answers for a quiz")
-    @GetMapping("quiz/{studentId}/{quizId}/answers")
-    public R getStudentAnswerByQuizId(HttpServletRequest request, @PathVariable String studentId,
-                                      @PathVariable String quizId) {
+    @GetMapping("quiz/{quizId}/answers")
+    public R getStudentAnswerByQuizId(HttpServletRequest request, @PathVariable String quizId) {
         String userId = (String) request.getAttribute("userId");
-        List<Map<String, Object>> answers = questionService.getStudentAnswerByQuizId(userId, studentId, quizId);
+        List<Map<String, Object>> answers = questionService.getStudentAnswerByQuizId(userId, quizId);
         return R.success().message("Get student's answers for quiz success").data("answers", answers);
     }
 
     @Operation(summary = "Mark a question by staff")
-    @PutMapping("question/{questionId}/mark")
+    @PutMapping("question/{questionId}/mark/{userId}")
     public R markQuestionByStaffId(HttpServletRequest request, @PathVariable String questionId,
-                                   @RequestParam String studentId, @RequestParam float teacherMark) {
-        String userId = (String) request.getAttribute("userId");
-        questionService.markQuestionByStaffId(userId, studentId, questionId, teacherMark);
+                                   @PathVariable String userId, @RequestBody MarkQuestionVo markQuestionVo) {
+        String markerUserId = (String) request.getAttribute("userId");
+        questionService.markQuestionByStaffId(markerUserId, userId, questionId, markQuestionVo);
         return R.success().message("Question marked by staff successfully");
     }
 }

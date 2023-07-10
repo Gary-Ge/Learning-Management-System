@@ -8,10 +8,7 @@ import com.gogohd.base.utils.ResultCode;
 import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateQuizVo;
 import com.gogohd.edu.entity.vo.UpdateQuizVo;
-import com.gogohd.edu.mapper.CourseMapper;
-import com.gogohd.edu.mapper.QuestionMapper;
-import com.gogohd.edu.mapper.QuizMapper;
-import com.gogohd.edu.mapper.StaffMapper;
+import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.QuizService;
 import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements QuizService {
@@ -36,6 +34,11 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
     @Autowired
     private QuestionMapper questionMapper;
+
+    @Autowired
+    private StudentMapper studentMapper;
+
+    private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
 
     @Override
     public String createQuiz(String userId, String courseId, CreateQuizVo createQuizVo) {
@@ -49,6 +52,14 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         wrapper.eq(Staff::getCourseId, courseId);
         if (!staffMapper.exists(wrapper)) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to create the quiz");
+        }
+
+        // Check if a quiz with the same title already exists for the course
+        LambdaQueryWrapper<Quiz> quizWrapper = new LambdaQueryWrapper<>();
+        quizWrapper.eq(Quiz::getTitle, createQuizVo.getTitle());
+        quizWrapper.eq(Quiz::getCourseId, courseId);
+        if (baseMapper.selectCount(quizWrapper) > 0) {
+            throw new BrainException(ResultCode.ERROR, "A quiz with the same title already exists for the course");
         }
 
         if (ObjectUtils.isEmpty(createQuizVo.getTitle())) {
@@ -157,6 +168,50 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
         return resultList;
     }
+
+    private void isStaffOrStudent(String userId, String courseId) {
+        // Check if this user is a staff or a student of this course
+        // If this user is neither a staff nor a student of this course, this user cannot view the information
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, courseId);
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+            studentWrapper.eq(Student::getCourseId, courseId);
+            studentWrapper.eq(Student::getUserId, userId);
+            if (!studentMapper.exists(studentWrapper)) {
+                throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
+            }
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getQuizListDueByCourseId(String userId, String courseId) {
+        if (courseMapper.selectById(courseId) == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course does not exist");
+        }
+
+        isStaffOrStudent(userId, courseId);
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        LambdaQueryWrapper<Quiz> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Quiz::getCourseId, courseId);
+        wrapper.gt(Quiz::getEnd, currentTime); // Filter quizzes whose end time is before or equal to the current time
+        wrapper.orderByAsc(Quiz::getEnd); // Sort by end time
+
+        List<Quiz> quizzes = baseMapper.selectList(wrapper);
+
+        return quizzes.stream()
+                .map(quiz -> {
+                    Map<String, Object> quizMap = new HashMap<>();
+                    quizMap.put("title", quiz.getTitle());
+                    quizMap.put("end", quiz.getEnd());
+                    return quizMap;
+                })
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void deleteQuiz(String userId, String quizId) {

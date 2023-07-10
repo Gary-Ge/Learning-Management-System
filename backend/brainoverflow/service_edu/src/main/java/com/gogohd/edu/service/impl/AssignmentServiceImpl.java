@@ -63,6 +63,14 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to create the assignment");
         }
 
+        // Check if a assignment with the same title already exists for the course
+        LambdaQueryWrapper<Assignment> assignmentWrapper = new LambdaQueryWrapper<>();
+        assignmentWrapper.eq(Assignment::getTitle, createAssignmentVo.getTitle());
+        assignmentWrapper.eq(Assignment::getCourseId, courseId);
+        if (baseMapper.selectCount(assignmentWrapper) > 0) {
+            throw new BrainException(ResultCode.ERROR, "An assignment with the same title already exists for the course");
+        }
+
         if (ObjectUtils.isEmpty(createAssignmentVo.getTitle())) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "Assignment title cannot be empty");
         }
@@ -197,6 +205,33 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
 
                     return result;
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> getAssignmentListDueByCourseId(String userId, String courseId) {
+        if (courseMapper.selectById(courseId) == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Course does not exist");
+        }
+
+        isStaffOrStudent(userId, courseId);
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        LambdaQueryWrapper<Assignment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Assignment::getCourseId, courseId);
+        wrapper.gt(Assignment::getEnd, currentTime); // Filter assignments whose end time is before or equal to the current time
+        wrapper.orderByAsc(Assignment::getEnd); // Sort by end time
+
+        List<Assignment> assignments = baseMapper.selectList(wrapper);
+
+        return assignments.stream()
+                .map(assignment -> {
+                    Map<String, Object> assignmentMap = new HashMap<>();
+                    assignmentMap.put("title", assignment.getTitle());
+                    assignmentMap.put("end", assignment.getEnd());
+                    return assignmentMap;
+                })
+                .collect(Collectors.toList());
     }
 
     private void checkAssignmentValidity(String userId, String assignmentId, String noAuthority) {
@@ -477,5 +512,23 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         Submit submit = new Submit();
         submit.setMark(mark);
         submitMapper.update(submit, wrapper);
+    }
+
+    @Override
+    public String downloadSubmitBySubmitId(String userId, String submitId) {
+        Submit submit = submitMapper.selectById(submitId);
+        if (submit == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Submit not exist");
+        }
+
+        Assignment assignment = baseMapper.selectById(submit.getAssignmentId());
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, assignment.getCourseId());
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to download this submit");
+        }
+
+        return OssUtils.downloadFile(submit.getSource().substring(6));
     }
 }

@@ -20,4 +20,11 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     @Select("SELECT COUNT(*) FROM STUDENTS WHERE user_id = #{userId} AND course_id = #{courseId}")
     int countByUserIdAndCourseId(@Param("userId") String userId, @Param("courseId") String courseId);
+
+    @Select("SELECT COURSES.title AS course_title, STREAMS.title AS stream_title, STREAMS.start " +
+            "FROM STREAMS " +
+            "INNER JOIN COURSES ON STREAMS.course_id = COURSES.course_id " +
+            "INNER JOIN STUDENTS ON STUDENTS.course_id = COURSES.course_id " +
+            "WHERE STUDENTS.user_id = #{userId}")
+    List<Map<String, Object>> selectStreamDateByStudent(@Param("userId") String userId);
 }

@@ -48,6 +48,14 @@ public class AssignmentController {
         return R.success().message("Get assignment list success").data("assignments", assignments);
     }
 
+    @Operation(summary = "Get a list of assignments due by course ID")
+    @GetMapping("assignments/due/{courseId}")
+    public R getAssignmentListDueByCourseId(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        List<Map<String, Object>> assignmentsDue = assignmentService.getAssignmentListDueByCourseId(userId, courseId);
+        return R.success().message("Get due assignment list success").data("assignmentsDue", assignmentsDue);
+    }
+
     @Operation(summary = "Delete an assignment")
     @DeleteMapping("assignment/{assignmentId}")
     public R deleteAssignment(HttpServletRequest request, @PathVariable String assignmentId) {
@@ -104,5 +112,13 @@ public class AssignmentController {
         String markerUserId = (String) request.getAttribute("userId");
         assignmentService.markAssignmentByStaffId(markerUserId, userId, assignmentId, markAssignmentVo);
         return R.success().message("Assignment marked successfully");
+    }
+
+    @Operation(summary = "Staff download a submit of student")
+    @GetMapping("submit/{submitId}")
+    public R downloadSubmit(HttpServletRequest request, @PathVariable String submitId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Download submit success").data("fileUrl",
+                assignmentService.downloadSubmitBySubmitId(userId, submitId));
     }
 }

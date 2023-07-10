@@ -1,9 +1,9 @@
 package com.gogohd.edu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gogohd.edu.entity.Answer;
 import com.gogohd.edu.entity.Question;
 import com.gogohd.edu.entity.vo.CreateQuestionVo;
+import com.gogohd.edu.entity.vo.MarkQuestionVo;
 import com.gogohd.edu.entity.vo.UpdateQuestionVo;
 
 import java.util.List;
@@ -20,9 +20,9 @@ public interface QuestionService extends IService<Question> {
 
     void updateQuestion(String userId, String questionId, UpdateQuestionVo updateQuestionVo);
 
-    Object getStudentAnswerByQuestionId(String userId, String studentId, String questionId);
+    Object getStudentAnswerByQuestionId(String userId, String questionId);
 
-    List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String studentId, String quizId);
+    List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String quizId);
 
-    void markQuestionByStaffId(String userId, String studentId, String questionId, float teacherMark);
+    void markQuestionByStaffId(String userId, String studentId, String questionId, MarkQuestionVo markQuestionVo);
 }
