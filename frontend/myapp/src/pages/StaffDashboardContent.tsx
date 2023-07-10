@@ -218,7 +218,6 @@ const StaffDashboardContent: React.FC = () => {
   };
 
   const [assOptions, setAssOptions] = useState<any[]>([]);
-  const [allStudents, setAllStudents] = useState<any[]>([]);
   const fetchOptions = (courseId: string) => {
     fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
       method: 'GET',
@@ -253,22 +252,6 @@ const StaffDashboardContent: React.FC = () => {
       const fetchedAssignments = data.data.assignments;
       setAssOptions(fetchedAssignments);
       // console.log('data', fetchedAssignments);
-    })
-    .catch((error) => {
-      console.log(error.message);
-    });
-    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}/students`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      const fetchedStudents = data.data.students;
-      setAllStudents(fetchedStudents);
-      // console.log('data', fetchedStudents);
     })
     .catch((error) => {
       console.log(error.message);
@@ -586,7 +569,7 @@ const StaffDashboardContent: React.FC = () => {
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          <ShowMark allStudents={allStudents} assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
+          <ShowMark assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />

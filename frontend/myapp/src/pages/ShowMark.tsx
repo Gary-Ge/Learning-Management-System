@@ -14,7 +14,7 @@ import {
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
-const ShowMark: React.FC<{ allStudents: any; course: any; assInfor: any; onCancel: () => void; onSubmit: () => void }> = ({ allStudents, course, assInfor, onCancel, onSubmit }) => {
+const ShowMark: React.FC<{ course: any; assInfor: any; onCancel: () => void; onSubmit: () => void }> = ({ course, assInfor, onCancel, onSubmit }) => {
   const token = getToken();
 
   const handleCancel = () => {
@@ -25,19 +25,42 @@ const ShowMark: React.FC<{ allStudents: any; course: any; assInfor: any; onCance
 
   };
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<string>("");
   const [assignment, setAssignment] = useState("");
-  const handleAssignmentChange = (value: string) => {
+  const handleChange = (value: string) => {
     const selectedAss = assInfor.find((assOption: any) => assOption.assignmentId === value);
     if (selectedAss) {
-      setSelectedAssignmentId(selectedAss.assignmentId);
+      setSelectedId(selectedAss.assignmentId);
       setAssignment("assignment");
     }
   };
+  const [submitAssignments, setSubmitAssignments] = useState<any[]>([]);
+  const fetchSubmitAssignments = async () => {
+    try {
+      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedId}/submits`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  const dataSource = (allStudents || []).map((student: any) => ({
+      const data = await response.json();
+      const fetchedAssignments = data.data.assignment.submits;
+      setSubmitAssignments(fetchedAssignments);
+    } catch (error:any) {
+      console.log(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubmitAssignments(); // 初始加载章节数据
+  }, [selectedId]);
+
+  const dataSource = (submitAssignments || []).map((student: any) => ({
     id: student.email,
     name: student.username,
+    grade: student.mark,
   }));
 
   const handleDownload = () => {
@@ -51,6 +74,7 @@ const ShowMark: React.FC<{ allStudents: any; course: any; assInfor: any; onCance
   const handleGradeChange = (value: Number) => {
     // 处理学生成绩输入框的数值变化事件
     console.log('Grade changed', value);
+
   };
 
   const columns = [
@@ -119,8 +143,8 @@ const ShowMark: React.FC<{ allStudents: any; course: any; assInfor: any; onCance
               <Select
                 placeholder="Select Option"
                 style={{ width: '100%', fontFamily: 'Comic Sans MS' }}
-                onChange={handleAssignmentChange}
-                value={selectedAssignmentId}
+                onChange={handleChange}
+                value={selectedId}
               >
                 {(assInfor || []).map((assOption: any) => (
                   <Select.Option
@@ -134,14 +158,14 @@ const ShowMark: React.FC<{ allStudents: any; course: any; assInfor: any; onCance
               </Select>
             </Form.Item>
             <Form.Item style={{  }}>
-              {assignment === "assignment" &&
-                <>
-                {/* {selectedAssignmentId} */}
-                <div style={{ overflowX: 'auto', width: '100%' }}>
-                  <Table style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} key={selectedAssignmentId} dataSource={dataSource} columns={columns} />
-                </div>
-                </>
-              }
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <Table 
+                  style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
+                  key={selectedId} 
+                  dataSource={dataSource} 
+                  columns={columns} 
+                />
+              </div>
             </Form.Item>
             <Form.Item>
               <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>

@@ -1,20 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Layout, Typography, Button, Form, Input, Avatar, message, Modal, DatePicker, Select, Radio, Tag, Checkbox } from 'antd';
 import {
-  CameraOutlined,
-  AudioOutlined,
   DeleteOutlined,
   UsergroupAddOutlined,
   PlusCircleOutlined,
-  UserOutlined,
   SendOutlined,
   HeartFilled,
 } from '@ant-design/icons';
 import {getToken} from '../utils/utils'
 import FlvJs from 'flv.js';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
-import UploadImageButton from './UploadImageButton';
+import SockJsClient from 'react-stomp';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -35,28 +30,6 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const [title, setTitle] = useState("");
   const handleTitleChange = (e:any) => {
     setTitle(e.target.value);
-  };
-  const [start, setStart] = useState("");
-  const handleOnlineQuizStartChange = (date: any) => {
-    if (date) {
-      const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
-      setStart(formattedDate);
-    }
-  };
-  const [end, setEnd] = useState("");
-  const handleOnlineQuizEndChange = (date: any) => {
-    if (date) {
-      const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
-      setEnd(formattedDate);
-    }
-  };
-  const [limitation, setLimitation] = useState("");
-  const handleLimitationChange = (e:any) => {
-    setLimitation(e.target.value);
-  };
-  const [cover, setImageUrl] = useState("");
-  const handleImageUpload = (url: any) => {
-    setImageUrl(url);
   };
   const [question, setQuestion] = useState("");
   const handleQuestionChange = (e: any) => {
@@ -292,7 +265,35 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   }, [pushStarted]);
   // chat
   const [messages, setMessages] = useState([]);
+  const [userId, setUserId] = useState("");
   const stompClient = useRef(null);
+  const handleStompClientRef = (client: any) => {
+    stompClient.current = client;
+  };
+  useEffect(() => {
+    const handleConnect = () => {
+      if (stompClient.current && stompClient.current.connected) {
+        const client = stompClient.current; // 获取底层的 Stomp 客户端实例
+  
+        // 订阅消息
+        const subscription = client.subscribe(`/topic/stream/${stream.streamId}`, (message: any) => {
+          // 处理收到的消息
+          const data = JSON.parse(message.body);
+          const clientName = data.username;
+          // 在这里根据客户名字进行相应的操作
+          console.log('客户名字:', clientName);
+        });
+  
+        // 可选：如果需要在组件卸载时取消订阅，可以保存订阅对象并在 useEffect 的 cleanup 函数中取消订阅
+        return () => {
+          subscription.unsubscribe();
+        };
+      }
+    };  
+    handleConnect(); // 在组件挂载时执行连接和订阅操作  
+    // 清理函数不需要依赖数组，因为订阅操作只会在组件挂载和卸载时执行一次
+  }, []);
+
   useEffect(() => {
     fetch(`http://175.45.180.201:10900/service-ucenter/ucenter/user`, {
       method: 'GET',
@@ -306,45 +307,47 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      const socket = new SockJS(`http://175.45.180.201:10940/ws?streamId=${stream.streamId}`); 
-      // const client = new Client({
-        // webSocketFactory: () => socket,
-        // onConnect: () => {
-        //   client.subscribe(`/topic/stream/${stream.streamId}`, (message) => {
-        //     const data = JSON.parse(message.body)
-        //     if (data.type === 0) { // 判断事件类型
-        //       setMessages(prevMessages => [...prevMessages, data])
-        //     }
-        //     console.log(data)
-        //   }, {
-        //     id:  `${res.data.user.userId}`
-        //   })
-        // }
-      // })
-      // client.activate();
-      // stompClient.current = client
-      // return () => {
-      //   client.deactivate()
-      // }
+      setUserId(res.data.user.userId);
     })
     .catch(error => {
       message.error(error.message);
     });
-
-    
-  }, [])
+  }, [userId])
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
-  const send = () => { // 发送信息
+  const send = (message: any) => { // 发送信息
     fetch(`http://175.45.180.201:10900/service-stream/stream-chat/message/${stream.streamId}/${message}`, {
       method: 'POST',
       headers: headers
     })
     .then(res => res.json())
-    .then(res => console.log(res.data));
+    .then(res => console.log(res.data))
+    .catch(error => {
+      message.error(error.message);
+    });
+    setInputValue('');
   }
+  const [inputValue, setInputValue] = useState('');
+  const handleInputChange = (e: any) => {
+    setInputValue(e.target.value);
+  };
+  const handleEnterPress = (e: any) => {
+    if (e.key === 'Enter') {
+      send(inputValue);
+    }
+  };
+
   return (
     <>
+    <SockJsClient
+      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${userId}`}
+      topics={[`/topic/stream/${stream.streamId}`]}
+      onMessage={(msg: any) => {
+        console.log(msg); // 处理收到的消息
+        setMessages(prevMessages => [...prevMessages, msg]);
+      }}
+      ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
+    />
     <Layout style={{ minHeight: '100vh' }}>
       <Layout style={{  }}>        
         <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px' }}>
@@ -396,23 +399,6 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
               style={{ maxWidth: 600, paddingTop: '30px', fontFamily: 'Comic Sans MS' }}
               autoComplete="off"
             >
-              <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                <DatePicker style={{ width: '100%', border: '1px solid #0085FC' }} placeholder="Select Start Date and Time" showTime onOk={handleOnlineQuizStartChange} />
-                <DatePicker style={{ marginLeft: '5%', width: '100%', border: '1px solid #0085FC' }} placeholder="Select End Date and Time" showTime onOk={handleOnlineQuizEndChange} />
-              </div>
-              <div style={{ marginBottom: '10px', display: 'grid', gridTemplateColumns: '1fr 1.7fr', columnGap: '3%' }}>
-                <div style={{ marginLeft: '10px'}}>
-                  <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>Question Attempt Time</Text>
-                </div>
-                <div style={{ borderRadius: '5px'}}>
-                  <Input
-                    type="number"
-                    placeholder="Input Number"
-                    style={{ fontFamily: 'Comic Sans MS' }}
-                    onChange={handleLimitationChange}
-                  />
-                </div>
-              </div>
               <div
                 style={{
                   position: 'relative',
@@ -425,12 +411,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
                 }}
               >
                 <div style={{ display: 'flex', marginBottom: '15px' }}>
-                  <div style={{ flex: 1, marginRight: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
-                      <UploadImageButton onImageUpload={handleImageUpload} url=""/>
-                    </div>
-                  </div>
-                  <div style={{ flex: 2, marginLeft: '10px' }}>
+                  <div style={{ flex: 1, marginLeft: '10px' }}>
                     <Form.Item
                       label={<Text style={{ fontFamily: 'Comic Sans MS' }}>Question</Text>}
                       name="question"
@@ -476,9 +457,20 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
           </div>
           <div>
             <div>
-              <Avatar icon={<UserOutlined style={{ fontSize: '80px' }} />}  style={{cursor:'pointer',  width: '80px', height: '80px'}} onClick={() => {}} />
+              {(messages || []).map((message, index) => (
+                <div key={index}>
+                  {index === 1 && message.avatar ? 
+                    <>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <img src={message.avatar} style={{ cursor:'pointer',  width: '80px', height: '80px', borderRadius: '50%' }} />
+                      <Text style={{ fontFamily: 'Comic Sans MS' }}>{message.username}</Text>
+                    </div>
+                    </>
+                  : <></>
+                  }
+                </div>
+              ))}
             </div>
-            <Text>Name</Text>
           </div>
         </Content>
         <Footer
@@ -495,12 +487,33 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       <Sider width={250} style={{ background: '#f0f2f5' }}>
         <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px', minHeight: '87vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
           <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', paddingBottom: 10, fontWeight: 'bold' }}>Chatting</Title>
+          <Content style={{ overflow: 'auto', height: '60vh' }} >
+            {(messages || []).map((message, index) => (
+              <div key={index}>
+                {message.avatar ? 
+                  <>
+                  <div>
+                    <Text style={{ fontFamily: 'Comic Sans MS' }}>{message.username}</Text>
+                  </div>
+                  <img src={message.avatar} style={{ marginLeft: '5px', width: '30px', height: '30px',borderRadius: '50%' }} />
+                  <Button type="primary" disabled={true} style={{ background: '#DAE8FC', border: 'none', color: 'black', marginLeft: '10px' }}>
+                    {message.message}
+                  </Button>
+                  </>
+                : <></>
+                }
+              </div>
+            ))}
+          </Content>
           <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center' }}>
             <Input 
               placeholder="Input your words"
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS', marginRight: 10 }}
+              value={inputValue}
+              onChange={handleInputChange}
+              onPressEnter={handleEnterPress}
             />
-            <Button type="primary" onClick={() => {}} icon={<SendOutlined />} />
+            <Button type="primary" onClick={() => send(inputValue)} icon={<SendOutlined />} />
           </div>
         </Content>
       </Sider>

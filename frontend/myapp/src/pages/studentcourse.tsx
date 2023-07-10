@@ -797,7 +797,7 @@ export default function IndexPage() {
                 }
               </div>
               <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
-                <LinkBoardStu courseId={'c35f0536ea524229d469405b44277878'}/>
+                <LinkBoardStu stream={{}}/>
               </div>
             </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }
