@@ -13,11 +13,11 @@ public class Answer {
     @TableId(value = "answer_id", type = IdType.ASSIGN_UUID)
     private String answerId;
 
-    private String questionId;
+    private String quizId;
 
     private String answerBy;
 
-    private String answer;
+    private String answers;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

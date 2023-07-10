@@ -12,3 +12,4 @@ queues:
   chat: "stream-chat"
   users: "stream-users"
   quiz: "stream-quiz"
+  answer: "stream-answer"

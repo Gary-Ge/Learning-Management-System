@@ -37,7 +37,7 @@ public class RabbitMQListener {
     @RabbitListener(queues = "${queues.quiz}")
     public void listenQuizMessage(QuizMessage quizMessage) {
         // Publish this quiz
-        stringRedisTemplate.opsForValue().set("quiz://" + quizMessage.getStreamId(), "In progress",
+        stringRedisTemplate.opsForValue().set("quiz://" + quizMessage.getStreamId(), quizMessage.getQuizId(),
                 quizMessage.getLimitation(), TimeUnit.SECONDS);
         simpMessagingTemplate.convertAndSend(TOPIC + quizMessage.getStreamId(), quizMessage);
     }

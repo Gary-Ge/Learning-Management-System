@@ -3,7 +3,6 @@ package com.gogohd.stream.controller;
 import com.gogohd.base.utils.R;
 import com.gogohd.stream.entity.vo.AnswerQuizVo;
 import com.gogohd.stream.entity.vo.CreateQuizVo;
-import com.gogohd.stream.mapper.QuestionMapper;
 import com.gogohd.stream.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("stream-quiz")
 public class QuizController {
-
-    @Autowired
-    private QuestionMapper questionMapper;
-
     @Autowired
     private QuizService quizService;
 

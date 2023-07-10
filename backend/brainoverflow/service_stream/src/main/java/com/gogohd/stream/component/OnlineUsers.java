@@ -68,4 +68,9 @@ public class OnlineUsers {
             amqpTemplate.convertAndSend(usersQueue, userList);
         }
     }
+
+    public boolean isOnline(String userId, String streamId) {
+        // Get all the userIds of this stream
+        return new ArrayList<>(onlineUsers.get(streamId).values()).contains(userId);
+    }
 }

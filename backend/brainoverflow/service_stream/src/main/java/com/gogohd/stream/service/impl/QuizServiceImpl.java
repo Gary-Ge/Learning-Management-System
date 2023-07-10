@@ -1,15 +1,15 @@
 package com.gogohd.stream.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
 import com.gogohd.base.utils.ResultCode;
-import com.gogohd.stream.entity.Question;
-import com.gogohd.stream.entity.Quiz;
-import com.gogohd.stream.entity.QuizMessage;
-import com.gogohd.stream.entity.Stream;
+import com.gogohd.stream.component.OnlineUsers;
+import com.gogohd.stream.entity.*;
 import com.gogohd.stream.entity.vo.AnswerQuizVo;
 import com.gogohd.stream.entity.vo.CreateQuestionVo;
 import com.gogohd.stream.entity.vo.CreateQuizVo;
+import com.gogohd.stream.mapper.AnswerMapper;
 import com.gogohd.stream.mapper.QuestionMapper;
 import com.gogohd.stream.mapper.QuizMapper;
 import com.gogohd.stream.mapper.StreamMapper;
@@ -43,8 +43,17 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
     @Autowired
     private AmqpTemplate amqpTemplate;
 
+    @Autowired
+    private OnlineUsers onlineUsers;
+
+    @Autowired
+    private AnswerMapper answerMapper;
+
     @Value("${queues.quiz}")
     private String quizQueue;
+
+    @Value("${queues.answer}")
+    private String answerQueue;
 
     @Override
     @Transactional
@@ -52,7 +61,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         Stream stream = streamMapper.selectById(streamId);
         if (streamMapper.selectStaffCountById(userId, stream.getCourseId()) == 0) {
             throw new BrainException(ResultCode.NO_AUTHORITY,
-                    "You have no authority to create quick quiz stream");
+                    "You have no authority to create quick quiz for this stream");
         }
 
         // Check if another quiz is in progress
@@ -172,6 +181,99 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
     @Override
     public String answerQuiz(String userId, String quizId, AnswerQuizVo answerQuizVo) {
-        return null;
+        Quiz quiz = baseMapper.selectById(quizId);
+        if (quiz == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Quick quiz not exist");
+        }
+
+        Stream stream = streamMapper.selectById(quiz.getStreamId());
+        if (stream == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
+        }
+
+//        if (streamMapper.selectStudentCountById(userId, stream.getCourseId()) == 0) {
+//            throw new BrainException(ResultCode.NO_AUTHORITY,
+//                    "You have no authority to answer this quick quiz");
+//        }
+
+        // Check if this user is online
+        if (!onlineUsers.isOnline(userId, quiz.getStreamId())) {
+            throw new BrainException(ResultCode.ERROR, "You cannot answer this quiz if you" +
+                    "are not attending the stream lesson");
+        }
+
+        // Check if this quiz is inProgress
+        String inProgressQuizId = stringRedisTemplate.opsForValue().get("quiz://" + quiz.getStreamId());
+        if (inProgressQuizId == null || !inProgressQuizId.equals(quizId)) {
+            throw new BrainException(ResultCode.ERROR, "The quiz has been closed");
+        }
+
+        // Get the answers list
+        List<String> answers = answerQuizVo.getAnswers();
+        if (ObjectUtils.isEmpty(answers)) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The answers cannot be empty");
+        }
+
+        // Get the questions list
+        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Question::getQuizId, quizId);
+        wrapper.orderByAsc(Question::getSort);
+        List<Question> questions = questionMapper.selectList(wrapper);
+
+        if (answers.size() != questions.size()) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "Number of answers mismatches the number of questions");
+        }
+
+        // Check if this user has already answered this question
+        LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
+        answerWrapper.eq(Answer::getQuizId, quizId);
+        answerWrapper.eq(Answer::getAnswerBy, userId);
+        if (answerMapper.exists(answerWrapper)) {
+            throw new BrainException(ResultCode.ERROR, "You have already answered this quiz");
+        }
+
+        List<String> formattedAnswers = new ArrayList<>();
+        // Answer the quiz
+        for (int idx = 0; idx < answers.size(); ++idx) {
+            // Check the answer format
+            String answer = answers.get(idx).toUpperCase();
+            char[] charArray = answer.toCharArray();
+            Arrays.sort(charArray);
+            answer = new String(charArray);
+
+            Question question = questions.get(idx);
+            int optionCount = 2;
+            if (!ObjectUtils.isEmpty(question.getOptionC())) {
+                ++optionCount;
+            }
+            if (!ObjectUtils.isEmpty(question.getOptionD())) {
+                ++optionCount;
+            }
+
+            Integer type = question.getType();
+
+            if (!QuizUtils.checkAnswerValidity(answer, type, optionCount)) {
+                throw new BrainException(ResultCode.ILLEGAL_ARGS, "Bad answer format");
+            }
+
+            formattedAnswers.add(answer);
+        }
+
+        Answer answer = new Answer();
+        answer.setAnswerBy(userId);
+        answer.setQuizId(quizId);
+        answer.setAnswers(String.join(",", formattedAnswers));
+        if (answerMapper.insert(answer) != 1) {
+            throw new BrainException(ResultCode.ERROR, "Answer quiz failed");
+        }
+
+        AnswerMessage answerMessage = new AnswerMessage();
+        answerMessage.setQuizId(quizId);
+        answerMessage.setStreamId(quiz.getStreamId());
+        amqpTemplate.convertAndSend(answerQueue, answerMessage);
+
+        // TODO: 统计当前提交比多少在线学生更快
+
+        return "offline";
     }
 }

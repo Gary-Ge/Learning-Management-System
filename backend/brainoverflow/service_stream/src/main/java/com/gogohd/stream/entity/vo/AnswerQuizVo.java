@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class AnswerQuizVo {
     @Schema(description = "The answers of student", requiredMode = Schema.RequiredMode.REQUIRED)
-    List<AnswerVo> answers;
+    List<String> answers;
 }
