@@ -12,26 +12,26 @@ import java.util.Map;
 @Mapper
 public interface PostMapper extends BaseMapper<Post> {
     @Select("select post_id, title, content, POSTS.created_at as created_at, POSTS.updated_at as updated_at," +
-            "name as category, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
+            "name as category, color, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
             "POSTS.category_id=POST_CATEGORIES.category_id left join USERS on POSTS.post_by=USERS.user_id where " +
             "POSTS.course_id=#{courseId} order by created_at desc")
     List<Map<String, Object>> selectPostsWithPostersByCourseId(@Param("courseId") String courseId);
 
     @Select("select post_id, title, content, POSTS.created_at as created_at, POSTS.updated_at as updated_at," +
-            "name as category, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
+            "name as category, color, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
             "POSTS.category_id=POST_CATEGORIES.category_id left join USERS on POSTS.post_by=USERS.user_id where " +
             "POSTS.course_id=#{courseId} and POSTS.category_id=#{categoryId} order by created_at desc")
     List<Map<String, Object>> selectPostsWithPostersByCategoryId(@Param("courseId") String courseId,
                                                                  @Param("categoryId") String categoryId);
     @Select("select post_id, title, content, POSTS.created_at as created_at, POSTS.updated_at as updated_at," +
-            "name as category, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
+            "name as category, color, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
             "POSTS.category_id=POST_CATEGORIES.category_id left join USERS on POSTS.post_by=USERS.user_id where " +
             "POSTS.course_id=#{courseId} and title like CONCAT('%', #{keyword}, '%') order by created_at desc")
     List<Map<String, Object>> selectPostsWithKeywordInTitle(@Param("courseId") String courseId,
                                                             @Param("keyword") String keyword);
 
     @Select("select post_id, title, content, POSTS.created_at as created_at, POSTS.updated_at as updated_at," +
-            "name as category, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
+            "name as category, color, user_id, username, email, avatar from POSTS left join POST_CATEGORIES on " +
             "POSTS.category_id=POST_CATEGORIES.category_id left join USERS on POSTS.post_by=USERS.user_id where " +
             "POSTS.course_id=#{courseId} and content like CONCAT('%', #{keyword}, '%') order by created_at desc")
     List<Map<String, Object>> selectPostsWithKeywordInContent(@Param("courseId") String courseId,

@@ -4,6 +4,7 @@ import com.gogohd.stream.entity.UserList;
 import com.gogohd.stream.mapper.StreamMapper;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,6 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class OnlineUsers {
+
+    @Value("${queues.users}")
+    private String usersQueue;
+
     private final Map<String, ConcurrentHashMap<String, String>> onlineUsers = new ConcurrentHashMap<>();
 
     @Autowired
@@ -41,7 +46,7 @@ public class OnlineUsers {
         }
 
         // Send messages to mq to notify a user list updating
-        amqpTemplate.convertAndSend("stream-users", userList);
+        amqpTemplate.convertAndSend(usersQueue, userList);
     }
 
     public void userLeave(String sessionId, String streamId) {
@@ -60,7 +65,7 @@ public class OnlineUsers {
             }
 
             // Send messages to mq to notify a user list updating
-            amqpTemplate.convertAndSend("stream-users", userList);
+            amqpTemplate.convertAndSend(usersQueue, userList);
         }
     }
 }

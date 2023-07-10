@@ -153,6 +153,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("createdAt", record.get("created_at"));
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -190,6 +191,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("createdAt", record.get("created_at"));
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -213,12 +215,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                 !Objects.equals(post.getPostBy(), userId)) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get this post information");
         }
+        Category category = categoryMapper.selectById(post.getCategoryId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("postId", post.getPostId());
         result.put("title", post.getTitle());
         result.put("content", post.getContent());
-        result.put("category", categoryMapper.selectById(post.getCategoryId()).getName());
+        result.put("category", category.getName());
+        result.put("color", category.getColor());
         result.put("createdAt", post.getCreatedAt());
         result.put("updatedAt", post.getUpdatedAt());
 
@@ -324,6 +328,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("createdAt", record.get("created_at"));
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -350,6 +355,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("createdAt", record.get("created_at"));
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
