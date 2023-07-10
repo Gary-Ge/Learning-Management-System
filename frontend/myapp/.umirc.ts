@@ -26,6 +26,10 @@ export default defineConfig({
       'target': 'http://175.45.180.201:10900/',// to do localhost:8000
       'changeOrigin': true,
     },
+    '/service-forum': {
+      'target': 'http://175.45.180.201:10900/',// to do localhost:8000
+      'changeOrigin': true,
+    },
     
   },
 });

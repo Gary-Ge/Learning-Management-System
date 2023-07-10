@@ -110,7 +110,7 @@ export class RegisterDTO {
     email: any;
     code: any;
     constructor(email: any,code: any) {
-      this.email =email;
+      this.email = email;
       this.code = code;
     }
   }
