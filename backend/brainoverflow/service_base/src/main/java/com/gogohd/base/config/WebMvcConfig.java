@@ -42,7 +42,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/edu-quiz/**")
                 .addPathPatterns("/edu-question/**")
                 .addPathPatterns("/stream-basic/**")
-                .addPathPatterns("/stream-chat/**");
+                .addPathPatterns("/stream-chat/**")
+                .addPathPatterns("/stream-quiz/**")
+                .addPathPatterns("/forum-category/**")
+                .addPathPatterns("/forum-post/**")
+                .addPathPatterns("/forum-reply/**");
     }
 
     @Override

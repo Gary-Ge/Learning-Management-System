@@ -73,4 +73,29 @@ public class StudentController {
         return R.success().message("Download submit success").data("fileUrl",
                 studentService.downloadSubmitBySubmitId(userId, submitId));
     }
+
+    @Operation(summary = "Submit a question")
+    @PostMapping("submit/question/{questionId}")
+    public R submitQuestion(HttpServletRequest request, @PathVariable String questionId,
+                            @RequestParam(required = false) String optionIds,
+                            @RequestParam(required = false) String content) {
+        String userId = (String) request.getAttribute("userId");
+        if (optionIds == null || optionIds.isEmpty()) {
+            optionIds = "";
+        }
+        if (content == null || content.isEmpty()) {
+            content = "";
+        }
+        studentService.submitQuestion(userId, questionId, optionIds, content);
+        return R.success().message("Submit question success");
+    }
+
+    @Operation(summary = "Get all the streams start date this user is a student of")
+    @GetMapping("streams/date")
+    public R getEnrolledStreamListDateByUserId(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get enrolled live courses success").data("courses",
+                studentService.getEnrolledStreamListDateByUserId(userId));
+    }
+
 }

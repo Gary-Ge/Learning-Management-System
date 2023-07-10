@@ -83,4 +83,11 @@ public class CourseController {
         return R.success().message("Get all courses success").data("courses",
                 courseService.searchCourses(userId, keyword));
     }
+
+    @Operation(summary = "Search courses materials (sections) by course ID")
+    @GetMapping("courses/{courseId}/materials")
+    public R searchCourseMaterials(HttpServletRequest request, @PathVariable String courseId) {
+        return R.success().message("Get all courses success").data("courses",
+                courseService.selectCourseWithMaterials(courseId));
+    }
 }

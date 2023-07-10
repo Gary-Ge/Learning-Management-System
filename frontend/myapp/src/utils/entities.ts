@@ -15,17 +15,15 @@ export class CourseLayoutDTO {
 }
 export class StreamLessonDTO {
   title: any;
-  url: any;
+  description: any;
   start: any;
   end: any;
-  description: any;
   
-  constructor(title: any, url: any, start: any, end: any, description: any) {
+  constructor(title: any, description: any, start: any, end: any) {
     this.title = title;
-    this.url = url;
+    this.description = description;
     this.start = start;
     this.end = end;
-    this.description = description;
   }
 }
 export class VideoLessonDTO {
@@ -112,6 +110,19 @@ export class RegisterDTO {
     constructor(email: any,code: any) {
       this.email = email;
       this.code = code;
+    }
+  }
+  export class QuizDTO {
+    title: any;
+    start :any;
+    end : any;
+    limitation: any;
+  
+    constructor(title: any,start: any,end:any,limitation: any) {
+      this.title = title;
+      this.start = start;
+      this.end = end;
+      this.limitation = limitation;
     }
   }
   

@@ -34,6 +34,12 @@ spring:
               - Path=/service-stream/**
           filters:
               - StripPrefix=1
+        - id: service-forum
+          uri: lb://service-forum
+          predicates:
+              - Path=/service-forum/**
+          filters:
+              - StripPrefix=1
 
 knife4j:
   gateway:

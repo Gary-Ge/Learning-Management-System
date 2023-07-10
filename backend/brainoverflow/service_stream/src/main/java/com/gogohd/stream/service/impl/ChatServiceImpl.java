@@ -10,6 +10,7 @@ import com.gogohd.stream.mapper.StreamMapper;
 import com.gogohd.stream.service.ChatService;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,9 @@ public class ChatServiceImpl implements ChatService {
     @Autowired
     private OpenFeignClient openFeignClient;
 
+    @Value("${queues.chat}")
+    private String chatQueue;
+
     @Override
     @SuppressWarnings("unchecked")
     public void sendMessage(String userId, String token, String streamId, String message) {
@@ -37,10 +41,6 @@ public class ChatServiceImpl implements ChatService {
                 streamMapper.selectStudentCountById(userId, stream.getCourseId()) == 0) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to send messages to this " +
                     "stream's chatroom");
-        }
-
-        if (!stream.getInProgress()) {
-            throw new BrainException(ResultCode.ERROR, "This stream lesson is not started yet");
         }
 
         // Fetch sender information
@@ -68,6 +68,6 @@ public class ChatServiceImpl implements ChatService {
         send.setMessage(message);
 
         // Send message to rabbitMQ
-        amqpTemplate.convertAndSend("stream-chat", send);
+        amqpTemplate.convertAndSend(chatQueue, send);
     }
 }

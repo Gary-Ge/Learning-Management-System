@@ -25,4 +25,6 @@ public interface CourseService extends IService<Course> {
     List<Map<String, Object>> getAllCourses(String userId);
 
     Object searchCourses(String userId, String keyword);
+
+    List<Map<String, Object>> selectCourseWithMaterials(String courseId);
 }

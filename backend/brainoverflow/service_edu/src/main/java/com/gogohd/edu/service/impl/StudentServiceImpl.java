@@ -36,6 +36,15 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Autowired
     private SubmitMapper submitMapper;
 
+    @Autowired
+    private QuizMapper quizMapper;
+
+    @Autowired
+    private AnswerMapper answerMapper;
+
+    @Autowired
+    private QuestionMapper questionMapper;
+
     @Override
     public void enrollCourse(String userId, String courseId) {
         // Check if this course exists
@@ -312,5 +321,125 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // Download submits
         return OssUtils.downloadFile(submit.getSource().substring(6));
+    }
+
+//    @Override
+//    @Transactional
+//    public void submitQuiz(String userId, String quizId, Map<String, String> answers) {
+//        // Check if the quiz exists
+//        Quiz quiz = quizMapper.selectById(quizId);
+//        if (quiz == null) {
+//            throw new BrainException(ResultCode.NOT_FOUND, "Quiz not exist");
+//        }
+//
+//        // Assuming we have a function to check if a user is enrolled in the course of the quiz
+//        if (!isStudentEnrolledInCourse(userId, quiz.getCourseId())) {
+//            throw new BrainException(ResultCode.NO_AUTHORITY, "You are not enrolled in this course");
+//        }
+//
+//        // Delete previous quiz submissions, if any
+//        LambdaQueryWrapper<SubmitQuiz> wrapper = new LambdaQueryWrapper<>();
+//        wrapper.eq(SubmitQuiz::getSubmittedBy, userId);
+//        wrapper.eq(SubmitQuiz::getQuizId, quizId);
+//        submitQuizMapper.delete(wrapper);
+//
+//        // Submit quiz and save answers
+//        for (Map.Entry<String, String> entry : answers.entrySet()) {
+//            String questionId = entry.getKey();
+//            String answer = entry.getValue();
+//
+//            // Assuming we have a function to check if the question belongs to the quiz
+//            if (!isQuestionBelongsToQuiz(questionId, quizId)) {
+//                throw new BrainException(ResultCode.NO_AUTHORITY, "The question does not belong to this quiz");
+//            }
+//
+//            // Create new quiz submission record
+//            SubmitQuiz submitQuiz = new SubmitQuiz();
+//            submitQuiz.setQuizId(quizId);
+//            submitQuiz.setQuestionId(questionId);
+//            submitQuiz.setAnswer(answer);
+//            submitQuiz.setSubmittedBy(userId);
+//
+//            // Insert quiz submission record
+//            try {
+//                if (submitQuizMapper.insert(submitQuiz) < 1) {
+//                    throw new BrainException(ResultCode.ERROR, "Submit quiz failed");
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                throw new BrainException(ResultCode.ERROR, "Database operation failed");
+//            }
+//        }
+//    }
+
+    @Override
+    @Transactional
+    public void submitQuestion(String userId, String questionId, String optionIds, String content) {
+        // Check if the question exists
+        Question question = questionMapper.selectById(questionId);
+        if (question == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Question not exist");
+        }
+
+        Quiz quiz = quizMapper.selectById(question.getQuizId());
+        if (quiz == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Quiz not exist");
+        }
+
+        // Assuming we have a function to check if a user is enrolled in the course of the quiz
+        if (!isStudentEnrolledInCourse(userId, quiz.getCourseId())) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You are not enrolled in this course");
+        }
+
+        // Delete previous question submissions
+        LambdaQueryWrapper<Answer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Answer::getUserId, userId);
+        wrapper.eq(Answer::getQuestionId, questionId);
+
+        if (answerMapper.selectOne(wrapper) != null) {
+            answerMapper.delete(wrapper);
+        }
+
+        // Create a new answer record
+        Answer answer = new Answer();
+        answer.setUserId(userId);
+        answer.setQuestionId(questionId);
+
+        // Based on the question type, set the appropriate data
+        if (question.getType() == 0 || question.getType() == 1) {
+            if (optionIds != "") {
+                answer.setOptionIds(optionIds);
+            } else {
+                throw new BrainException(ResultCode.ERROR, "Input answer in incorrect question type");
+            }
+            answer.setContent(null); // Clear content
+        } else if (question.getType() == 2) {
+            answer.setOptionIds(null); // Clear optionIds
+            if (content != ""){
+                answer.setContent(content);
+            } else {
+                throw new BrainException(ResultCode.ERROR, "Input answer in incorrect question type");
+            }
+        } else {
+            throw new BrainException(ResultCode.ERROR, "Invalid question type");
+        }
+
+        // Insert the answer record
+        int result = answerMapper.insert(answer);
+        if (result <= 0) {
+            throw new BrainException(ResultCode.ERROR, "Failed to submit the question");
+        }
+    }
+
+    @Override
+    public Object getEnrolledStreamListDateByUserId(String userId) {
+        return baseMapper.selectStreamDateByStudent(userId).stream()
+                .map(record -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("course_title", record.get("course_title"));
+                    map.put("stream_title", record.get("stream_title"));
+                    map.put("start", record.get("start"));
+                    return map;
+                }).collect(Collectors.toList());
     }
 }

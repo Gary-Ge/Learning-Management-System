@@ -18,5 +18,5 @@ public class CreateAssignmentVo {
     private String end;
 
     @Schema(description = "The mark of this assignment", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer mark;
+    private Float mark;
 }

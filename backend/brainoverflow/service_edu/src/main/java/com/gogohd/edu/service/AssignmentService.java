@@ -3,6 +3,7 @@ package com.gogohd.edu.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gogohd.edu.entity.Assignment;
 import com.gogohd.edu.entity.vo.CreateAssignmentVo;
+import com.gogohd.edu.entity.vo.MarkAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,8 @@ public interface AssignmentService extends IService<Assignment> {
 
     List<Map<String, Object>> getAssignmentListByCourseId(String userId, String courseId);
 
+    List<Map<String, Object>> getAssignmentListDueByCourseId(String userId, String courseId);
+
     void deleteAssignment(String userId, String assignmentId);
 
     void updateAssignment(String userId, String assignmentId, UpdateAssignmentVo updateAssignmentVo);
@@ -26,4 +29,11 @@ public interface AssignmentService extends IService<Assignment> {
     String downloadAssignment(String userId, String assFileId);
 
     void deleteAssignmentFile(String userId, String assFileId);
+
+    void markAssignmentByStaffId(String userId, String studentId, String assignmentId,
+                                 MarkAssignmentVo markAssignmentVo);
+
+    Map<String, Object> getSubmitsByAssignmentId(String userId, String assignmentId);
+
+    String downloadSubmitBySubmitId(String userId, String submitId);
 }

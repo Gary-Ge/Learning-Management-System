@@ -7,6 +7,7 @@ export default defineConfig({
   routes: [
     { path: '/', component: '@/pages/index' },
     { path: '/staffcourse', component: '@/pages/StaffDashboardContent' },
+    // { path: '/staffcourse/:streamId', component: '@/pages/StaffDashboardContent' },
     { path: '/login', component: '@/pages/login' },
     { path: '/register', component: '@/pages/register' },
     { path: '/studentcourse', component: '@/pages/studentcourse' },
@@ -26,10 +27,17 @@ export default defineConfig({
       'target': 'http://175.45.180.201:10900/',// to do localhost:8000
       'changeOrigin': true,
     },
+<<<<<<< HEAD
     '/service-forum': {
       'target': 'http://175.45.180.201:10900/',// to do localhost:8000
       'changeOrigin': true,
     },
     
+=======
+    '/service-stream': {
+      'target': 'http://175.45.180.201:10900/',// to do localhost:8000
+      'changeOrigin': true,
+    },    
+>>>>>>> 1bb1bb057fa934abdcf124db5c15e0dd9099a17f
   },
 });

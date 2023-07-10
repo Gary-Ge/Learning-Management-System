@@ -11,7 +11,6 @@ import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
 import { validNotNull } from '../utils/utilsStaff';
 import { AssignmentLessonDTO } from '../utils/entities';
-import moment, { Moment } from 'moment';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;

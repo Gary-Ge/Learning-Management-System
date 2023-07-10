@@ -32,6 +32,4 @@ public class Stream {
     private LocalDateTime updatedAt;
 
     private String courseId;
-
-    private Boolean inProgress;
 }

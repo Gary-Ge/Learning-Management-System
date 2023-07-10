@@ -1,14 +1,21 @@
 package com.gogohd.edu.entity.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
 public class CreateQuestionVo {
-    private String description;
+    @Schema(description = "The cover page of this question", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String cover;
 
-    private String image;
+    @Schema(description = "The description of this question", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String content;
 
+    @Schema(description = "The question type, 0 is single choice, 1 is multi-choice, 2 is short-answer", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer type;
+
+    @Schema(description = "The mark of this question", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Float mark;
 
     private String a;
     private String b;
@@ -16,6 +23,11 @@ public class CreateQuestionVo {
     private String d;
     private String e;
     private String f;
-
-    private String correct;
+    private int aCorrect;
+    private int bCorrect;
+    private int cCorrect;
+    private int dCorrect;
+    private int eCorrect;
+    private int fCorrect;
+    private String shortAnswer;
 }

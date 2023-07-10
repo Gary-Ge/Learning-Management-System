@@ -2,6 +2,7 @@ package com.gogohd.edu.controller;
 
 import com.gogohd.base.utils.R;
 import com.gogohd.edu.entity.vo.CreateAssignmentVo;
+import com.gogohd.edu.entity.vo.MarkAssignmentVo;
 import com.gogohd.edu.entity.vo.UpdateAssignmentVo;
 import com.gogohd.edu.service.AssignmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,14 @@ public class AssignmentController {
         return R.success().message("Get assignment list success").data("assignments", assignments);
     }
 
+    @Operation(summary = "Get a list of assignments due by course ID")
+    @GetMapping("assignments/due/{courseId}")
+    public R getAssignmentListDueByCourseId(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        List<Map<String, Object>> assignmentsDue = assignmentService.getAssignmentListDueByCourseId(userId, courseId);
+        return R.success().message("Get due assignment list success").data("assignmentsDue", assignmentsDue);
+    }
+
     @Operation(summary = "Delete an assignment")
     @DeleteMapping("assignment/{assignmentId}")
     public R deleteAssignment(HttpServletRequest request, @PathVariable String assignmentId) {
@@ -86,5 +95,30 @@ public class AssignmentController {
         String userId = (String) request.getAttribute("userId");
         assignmentService.deleteAssignmentFile(userId, assFileId);
         return R.success().message("Delete assignment file success");
+    }
+
+    @Operation(summary = "Get all the submits of an assignment")
+    @GetMapping("assignment/{assignmentId}/submits")
+    public R getSubmits(HttpServletRequest request, @PathVariable String assignmentId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get submits files success").data("assignment",
+                assignmentService.getSubmitsByAssignmentId(userId, assignmentId));
+    }
+
+    @Operation(summary = "Mark an assignment by staff")
+    @PutMapping("assignment/{assignmentId}/mark/{userId}")
+    public R markAssignment(HttpServletRequest request, @PathVariable String assignmentId,
+                            @PathVariable String userId, @RequestBody MarkAssignmentVo markAssignmentVo) {
+        String markerUserId = (String) request.getAttribute("userId");
+        assignmentService.markAssignmentByStaffId(markerUserId, userId, assignmentId, markAssignmentVo);
+        return R.success().message("Assignment marked successfully");
+    }
+
+    @Operation(summary = "Staff download a submit of student")
+    @GetMapping("submit/{submitId}")
+    public R downloadSubmit(HttpServletRequest request, @PathVariable String submitId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Download submit success").data("fileUrl",
+                assignmentService.downloadSubmitBySubmitId(userId, submitId));
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider } from 'antd';
+import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider, message } from 'antd';
 import './StaffDashboardContent.less';
 import Navbar from "../../component/navbar"
 import {getToken} from '../utils/utils'
@@ -28,10 +28,12 @@ import Quiz from './Quiz';
 import TextButton from './TextButton';
 import VideoButton from './VideoButton';
 import StreamButton from './StreamButton';
+import QuizButton from './QuizButton';
 import AssignmentButton from './AssignmentButton';
 import TextLessonEdit from './TextLessonEdit';
 import VideoLessonEdit from './VideoLessonEdit';
 import StreamLessonEdit from './StreamLessonEdit';
+import QuizEdit from './quizEdit';
 import LinkBoard from './LinkBoard';
 import LinkBoardStu from './LinkBoardStu';
 import CourseLayoutEdit from './CourseLayoutEdit';
@@ -39,6 +41,7 @@ import AssignmentEdit from './AssignmentEdit';
 import ShowMark from './ShowMark';
 import Newcalendar from './Calendar';
 import { useHistory } from 'umi';
+import { Route, Switch, useParams, useLocation } from 'react-router-dom';
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -59,6 +62,8 @@ const StaffDashboardContent: React.FC = () => {
   const [streamChangeFlag, setStreamChangeFlag] = useState(false);
   const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   const [videoChangeFlag, setVideoChangeFlag] = useState(false);
+  const [quizChangeFlag, setQuizChangeFlag] = useState(false);
+  const [markChangeFlag, setMarkChangeFlag] = useState(false);
   
   const handleAddCourses = () => {
     setSelectedOption('course');
@@ -171,6 +176,7 @@ const StaffDashboardContent: React.FC = () => {
   };
 
   const handleSubmitQuiz = () => {
+    setQuizChangeFlag(!quizChangeFlag);
     setSelectedOption('close');
   };
 
@@ -194,6 +200,14 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editVideoLesson');
     // 执行其他操作
   };
+  const [singleQuizSection, setQuizSection] = useState(null);
+  const handlesingleQuizSectionChange = (sectionData: any) => {
+    // 在这里处理 singleSection 参数
+    // console.log('sectionData', sectionData);
+    setQuizSection(sectionData);
+    setSelectedOption('editQuizLesson');
+    // 执行其他操作
+  };
   const [singleStreamSection, setStreamSection] = useState(null);
   const handleSingleStreamSectionChange = (sectionData: any) => {
     // 在这里处理 singleSection 参数
@@ -201,6 +215,10 @@ const StaffDashboardContent: React.FC = () => {
     setStreamSection(sectionData);
     setSelectedOption('editStreamLesson');
     // 执行其他操作
+  };
+  const handleSingleStreamLinkSectionChange = (sectionData: any) => {
+    setStreamSection(sectionData);
+    setSelectedOption('streamLink');
   };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
@@ -210,9 +228,65 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editAssignmentLesson');
     // 执行其他操作
   };
-  const handleShowMarks = (courseId: any) => {
-    setSelectedOption('showMarks');
+
+  const [assOptions, setAssOptions] = useState<any[]>([]);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
+  const fetchOptions = (courseId: string) => {
+    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedCourse = data.data.course;
+      setSingleCourse(fetchedCourse);
+      // console.log('data', fetchedCourse);
+      // console.log('data_courseId', data.data.course.courseId);
+      // console.log('data_title', data.data.course.title);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+    // 发起 fetch 请求获取选项数据
+    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedAssignments = data.data.assignments;
+      setAssOptions(fetchedAssignments);
+      // console.log('data', fetchedAssignments);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}/students`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      const fetchedStudents = data.data.students;
+      setAllStudents(fetchedStudents);
+      // console.log('data', fetchedStudents);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
   };
+  
   const handleSubmitMark = () => {
     setSelectedOption('close');
   };
@@ -230,7 +304,8 @@ const StaffDashboardContent: React.FC = () => {
       >
         <TextButton courseId={courseId} onSingleSectionChange={handleSingleSectionChange} changeFlag={textChangeFlag} />
         <VideoButton courseId={courseId} onSingleVideoSectionChange={handleSingleVideoSectionChange} changeFlag={videoChangeFlag} />
-        <StreamButton courseId={courseId} onSingleStreamChange={handleSingleStreamSectionChange} changeFlag={streamChangeFlag} />
+        <QuizButton courseId={courseId} onSingleQuizSectionChange={handlesingleQuizSectionChange} changeFlag={quizChangeFlag} />
+        <StreamButton courseId={courseId} onSingleStreamChange={handleSingleStreamSectionChange} onSingleStreamLinkChange={handleSingleStreamLinkSectionChange} changeFlag={streamChangeFlag} />
         <AssignmentButton courseId={courseId} onSingleAssignmentChange={handleSingleAssignmentChange} changeFlag={assignmentChangeFlag} />
         <Divider dashed style={{ margin: '10px 0', border: '0.9px dashed #10739E' }} />
         {/* add course materials button */}
@@ -243,13 +318,18 @@ const StaffDashboardContent: React.FC = () => {
             style={{ marginRight: '5%' }}
             onClick={() => handleShowModal(courseId, courseTitle)}
           ></Button>
-          {/* <input defaultValue={token}></input> */}
+          {/* <input defaultValue={courseId}></input> */}
           <Button 
             type="primary" 
             ghost
             style={{ marginRight: '5%' }}
             icon={<TrophyOutlined />}
-            onClick={() => handleShowMarks(courseId)}
+            onClick={() => {
+              setSelectedOption('showMarks');
+              setSelectedCourseId(courseId);
+              fetchOptions(courseId);
+            }}
+            // onClick={() => handleShowMarks(courseId)}
           ></Button>
           <Button 
             // key={courseId}
@@ -376,7 +456,6 @@ const StaffDashboardContent: React.FC = () => {
       </div>
     );
   };
-  
   return (
     <>
     <Navbar />
@@ -399,7 +478,7 @@ const StaffDashboardContent: React.FC = () => {
             <div style={{ height: 'calc(100% - 31%)', overflow: 'auto', marginBottom: '15px' }}>
               <div style={{ textAlign: 'center', marginTop: '5%', marginBottom: '5%' }}>
                 <Collapse className="custom-collapse">
-                  {courses.map((course) => (
+                  {(courses || []).map((course) => (
                     <Panel 
                       header={course.title} 
                       key={course.courseId} 
@@ -490,7 +569,7 @@ const StaffDashboardContent: React.FC = () => {
           <TextLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitText} />
         )}
         {selectedOption === 'video' && (
-          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
+          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
         )}
         {selectedOption === 'stream' && (
           <StreamLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitStream} />
@@ -510,16 +589,20 @@ const StaffDashboardContent: React.FC = () => {
         {selectedOption === 'editVideoLesson' && (
           <VideoLessonEdit video={singleVideoSection} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
+        {selectedOption === 'editQuizLesson' && (
+          <QuizEdit quiz={singleQuizSection} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
+        )}
         {selectedOption === 'editStreamLesson' && (
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
+        )}
+        {selectedOption === 'streamLink' && (
+          <LinkBoard stream={singleStreamSection} />
         )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          // <ShowMark onCancel={handleCancel} onSubmit={handleSubmitMark} />
-          <LinkBoard courseId={selectedCourseId} />
-          // <LinkBoardStu courseId={selectedCourseId} />
+          <ShowMark allStudents={allStudents} assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />

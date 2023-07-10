@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, Select, Radio, Tag, Checkbox } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, Select, Radio, Tag, Checkbox,message } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
 import './Quiz.css';
@@ -10,16 +10,114 @@ import {
 } from '@ant-design/icons';
 import 'react-quill/dist/quill.snow.css';
 import UploadImageButton from './UploadImageButton';
+import { validNotNull } from '../utils/utilsStaff';
+import { QuizDTO } from '../utils/entities';
+import {  getToken } from '../utils/utils';
+import { useEffect } from 'react';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
+
 
 const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const [totalMarks, setTotalMarks] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
   const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark?: number; }[]>([]);
   const [showTotalMark, setShowTotalMark] = useState(true);
+  const [title, setTitle] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [limitation, setLimitation] = useState("");
+  const [quizId, setQuizId] = useState("");
+  const token = getToken()
+  const [quizCreated, setQuizCreated] = useState(false);
+  const [optionCounter, setOptionCounter] = useState(0);
+  const handleQuizTitleChange = (e:any) => {
+    setTitle(e.target.value);
+  };
+  const handleLimitationChange = (e:any) => {
+    setLimitation(e.target.value);
+  };
+  const handleQuizStartChange = (date: any) => {
+    if (date) {
+      const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
+      setStart(formattedDate);
+    }
+  };
+  const handleQuizEndChange = (date: any) => {
+    if (date) {
+      const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
+      setEnd(formattedDate);
+    }
+  };
+  const [questionTitle, setQuestionTitle] = useState("");
+  const handlequestionTitleChange = (e:any) => {
+    setQuestionTitle(e.target.value);
+  };
+  type QuestionType = "sc" | "mc" | "st";
+
+  const typeMapping: Record<QuestionType, number> = {
+    sc: 0,
+    mc: 1,
+    st: 2,
+  };
+
+  const [questiontype, setType] = useState(0);
+  const handlequestionTypeChange = (value: QuestionType) => {
+    setType(typeMapping[value]);
+  };
+  const [mark, setMark] = useState('');
+    const MarkChange = (e:any) => {
+      setMark(e.target.value);
+    };
+  const [cover, setImageUrl] = useState("");
+  const handleImageUpload = (url: any) => {
+      setImageUrl(url);
+  };
   const addForm = () => {
+    if (!quizCreated) {
+      if (!validNotNull(title)) {
+        alert('Please input a valid quiz title')
+        return
+      }
+      if (!validNotNull(limitation)) {
+        alert('Please input a valid quiz li')
+        return
+      }
+      if (!validNotNull(start)) {
+        alert('Please input a valid quiz start')
+        return
+      }
+      if (!validNotNull(end) || (new Date(end)< new Date(start))) {
+        alert('Please input a valid quiz end')
+        return
+      }
+      console.log(token)
+      console.log(courseId)
+      const dto = new QuizDTO(title, start,end,limitation);
+      console.log(dto)
+      fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(dto)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+        setQuizId(res.data.quizId)
+        message.success('Create quiz successfully!')
+        setQuizCreated(true);
+      })
+      .catch(error => {
+        console.log(error)
+        message.error(error.message)
+      })
+    }
     const newFormId = Date.now(); // Generate a unique ID for the new form
     const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
     const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
@@ -39,28 +137,35 @@ const removeForm = (formId: number) => {
   // 检查 updatedForms 是否为空，如果为空，则将 showTotalMark 设置为 false
   setShowTotalMark(forms.length > 0);
 };
-  const addOption = (formId: any) => {
-    const updatedForms = forms.map((form) => {
-      if (form.id === formId) {
+const addOption = (formId: any) => {
+  const updatedForms = forms.map((form) => {
+    if (form.id === formId) {
+      if (form.options.length < 6) {  // Add this condition to limit the number of options to 6
         const newOptionId = Date.now(); // Generate a unique ID for the new option
         const updatedOptions = [...form.options, newOptionId];
         return { ...form, options: updatedOptions };
       }
-      return form;
-    });
-    setForms(updatedForms);
-  };
-
-  const removeOption = (formId: any, optionId: any) => {
-    const updatedForms = forms.map((form) => {
-      if (form.id === formId) {
-        const updatedOptions = form.options.filter((id:any) => id !== optionId);
-        return { ...form, options: updatedOptions };
+      else{
+        message.error("you can only add no more than 6 options")
       }
-      return form;
-    });
-    setForms(updatedForms);
-  };
+      return { ...form };
+    }
+    return form;
+  });
+  setForms(updatedForms);
+};
+
+const removeOption = (formId: any, optionId: any) => {
+  const updatedForms = forms.map((form) => {
+    if (form.id === formId) {
+      const updatedOptions = form.options.filter((id:any) => id !== optionId);
+      return { ...form, options: updatedOptions };
+    }
+    return form;
+  });
+  setForms(updatedForms);
+};
+
 
   const handleOptionSelection = (formId: any, optionId: any) => {
     const updatedForms = forms.map((form) => {
@@ -123,13 +228,13 @@ const removeForm = (formId: number) => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
-    // 处理提交逻辑
     onSubmit();
   };
-  const [cover, setImageUrl] = useState("");
-  const handleImageUpload = (url: any) => {
-    setImageUrl(url);
-  };
+  useEffect(() => {
+    if (quizId) {
+      console.log(quizId);
+    }
+  }, [quizId]);
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
       <Content 
@@ -162,6 +267,7 @@ const removeForm = (formId: number) => {
             <Input 
               placeholder="Input Title" 
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
+              onChange={handleQuizTitleChange}
             />
           </Form.Item>
           <Form.Item 
@@ -172,33 +278,13 @@ const removeForm = (formId: number) => {
             } 
             name="quiz attempt time" 
           >
-            <Select
-              placeholder="Select Option"
-              style={{ fontFamily: 'Comic Sans MS', width: '100%' }}
-              onChange={(value) => {
-                setSelectedOption(value);
-              }}
-            >
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="Custom Options">Custom Options</Select.Option>
-              <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="Limited">Limited</Select.Option>
-            </Select>
-          </Form.Item>
-          {selectedOption === 'Custom Options' && (
-            <Form.Item
-              label={
-                <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                  Custom Attempt Time
-                </Text>
-              }
-              name="customAttemptTime"
-            >
-              <Input
+            <Input
                 type="number"
                 placeholder="Input Number"
                 style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
+                onChange={handleLimitationChange}
               />
-            </Form.Item>
-          )}
+          </Form.Item>
           <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -207,7 +293,7 @@ const removeForm = (formId: number) => {
             }
             name="startDateTime"
           >
-            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime onOk={handleQuizStartChange} />
           </Form.Item>
           <Form.Item
             label={
@@ -217,7 +303,7 @@ const removeForm = (formId: number) => {
             }
             name="endDateTime"
           >
-            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime />
+            <DatePicker style={{ fontFamily: 'Comic Sans MS', color: 'black',width: '100%' }} placeholder="Select Start Date and Time" showTime  onOk={handleQuizEndChange} />
           </Form.Item>
           {forms.map((form) => (
             <div 
@@ -247,6 +333,7 @@ const removeForm = (formId: number) => {
                   <Form.Item>
                     <Input
                       placeholder="Enter your question"
+                      onChange={handlequestionTitleChange}
                       style={{ fontFamily: 'Comic Sans MS' }}
                     />
                   </Form.Item>
@@ -259,6 +346,7 @@ const removeForm = (formId: number) => {
                     placeholder="Select Option"
                     style={{ width: '100%', fontFamily: 'Comic Sans MS' }}
                     onChange={(value) => {
+                      handlequestionTypeChange(value);
                       const updatedForms = forms.map((f) => {
                         if (f.id === form.id) {
                           return { ...f, selectedOption: value };
@@ -268,14 +356,14 @@ const removeForm = (formId: number) => {
                       setForms(updatedForms);
                     }}
                   >
-                    <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="sc">Single Choice</Select.Option>
+                    <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="sc" >Single Choice</Select.Option>
                     <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="mc">Multi Choice</Select.Option>
                     <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="st">Single Text</Select.Option>
                   </Select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <Text style={{ fontFamily: 'Comic Sans MS',marginLeft:'10px' }}>Mark</Text>
-                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => handleMarkChange(form.id, e.target.value)} />
+                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => {MarkChange(e);handleMarkChange(form.id, e.target.value)}} />
                 </div>
               </div>
               {form.selectedOption === 'sc' && (
