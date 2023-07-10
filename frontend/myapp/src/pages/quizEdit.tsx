@@ -150,7 +150,7 @@ const QuizEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; quiz: any
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                 Title
+                Quiz Title
               </Text>
             } 
             name="Title" 
