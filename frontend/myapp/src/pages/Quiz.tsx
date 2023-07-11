@@ -21,18 +21,26 @@ const { Title, Text } = Typography;
 
 const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const [totalMarks, setTotalMarks] = useState(0);
-  const [selectedOption, setSelectedOption] = useState('');
-  const [forms, setForms] = useState<{ id: number; options: {id: number, value: string, isCorrect: boolean}[]; selectedOption: string; correctOptionId: string; mark?: number | undefined;questionId:string }[]>([]);
+  const [forms, setForms] = useState<{ 
+    id: number; 
+    options: {id: number, value: string, isCorrect: boolean}[]; 
+    selectedOption: string; 
+    correctOptionId: string; 
+    mark?: number | undefined;
+    questionId:string,
+    cover:string,
+    questionTitle:string,
+    questiontype:number,
+    shortAnswer:string
+  }[]>([]);
   const [showTotalMark, setShowTotalMark] = useState(true);
   const [title, setTitle] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [limitation, setLimitation] = useState("");
   const [quizId, setQuizId] = useState("");
-  const [questionId, setQuestionId] = useState("");
   const token = getToken()
   const [quizCreated, setQuizCreated] = useState(false);
-  const [optionCounter, setOptionCounter] = useState(0);
 
   const handleQuizTitleChange = (e:any) => {
     setTitle(e.target.value);
@@ -52,10 +60,21 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
       setEnd(formattedDate);
     }
   };
-  const [questionTitle, setQuestionTitle] = useState("");
-  const handlequestionTitleChange = (e:any) => {
-    setQuestionTitle(e.target.value);
+
+  const handleQuestionTitleChange = (e: any, formId: number) => {
+    setForms(forms => {
+      const newForms = [...forms];
+      const formIndex = newForms.findIndex(form => form.id === formId);
+      
+      if (formIndex !== -1) {
+        newForms[formIndex].questionTitle = e.target.value;
+      }
+  
+      return newForms;
+    });
   };
+
+  
   type QuestionType = "sc" | "mc" | "st";
 
   const typeMapping: Record<QuestionType, number> = {
@@ -64,21 +83,58 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
     st: 2,
   };
 
-  const [questiontype, setType] = useState(0);
-  const handlequestionTypeChange = (value: QuestionType) => {
-    setType(typeMapping[value]);
+  const handleQuestionTypeChange = (value: QuestionType, formId: number) => {
+    setForms(forms => {
+      const newForms = [...forms];
+      const formIndex = newForms.findIndex(form => form.id === formId);
+      
+      if (formIndex !== -1) {
+        newForms[formIndex].questiontype = typeMapping[value];
+      }
+  
+      return newForms;
+    });
   };
-  const [mark, setMark] = useState('');
-    const MarkChange = (e:any) => {
-      setMark(e.target.value);
-    };
-  const [cover, setImageUrl] = useState("");
-  const handleImageUpload = (url: any) => {
-      setImageUrl(url);
+  
+const handleMark = (e: any, formId: number) => {
+  const newMark = e.target.value;
+
+  setForms(forms => {
+    const newForms = [...forms];
+    const formIndex = newForms.findIndex(form => form.id === formId);
+
+    if (formIndex !== -1) {
+      newForms[formIndex].mark = newMark;
+    }
+
+    return newForms;
+  });
+};
+
+
+  const handleImageUpload = (url: any, formId: number) => {
+    setForms(forms => {
+      const newForms = [...forms];
+      const formIndex = newForms.findIndex(form => form.id === formId);
+  
+      if (formIndex !== -1) {
+        newForms[formIndex].cover = url;
+      }
+  
+      return newForms;
+    });
   };
-  const [shortAnswer, setshortAnswer] = useState("");
-  const handlesetshortAnswerChange = (e: any) => {
-    setshortAnswer(e.target.value);
+  const handleShortAnswerChange = (e: any, formId: number) => {
+    setForms(forms => {
+      const newForms = [...forms];
+      const formIndex = newForms.findIndex(form => form.id === formId);
+      
+      if (formIndex !== -1) {
+        newForms[formIndex].shortAnswer = e.target.value;
+      }
+  
+      return newForms;
+    });
   };
   const handleInputChange = (formId:any, optionId:any, event:any) => {
     const newForms = forms.map(form => {
@@ -183,12 +239,10 @@ const createNewQuiz = () => {
       throw new Error(res.message)
     }
     setQuizId(res.data.quizId)
-    message.success('Create quiz successfully!')
     setQuizCreated(true);
   })
   .catch(error => {
-    console.log(error)
-    message.error(error.message)
+    console.log("create new quiz",error)
     setQuizCreated(false);
   })
 }
@@ -227,21 +281,45 @@ const createQuiz = () => {
       throw new Error(res.message)
     }
     setQuizId(res.data.quizId)
-    message.success('Create quiz successfully!')
     setQuizCreated(true);
     const newFormId = Date.now(); // Generate a unique ID for the new form
     const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
     const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
-    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0,questionId: '' }]);
+    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0,questionId: '',cover:'',
+    questionTitle:'',
+    questiontype:0,
+    shortAnswer:'' }]);
   })
   .catch(error => {
-    console.log(error)
-    message.error(error.message)
+    console.log("create quiz",error)
     setQuizCreated(false);
   })
 }
   
   const addForm = () => {
+    if (forms.length === 0) {
+      // 如果forms数组为空，则创建一个新的表单
+      const newFormId = Date.now(); // 为新表单生成一个唯一的ID
+      const newOptionId1 = Date.now(); // 为第一个新选项生成一个唯一的ID
+      const newOptionId2 = newOptionId1 + 1; // 为第二个新选项生成一个唯一的ID
+      setForms([
+        {
+          id: newFormId,
+          options: [
+            { id: newOptionId1, value: '', isCorrect: false },
+            { id: newOptionId2, value: '', isCorrect: false }
+          ],
+          selectedOption: 'sc',
+          correctOptionId: '',
+          mark: 0,
+          questionId: '',
+          cover: '',
+          questionTitle: '',
+          questiontype: 0,
+          shortAnswer: ''
+        }
+      ]);
+    } else {
       const formData = {
         options: [] as { value: string; isCorrect: boolean }[],
     };
@@ -256,17 +334,17 @@ const createQuiz = () => {
     });
     formData.options = optionsData;
     const dto_question = {
-      cover: cover,
-      content: questionTitle,
-      type: questiontype,
-      mark: mark,
+      cover: forms[forms.length-1].cover,
+      content: forms[forms.length-1].questionTitle,
+      type: forms[forms.length-1].questiontype,
+      mark: forms[forms.length-1].mark,
       a: currentForm.options[0]?.value || '',
       b: currentForm.options[1]?.value || '',
       c: currentForm.options[2]?.value || '',
       d: currentForm.options[3]?.value || '',
       e: currentForm.options[4]?.value || '',
       f: currentForm.options[5]?.value || '',
-      shortAnswer: shortAnswer,
+      shortAnswer: forms[forms.length-1].shortAnswer,
       acorrect: currentForm.options[0]?.isCorrect ? 1 : 0,
       bcorrect: currentForm.options[1]?.isCorrect ? 1 : 0,
       ccorrect: currentForm.options[2]?.isCorrect ? 1 : 0,
@@ -293,21 +371,36 @@ const createQuiz = () => {
         newForms[newForms.length - 1].questionId = res.data.questionId;
         return newForms;
       });
-      message.success('Create question successfully!')
       const newFormId = Date.now(); // Generate a unique ID for the new form
     const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
     const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
-    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0,questionId: '' }]);
+    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0,questionId: '',cover:'',
+    questionTitle:'',
+    questiontype:0,
+    shortAnswer:'' }]);
     })
     .catch(error => {
-      message.error(error.message)
+      console.log("create question",error)
     })
+    }
     }
 };
 const removeForm = (formId: number) => {
-  console.log(formId)
+  // Check if forms array is defined
+  if (!forms) {
+    console.error('Forms is undefined');
+    return;
+  }
+
   const formToRemove = forms.find((form) => form.id === formId);
-  if (formToRemove && formToRemove.questionId) {
+
+  // Check if formToRemove is defined
+  if (!formToRemove) {
+    console.error(`Form with id ${formId} not found.`);
+    return;
+  }
+
+  if (formToRemove.questionId) {
     console.log(formToRemove.questionId)
     fetch(`/service-edu/edu-question/question/${formToRemove.questionId}`, {
       method: 'DELETE',
@@ -324,8 +417,8 @@ const removeForm = (formId: number) => {
       // Continue to remove the form from the state if API call is successful
       const updatedForms = forms.filter((form) => form.id !== formId);
       setForms(updatedForms);
-      if (formToRemove.mark) {
-        const totalMarks = updatedForms.reduce((total, form) => (form.mark ? total + form.mark : total), 0);
+      if (formToRemove && formToRemove.mark) {
+        const totalMarks = updatedForms.reduce((total, form) => (form && form.mark ? total + form.mark : total), 0);
         setTotalMarks(totalMarks);
       }
       message.success('Delete question successfully!')
@@ -334,13 +427,18 @@ const removeForm = (formId: number) => {
       setShowTotalMark(updatedForms.length > 0);
     })
     .catch(error => {
-      message.error(error.message)
-      console.log('1')
+      console.log("delete question",error)
     })
-  } else {
-    message.error('The question does not exist or questionId is not available')
+  } else{
+    const updatedForms = forms.filter((form) => form.id !== formId);
+    setForms(updatedForms);
+    if (formToRemove && formToRemove.mark) {
+      const totalMarks = updatedForms.reduce((total, form) => (form && form.mark ? total + form.mark : total), 0);
+      setTotalMarks(totalMarks);
+    }
   }
 }
+
 
 const addOption = (formId: any) => {
   const updatedForms = forms.map((form) => {
@@ -411,53 +509,96 @@ const handleButtonClick = () => {
   const optionsData: { value: string; isCorrect: boolean }[] = [];
   const currentForm = forms[forms.length-1]; // 获取最后一个添加的问题
   if (currentForm && currentForm.options) {
-  currentForm.options.forEach((option) => {
-    optionsData.push({
-      value: option.value,
-      isCorrect: option.isCorrect,
-    });
-  });
-  formData.options = optionsData;
-  const dto_question = {
-    cover: cover,
-    content: questionTitle,
-    type: questiontype,
-    mark: mark,
-    a: currentForm.options[0]?.value || '',
-    b: currentForm.options[1]?.value || '',
-    c: currentForm.options[2]?.value || '',
-    d: currentForm.options[3]?.value || '',
-    e: currentForm.options[4]?.value || '',
-    f: currentForm.options[5]?.value || '',
-    shortAnswer: shortAnswer,
-    acorrect: currentForm.options[0]?.isCorrect ? 1 : 0,
-    bcorrect: currentForm.options[1]?.isCorrect ? 1 : 0,
-    ccorrect: currentForm.options[2]?.isCorrect ? 1 : 0,
-    dcorrect: currentForm.options[3]?.isCorrect ? 1 : 0,
-    ecorrect: currentForm.options[4]?.isCorrect ? 1 : 0,
-    fcorrect: currentForm.options[5]?.isCorrect ? 1 : 0,
-  };
-  console.log(dto_question)
-  fetch(`/service-edu/edu-question/question/${courseId}/${quizId}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      "Authorization": `Bearer ${token}`,
-    },
-    body: JSON.stringify(dto_question)
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.code !== 20000) {
-      throw new Error(res.message)
+      currentForm.options.forEach((option) => {
+        optionsData.push({
+          value: option.value,
+          isCorrect: option.isCorrect,
+        });
+      });
+      formData.options = optionsData;
+      const dto_question = {
+        cover: forms[forms.length-1].cover,
+        content: forms[forms.length-1].questionTitle,
+        type: forms[forms.length-1].questiontype,
+        mark: forms[forms.length-1].mark,
+        a: currentForm.options[0]?.value || '',
+        b: currentForm.options[1]?.value || '',
+        c: currentForm.options[2]?.value || '',
+        d: currentForm.options[3]?.value || '',
+        e: currentForm.options[4]?.value || '',
+        f: currentForm.options[5]?.value || '',
+        shortAnswer: forms[forms.length-1].shortAnswer,
+        acorrect: currentForm.options[0]?.isCorrect ? 1 : 0,
+        bcorrect: currentForm.options[1]?.isCorrect ? 1 : 0,
+        ccorrect: currentForm.options[2]?.isCorrect ? 1 : 0,
+        dcorrect: currentForm.options[3]?.isCorrect ? 1 : 0,
+        ecorrect: currentForm.options[4]?.isCorrect ? 1 : 0,
+        fcorrect: currentForm.options[5]?.isCorrect ? 1 : 0,
+      };
+      fetch(`/service-edu/edu-question/question/${courseId}/${quizId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(dto_question)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+        setForms(forms => {
+          const newForms = [...forms];
+          newForms[newForms.length - 1].questionId = res.data.questionId;
+          return newForms;
+        });
+      })
+      .catch(error => {
+        console.log("create last question",error)
+      })
     }
-    message.success('Create question successfully!')
+    for (const form of forms) {
+      const dto_update = {
+        cover: form.cover,
+        content: form.questionTitle,
+        type: form.questiontype,
+        mark: form.mark,
+        a: form.options[0]?.value || '',
+        b: form.options[1]?.value || '',
+        c: form.options[2]?.value || '',
+        d: form.options[3]?.value || '',
+        e: form.options[4]?.value || '',
+        f: form.options[5]?.value || '',
+        shortAnswer: form.shortAnswer,
+        acorrect: form.options[0]?.isCorrect ? 1 : 0,
+        bcorrect: form.options[1]?.isCorrect ? 1 : 0,
+        ccorrect: form.options[2]?.isCorrect ? 1 : 0,
+        dcorrect: form.options[3]?.isCorrect ? 1 : 0,
+        ecorrect: form.options[4]?.isCorrect ? 1 : 0,
+        fcorrect: form.options[5]?.isCorrect ? 1 : 0,
+      };
+      console.log(form.questionId)
+      fetch(`/service-edu/edu-question/question/${form.questionId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(dto_update)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+      })
+      .catch(error => {
+        console.log("update",error)
+      })
+    }
+    message.success('create quiz successfully')
     onSubmit();
-  })
-  .catch(error => {
-    message.error(error.message)
-  })
-  }
   }
   };
   useEffect(() => {
@@ -551,7 +692,7 @@ const handleButtonClick = () => {
               <div style={{ display: 'flex', marginBottom: '15px' }}>
                 <div style={{ flex: 1,marginRight: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
-                    <UploadImageButton onImageUpload={handleImageUpload} url=""/>
+                    <UploadImageButton onImageUpload={(url) => handleImageUpload(url, form.id)} url=""/>
                   </div>
                 </div>
                 <div style={{ flex: 2,marginLeft: '10px' }}>
@@ -563,7 +704,7 @@ const handleButtonClick = () => {
                   <Form.Item>
                     <Input
                       placeholder="Enter your question"
-                      onChange={handlequestionTitleChange}
+                      onChange={(e) => handleQuestionTitleChange(e,form.id)}
                       style={{ fontFamily: 'Comic Sans MS' }}
                     />
                   </Form.Item>
@@ -576,7 +717,7 @@ const handleButtonClick = () => {
                     placeholder="Select Option"
                     style={{ width: '100%', fontFamily: 'Comic Sans MS' }}
                     onChange={(value) => {
-                      handlequestionTypeChange(value);
+                      handleQuestionTypeChange(value,form.id);
                       const updatedForms = forms.map((f) => {
                         if (f.id === form.id) {
                           return { ...f, selectedOption: value };
@@ -593,7 +734,7 @@ const handleButtonClick = () => {
                 </div>
                 <div style={{ flex: 1 }}>
                   <Text style={{ fontFamily: 'Comic Sans MS',marginLeft:'10px' }}>Mark</Text>
-                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => {MarkChange(e);handleMarkChange(form.id, e.target.value)}} />
+                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => {handleMark(e,form.id);handleMarkChange(form.id, e.target.value)}} />
                 </div>
               </div>
               {form.selectedOption === 'sc' && (
@@ -684,7 +825,7 @@ const handleButtonClick = () => {
                   <Input.TextArea
                     placeholder="you can input many words here ..."
                     style={{ fontFamily: 'Comic Sans MS' }}
-                    onChange={handlesetshortAnswerChange}
+                    onChange={(e) => handleShortAnswerChange(e, form.id)}
                   />
                   
                 </div>
