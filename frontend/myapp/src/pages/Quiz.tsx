@@ -148,7 +148,50 @@ const handleOptionMCSelection = (formId: any, optionId: any) => {
   });
   setForms(newForms);
 };
-
+const createNewQuiz = () => {
+  if (!validNotNull(title)) {
+    alert('Please input a valid quiz title')
+    return
+  }
+  if (!validNotNull(limitation)) {
+    alert('Please input a valid quiz li')
+    return
+  }
+  if (!validNotNull(start)) {
+    alert('Please input a valid quiz start')
+    return
+  }
+  if (!validNotNull(end) || (new Date(end)< new Date(start))) {
+    alert('Please input a valid quiz end')
+    return
+  }
+  console.log(token)
+  console.log(courseId)
+  const dto = new QuizDTO(title, start,end,limitation);
+  console.log(dto)
+  fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(dto)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.code !== 20000) {
+      throw new Error(res.message)
+    }
+    setQuizId(res.data.quizId)
+    message.success('Create quiz successfully!')
+    setQuizCreated(true);
+  })
+  .catch(error => {
+    console.log(error)
+    message.error(error.message)
+    setQuizCreated(false);
+  })
+}
 const createQuiz = () => {
   if (!validNotNull(title)) {
     alert('Please input a valid quiz title')
@@ -357,7 +400,65 @@ const handleButtonClick = () => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
+    if (!quizCreated) {
+      // 创建测验并等待quizCreated状态更新为true
+      createNewQuiz();
+      onSubmit();
+    } else {
+    const formData = {
+      options: [] as { value: string; isCorrect: boolean }[],
+  };
+  const optionsData: { value: string; isCorrect: boolean }[] = [];
+  const currentForm = forms[forms.length-1]; // 获取最后一个添加的问题
+  if (currentForm && currentForm.options) {
+  currentForm.options.forEach((option) => {
+    optionsData.push({
+      value: option.value,
+      isCorrect: option.isCorrect,
+    });
+  });
+  formData.options = optionsData;
+  const dto_question = {
+    cover: cover,
+    content: questionTitle,
+    type: questiontype,
+    mark: mark,
+    a: currentForm.options[0]?.value || '',
+    b: currentForm.options[1]?.value || '',
+    c: currentForm.options[2]?.value || '',
+    d: currentForm.options[3]?.value || '',
+    e: currentForm.options[4]?.value || '',
+    f: currentForm.options[5]?.value || '',
+    shortAnswer: shortAnswer,
+    acorrect: currentForm.options[0]?.isCorrect ? 1 : 0,
+    bcorrect: currentForm.options[1]?.isCorrect ? 1 : 0,
+    ccorrect: currentForm.options[2]?.isCorrect ? 1 : 0,
+    dcorrect: currentForm.options[3]?.isCorrect ? 1 : 0,
+    ecorrect: currentForm.options[4]?.isCorrect ? 1 : 0,
+    fcorrect: currentForm.options[5]?.isCorrect ? 1 : 0,
+  };
+  console.log(dto_question)
+  fetch(`/service-edu/edu-question/question/${courseId}/${quizId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(dto_question)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.code !== 20000) {
+      throw new Error(res.message)
+    }
+    message.success('Create question successfully!')
     onSubmit();
+  })
+  .catch(error => {
+    message.error(error.message)
+  })
+  }
+  }
   };
   useEffect(() => {
     if (quizId) {
