@@ -265,7 +265,7 @@ const removeForm = (formId: number) => {
   console.log(formId)
   const formToRemove = forms.find((form) => form.id === formId);
   if (formToRemove && formToRemove.questionId) {
-    console.log(formToRemove)
+    console.log(formToRemove.questionId)
     fetch(`/service-edu/edu-question/question/${formToRemove.questionId}`, {
       method: 'DELETE',
       headers: {
@@ -275,7 +275,7 @@ const removeForm = (formId: number) => {
     })
     .then(res => res.json())
     .then(res => {
-      if (res.code !== 200) {
+      if (res.code !== 20000) {
         throw new Error(res.message)
       }
       // Continue to remove the form from the state if API call is successful
@@ -292,6 +292,7 @@ const removeForm = (formId: number) => {
     })
     .catch(error => {
       message.error(error.message)
+      console.log('1')
     })
   } else {
     message.error('The question does not exist or questionId is not available')
@@ -338,49 +339,6 @@ const handleButtonClick = () => {
   }
 };
 
-  const handleOptionSelection = (formId: any, optionId: any) => {
-    const updatedForms = forms.map((form) => {
-      if (form.id === formId) {
-        if (form.selectedOption === 'mc') {
-          // 多项选择
-          let updatedCorrectOptions = form.correctOptionId ? [...form.correctOptionId] : [];
-  
-          // 判断选项是否已选中
-          const optionIndex = updatedCorrectOptions.indexOf(optionId);
-          if (optionIndex !== -1) {
-            // 已选中，则移除选中状态
-            updatedCorrectOptions.splice(optionIndex, 1);
-          } else {
-            // 未选中，则添加选中状态
-            updatedCorrectOptions.push(optionId);
-          }
-  
-          return { ...form, correctOptionId: updatedCorrectOptions };
-        } 
-        if (form.selectedOption === 'sc') {
-          // 单项选择
-          if (form.correctOptionId === optionId.toString()) {
-            // 如果已经选中，那么点击就取消选中
-            return { ...form, correctOptionId: '' };
-          } else {
-            return { ...form, correctOptionId: optionId.toString() };
-          }
-        }
-        
-      }
-      return form;
-    });
-  
-    // 清空文本答案的输入
-    const updatedFormsWithClearedTextAnswer = updatedForms.map((form) => {
-      if (form.id === formId && form.selectedOption === 'st') {
-        return { ...form, correctOptionId: '', textAnswer: '' };
-      }
-      return form;
-    });
-  
-    setForms(updatedFormsWithClearedTextAnswer);
-  };
   const handleMarkChange = (formId:any, value:any) => {
     let markValue = parseInt(value);
     const updatedForms = forms.map((form) => {
