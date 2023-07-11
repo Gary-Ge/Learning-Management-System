@@ -22,7 +22,7 @@ const { Title, Text } = Typography;
 const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const [totalMarks, setTotalMarks] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
-  const [forms, setForms] = useState<{ id: number; options: {id: number, value: string, isCorrect: boolean}[]; selectedOption: string; correctOptionId: string; mark?: number | undefined; }[]>([]);
+  const [forms, setForms] = useState<{ id: number; options: {id: number, value: string, isCorrect: boolean}[]; selectedOption: string; correctOptionId: string; mark?: number | undefined;questionId:string }[]>([]);
   const [showTotalMark, setShowTotalMark] = useState(true);
   const [title, setTitle] = useState("");
   const [start, setStart] = useState("");
@@ -148,9 +148,7 @@ const handleOptionMCSelection = (formId: any, optionId: any) => {
   });
   setForms(newForms);
 };
-const handleCreateQuizSuccess = () => {
-  addForm();
-};
+
 const createQuiz = () => {
   if (!validNotNull(title)) {
     alert('Please input a valid quiz title')
@@ -188,7 +186,10 @@ const createQuiz = () => {
     setQuizId(res.data.quizId)
     message.success('Create quiz successfully!')
     setQuizCreated(true);
-    handleCreateQuizSuccess();
+    const newFormId = Date.now(); // Generate a unique ID for the new form
+    const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
+    const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
+    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0,questionId: '' }]);
   })
   .catch(error => {
     console.log(error)
@@ -244,32 +245,59 @@ const createQuiz = () => {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      setQuestionId(res.data.questionId)
+      setForms(forms => {
+        const newForms = [...forms];
+        newForms[newForms.length - 1].questionId = res.data.questionId;
+        return newForms;
+      });
       message.success('Create question successfully!')
+      const newFormId = Date.now(); // Generate a unique ID for the new form
+    const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
+    const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
+    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0,questionId: '' }]);
     })
     .catch(error => {
       message.error(error.message)
     })
     }
-    const newFormId = Date.now(); // Generate a unique ID for the new form
-    const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
-    const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
-    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0 }]);
 };
 const removeForm = (formId: number) => {
+  console.log(formId)
   const formToRemove = forms.find((form) => form.id === formId);
-  if (formToRemove) {
-    const updatedForms = forms.filter((form) => form.id !== formId);
-    setForms(updatedForms);
-    if (formToRemove.mark) {
-      const totalMarks = updatedForms.reduce((total, form) => (form.mark ? total + form.mark : total), 0);
-      setTotalMarks(totalMarks);
-    }
-  }
+  if (formToRemove && formToRemove.questionId) {
+    console.log(formToRemove)
+    fetch(`/service-edu/edu-question/question/${formToRemove.questionId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 200) {
+        throw new Error(res.message)
+      }
+      // Continue to remove the form from the state if API call is successful
+      const updatedForms = forms.filter((form) => form.id !== formId);
+      setForms(updatedForms);
+      if (formToRemove.mark) {
+        const totalMarks = updatedForms.reduce((total, form) => (form.mark ? total + form.mark : total), 0);
+        setTotalMarks(totalMarks);
+      }
+      message.success('Delete question successfully!')
 
-  // 检查 updatedForms 是否为空，如果为空，则将 showTotalMark 设置为 false
-  setShowTotalMark(forms.length > 0);
-};
+      // Check if updatedForms is empty, if it is, set showTotalMark to false
+      setShowTotalMark(updatedForms.length > 0);
+    })
+    .catch(error => {
+      message.error(error.message)
+    })
+  } else {
+    message.error('The question does not exist or questionId is not available')
+  }
+}
+
 const addOption = (formId: any) => {
   const updatedForms = forms.map((form) => {
     if (form.id === formId) {
