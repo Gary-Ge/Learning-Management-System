@@ -20,4 +20,6 @@ public interface PostService extends IService<Post> {
     List<Map<String, Object>> getPostListByCategoryId(String userId, String courseId, String categoryId);
 
     Map<String, Object> getPostById(String userId, String postId);
+
+    Map<String, Object> searchPosts(String userId, String courseId, String keyword);
 }

@@ -18,17 +18,22 @@ import { useEffect } from 'react';
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
+
 const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const [totalMarks, setTotalMarks] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
-  const [forms, setForms] = useState<{ id: number; options: number[]; selectedOption: string; correctOptionId: string;mark?: number; }[]>([]);
+  const [forms, setForms] = useState<{ id: number; options: {id: number, value: string, isCorrect: boolean}[]; selectedOption: string; correctOptionId: string; mark?: number | undefined; }[]>([]);
   const [showTotalMark, setShowTotalMark] = useState(true);
   const [title, setTitle] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [limitation, setLimitation] = useState("");
   const [quizId, setQuizId] = useState("");
+  const [questionId, setQuestionId] = useState("");
   const token = getToken()
+  const [quizCreated, setQuizCreated] = useState(false);
+  const [optionCounter, setOptionCounter] = useState(0);
+
   const handleQuizTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
@@ -47,11 +52,209 @@ const Quiz: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: str
       setEnd(formattedDate);
     }
   };
+  const [questionTitle, setQuestionTitle] = useState("");
+  const handlequestionTitleChange = (e:any) => {
+    setQuestionTitle(e.target.value);
+  };
+  type QuestionType = "sc" | "mc" | "st";
+
+  const typeMapping: Record<QuestionType, number> = {
+    sc: 0,
+    mc: 1,
+    st: 2,
+  };
+
+  const [questiontype, setType] = useState(0);
+  const handlequestionTypeChange = (value: QuestionType) => {
+    setType(typeMapping[value]);
+  };
+  const [mark, setMark] = useState('');
+    const MarkChange = (e:any) => {
+      setMark(e.target.value);
+    };
+  const [cover, setImageUrl] = useState("");
+  const handleImageUpload = (url: any) => {
+      setImageUrl(url);
+  };
+  const [shortAnswer, setshortAnswer] = useState("");
+  const handlesetshortAnswerChange = (e: any) => {
+    setshortAnswer(e.target.value);
+  };
+  const handleInputChange = (formId:any, optionId:any, event:any) => {
+    const newForms = forms.map(form => {
+        if(form.id === formId) {
+            const newOptions = form.options.map(option => {
+                if(option.id === optionId) {
+                    return {...option, value: event.target.value};
+                } else {
+                    return option;
+                }
+            });
+            return {...form, options: newOptions};
+        } else {
+            return form;
+        }
+    });
+    setForms(newForms);
+}
+const handleOptionSCSelection = (formId:any, optionId:any) => {
+  const newForms = forms.map(form => {
+      if (form.id === formId) {
+          const newOptions = form.options.map(option => {
+              if (option.id === optionId) {
+                  return {...option, isCorrect: true};
+              } else {
+                  return {...option, isCorrect: false};
+              }
+          });
+          return {...form, options: newOptions, correctOptionId: optionId};
+      } else {
+          return form;
+      }
+  });
+  setForms(newForms);
+  const updatedFormsWithCorrectTag = newForms.map(form => {
+      if (form.id === formId) {
+          return {
+              ...form,
+              options: form.options.map(option => {
+                  if (option.id === optionId) {
+                      return {...option, isCorrect: true};
+                  } else {
+                      return {...option, isCorrect: false};
+                  }
+              })
+          };
+      } else {
+          return form;
+      }
+  });
+  setForms(updatedFormsWithCorrectTag);
+}
+const handleOptionMCSelection = (formId: any, optionId: any) => {
+  const newForms = forms.map((form) => {
+    if (form.id === formId) {
+      const newOptions = form.options.map((option) => {
+        if (option.id === optionId) {
+          return { ...option, isCorrect: !option.isCorrect };
+        } else {
+          return option;
+        }
+      });
+      return { ...form, options: newOptions };
+    } else {
+      return form;
+    }
+  });
+  setForms(newForms);
+};
+const handleCreateQuizSuccess = () => {
+  addForm();
+};
+const createQuiz = () => {
+  if (!validNotNull(title)) {
+    alert('Please input a valid quiz title')
+    return
+  }
+  if (!validNotNull(limitation)) {
+    alert('Please input a valid quiz li')
+    return
+  }
+  if (!validNotNull(start)) {
+    alert('Please input a valid quiz start')
+    return
+  }
+  if (!validNotNull(end) || (new Date(end)< new Date(start))) {
+    alert('Please input a valid quiz end')
+    return
+  }
+  console.log(token)
+  console.log(courseId)
+  const dto = new QuizDTO(title, start,end,limitation);
+  console.log(dto)
+  fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(dto)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.code !== 20000) {
+      throw new Error(res.message)
+    }
+    setQuizId(res.data.quizId)
+    message.success('Create quiz successfully!')
+    setQuizCreated(true);
+    handleCreateQuizSuccess();
+  })
+  .catch(error => {
+    console.log(error)
+    message.error(error.message)
+    setQuizCreated(false);
+  })
+}
+  
   const addForm = () => {
+      const formData = {
+        options: [] as { value: string; isCorrect: boolean }[],
+    };
+    const optionsData: { value: string; isCorrect: boolean }[] = [];
+    const currentForm = forms[forms.length-1]; // 获取最后一个添加的问题
+    if (currentForm && currentForm.options) {
+    currentForm.options.forEach((option) => {
+      optionsData.push({
+        value: option.value,
+        isCorrect: option.isCorrect,
+      });
+    });
+    formData.options = optionsData;
+    const dto_question = {
+      cover: cover,
+      content: questionTitle,
+      type: questiontype,
+      mark: mark,
+      a: currentForm.options[0]?.value || '',
+      b: currentForm.options[1]?.value || '',
+      c: currentForm.options[2]?.value || '',
+      d: currentForm.options[3]?.value || '',
+      e: currentForm.options[4]?.value || '',
+      f: currentForm.options[5]?.value || '',
+      shortAnswer: shortAnswer,
+      acorrect: currentForm.options[0]?.isCorrect ? 1 : 0,
+      bcorrect: currentForm.options[1]?.isCorrect ? 1 : 0,
+      ccorrect: currentForm.options[2]?.isCorrect ? 1 : 0,
+      dcorrect: currentForm.options[3]?.isCorrect ? 1 : 0,
+      ecorrect: currentForm.options[4]?.isCorrect ? 1 : 0,
+      fcorrect: currentForm.options[5]?.isCorrect ? 1 : 0,
+    };
+    console.log(dto_question)
+    fetch(`/service-edu/edu-question/question/${courseId}/${quizId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(dto_question)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      setQuestionId(res.data.questionId)
+      message.success('Create question successfully!')
+    })
+    .catch(error => {
+      message.error(error.message)
+    })
+    }
     const newFormId = Date.now(); // Generate a unique ID for the new form
     const newOptionId1 = Date.now(); // Generate a unique ID for the first new option
     const newOptionId2 = newOptionId1 + 1; // Generate a unique ID for the second new option
-    setForms([...forms, { id: newFormId, options: [newOptionId1, newOptionId2], selectedOption: 'sc', correctOptionId: '',mark: 0 }]);
+    setForms([...forms, { id: newFormId, options: [{ id: newOptionId1, value: '', isCorrect: false }, { id: newOptionId2, value: '', isCorrect: false }], selectedOption: 'sc', correctOptionId: '', mark: 0 }]);
 };
 const removeForm = (formId: number) => {
   const formToRemove = forms.find((form) => form.id === formId);
@@ -67,28 +270,45 @@ const removeForm = (formId: number) => {
   // 检查 updatedForms 是否为空，如果为空，则将 showTotalMark 设置为 false
   setShowTotalMark(forms.length > 0);
 };
-  const addOption = (formId: any) => {
-    const updatedForms = forms.map((form) => {
-      if (form.id === formId) {
+const addOption = (formId: any) => {
+  const updatedForms = forms.map((form) => {
+    if (form.id === formId) {
+      if (form.options.length < 6) {
         const newOptionId = Date.now(); // Generate a unique ID for the new option
-        const updatedOptions = [...form.options, newOptionId];
+        const updatedOptions = [
+          ...form.options,
+          { id: newOptionId, value: '', isCorrect: false },
+        ];
         return { ...form, options: updatedOptions };
+      } else {
+        message.error("you can only add no more than 6 options");
       }
-      return form;
-    });
-    setForms(updatedForms);
-  };
+    }
+    return form;
+  });
+  setForms(updatedForms);
+};
 
-  const removeOption = (formId: any, optionId: any) => {
-    const updatedForms = forms.map((form) => {
-      if (form.id === formId) {
-        const updatedOptions = form.options.filter((id:any) => id !== optionId);
-        return { ...form, options: updatedOptions };
-      }
-      return form;
-    });
-    setForms(updatedForms);
-  };
+
+
+const removeOption = (formId: any, optionId: any) => {
+  const updatedForms = forms.map((form) => {
+    if (form.id === formId) {
+      const updatedOptions = form.options.filter((option) => option.id !== optionId);
+      return { ...form, options: updatedOptions };
+    }
+    return form;
+  });
+  setForms(updatedForms);
+};
+
+const handleButtonClick = () => {
+  if (quizCreated) {
+    addForm();
+  } else {
+    createQuiz();
+  }
+};
 
   const handleOptionSelection = (formId: any, optionId: any) => {
     const updatedForms = forms.map((form) => {
@@ -145,57 +365,13 @@ const removeForm = (formId: number) => {
     let total = updatedForms.reduce((acc, form) => acc + (form.mark || 0), 0);
     setTotalMarks(total);
 };
-
+  
 
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
-    if (!validNotNull(title)) {
-      alert('Please input a valid quiz title')
-      return
-    }
-    if (!validNotNull(limitation)) {
-      alert('Please input a valid quiz li')
-      return
-    }
-    if (!validNotNull(start)) {
-      alert('Please input a valid quiz start')
-      return
-    }
-    if (!validNotNull(end) || (new Date(end)< new Date(start))) {
-      alert('Please input a valid quiz end')
-      return
-    }
-    console.log(token)
-    console.log(courseId)
-    const dto = new QuizDTO(title, start,end,limitation);
-    console.log(dto)
-    fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify(dto)
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-      setQuizId(res.data.quizId)
-      message.success('Create quiz successfully!')
-    })
-    .catch(error => {
-      console.log(error)
-      message.error(error.message)
-    })
     onSubmit();
-  };
-  const [cover, setImageUrl] = useState("");
-  const handleImageUpload = (url: any) => {
-    setImageUrl(url);
   };
   useEffect(() => {
     if (quizId) {
@@ -300,6 +476,7 @@ const removeForm = (formId: number) => {
                   <Form.Item>
                     <Input
                       placeholder="Enter your question"
+                      onChange={handlequestionTitleChange}
                       style={{ fontFamily: 'Comic Sans MS' }}
                     />
                   </Form.Item>
@@ -312,6 +489,7 @@ const removeForm = (formId: number) => {
                     placeholder="Select Option"
                     style={{ width: '100%', fontFamily: 'Comic Sans MS' }}
                     onChange={(value) => {
+                      handlequestionTypeChange(value);
                       const updatedForms = forms.map((f) => {
                         if (f.id === form.id) {
                           return { ...f, selectedOption: value };
@@ -321,14 +499,14 @@ const removeForm = (formId: number) => {
                       setForms(updatedForms);
                     }}
                   >
-                    <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="sc">Single Choice</Select.Option>
+                    <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="sc" >Single Choice</Select.Option>
                     <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="mc">Multi Choice</Select.Option>
                     <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="st">Single Text</Select.Option>
                   </Select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <Text style={{ fontFamily: 'Comic Sans MS',marginLeft:'10px' }}>Mark</Text>
-                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => handleMarkChange(form.id, e.target.value)} />
+                  <Input type="number" placeholder="Input Number" style={{ marginLeft: '5px', fontFamily: 'Comic Sans MS',width:'98%' }} onChange={(e) => {MarkChange(e);handleMarkChange(form.id, e.target.value)}} />
                 </div>
               </div>
               {form.selectedOption === 'sc' && (
@@ -336,26 +514,26 @@ const removeForm = (formId: number) => {
                   <div>
                     <Text style={{ fontFamily: 'Comic Sans MS' }}>Answers</Text>
                   </div>
-                  {form.options.map((optionId) => (
-                    <div key={optionId} style={{ display: 'flex', marginBottom: '5px' }}>
+                  {form.options.map((option) => (
+                    <div key={option.id} style={{ display: 'flex', marginBottom: '5px' }}>
                       <div style={{ flex: 1 }}>
-                        <Input placeholder="Option content" style={{ fontFamily: 'Comic Sans MS' }} />
+                        <Input placeholder="Option content" style={{ fontFamily: 'Comic Sans MS' }} value={option.value} onChange={(event) => handleInputChange(form.id, option.id, event)} />
                       </div>
                       <Button
                         type="text"
                         icon={<DeleteOutlined />}
-                        onClick={() => removeOption(form.id, optionId)}
+                        onClick={() => removeOption(form.id, option.id)}
                       />
                       <Radio
                           style = {{marginTop: '5px'}}
-                          checked={form.correctOptionId.toString() === optionId.toString()}
-                          onChange={() => handleOptionSelection(form.id, optionId)}
+                          checked={form.correctOptionId.toString() === option.id.toString()}
+                          onChange={() => handleOptionSCSelection(form.id, option.id)}
                       />
-                      {form.correctOptionId === optionId.toString() && (
-                          <Tag color="green" >Correct</Tag>
+                      {option.isCorrect && (
+                        <Tag color="green">Correct</Tag>
                       )}
-                      {form.correctOptionId !== optionId.toString() && (
-                          <Tag color="red" >Incorrect</Tag>
+                      {!option.isCorrect && (
+                        <Tag color="red">Incorrect</Tag>
                       )}
                     </div>
                     
@@ -375,27 +553,31 @@ const removeForm = (formId: number) => {
                   <div>
                     <Text style={{ fontFamily: 'Comic Sans MS' }}>Answers</Text>
                   </div>
-                  {form.options.map((optionId) => (
-                    <div key={optionId} style={{ display: 'flex', marginBottom: '5px' }}>
+                  {form.options.map((option) => (
+                    <div key={option.id} style={{ display: 'flex', marginBottom: '5px' }}>
                       <div style={{ flex: 1 }}>
-                        <Input placeholder="Option content" style={{ fontFamily: 'Comic Sans MS' }} />
+                        <Input placeholder="Option content" style={{ fontFamily: 'Comic Sans MS' }} value={option.value} onChange={(event) => handleInputChange(form.id, option.id, event)}/>
                       </div>
                       <Button
                         type="text"
                         icon={<DeleteOutlined />}
                         style={{ flexShrink: 0 }}
-                        onClick={() => removeOption(form.id, optionId)}
+                        onClick={() => removeOption(form.id, option.id)}
                       />
                       <Checkbox
                         style = {{marginTop: '5px'}}
-                        checked={form.correctOptionId.toString().includes(optionId.toString())}
-                        onChange={() => handleOptionSelection(form.id, optionId)}
+                        checked={option.isCorrect}
+                        onChange={() => handleOptionMCSelection(form.id, option.id)}
                       />
-                      {(form.correctOptionId && form.correctOptionId.toString().includes(optionId.toString())) ? (
-                      <Tag color="green" style = {{marginLeft: '10px'}}>Correct</Tag>
-                  ) : (
-                      <Tag color="red" style = {{marginLeft: '10px'}}>Incorrect</Tag>
-                  )}
+                      {option.isCorrect ? (
+                        <Tag color="green" style={{ marginLeft: '10px' }}>
+                          Correct
+                        </Tag>
+                      ) : (
+                        <Tag color="red" style={{ marginLeft: '10px' }}>
+                          Incorrect
+                        </Tag>
+                      )}
 
                     </div>
                   ))}
@@ -415,6 +597,7 @@ const removeForm = (formId: number) => {
                   <Input.TextArea
                     placeholder="you can input many words here ..."
                     style={{ fontFamily: 'Comic Sans MS' }}
+                    onChange={handlesetshortAnswerChange}
                   />
                   
                 </div>
@@ -433,7 +616,7 @@ const removeForm = (formId: number) => {
           </div>
         )}
           <Form.Item style={{display: 'flex', justifyContent: 'center',marginTop: '40px'}}>
-            <Button icon={<PlusCircleOutlined />} onClick={addForm} style={{ color: '#0085FC' }}>Questions</Button>
+          <Button onClick={handleButtonClick} icon={<PlusCircleOutlined />} style={{ color: '#0085FC' }}>Questions</Button>
           </Form.Item>
           <Form.Item style={{display: 'flex', justifyContent: 'center', marginTop: '40px'}}>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>

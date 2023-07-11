@@ -7,3 +7,9 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port} #:${random.long(1,100)}
+
+queues:
+  chat: "stream-chat"
+  users: "stream-users"
+  quiz: "stream-quiz"
+  answer: "stream-answer"

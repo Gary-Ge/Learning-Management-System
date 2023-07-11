@@ -22,4 +22,6 @@ public class Category {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
+
+    private String color;
 }

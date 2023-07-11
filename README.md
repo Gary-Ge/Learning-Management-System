@@ -1,5 +1,64 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.7.10
+
+- 添加接口`service-edu/edu-assignment/submit/{submitId}`，用于教师下载学生的提交文件
+
+- 添加接口`service-edu/edu-staff/coursesWithForum`，用于获取所有自己教授的且有论坛的课程
+
+- 添加接口`service-forum/forum-post/posts/{courseId}/search/{keyword}`，用于搜索论坛帖子
+
+  - 响应如下
+
+    ```json
+    {
+      "success": true,
+      "code": 20000,
+      "message": "Search post success",
+      "data": {
+        "posts": {
+          "inContent": [],
+          "inTitle": [
+            {
+              "createdAt": "2023-07-08 20:41:48",
+              "postBy": {
+                "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                "userId": "cd1d8d8914ce34f307449e085428901d",
+                "email": "920060768a@qq.com",
+                "username": "Bohan Zhang"
+              },
+              "postId": "4dfccbc944c64f30822946672fe9326c",
+              "title": "This is the post 2",
+              "category": "Assignment 2",
+              "content": "This is the content of post 2",
+              "updatedAt": "2023-07-08 20:41:48"
+            },
+            {
+              "createdAt": "2023-07-08 20:41:35",
+              "postBy": {
+                "avatar": "https://brainoverflow.oss-ap-southeast-2.aliyuncs.com/avatar/cd1d8d8914ce34f307449e085428901d/b214cd3c-9f36-4063-9841-d727c156ef99.JPG",
+                "userId": "cd1d8d8914ce34f307449e085428901d",
+                "email": "920060768a@qq.com",
+                "username": "Bohan Zhang"
+              },
+              "postId": "64071a53529718d567a5d05659ea4d72",
+              "title": "This is the post 1",
+              "category": "Assignment 1",
+              "content": "This is the content of post 1",
+              "updatedAt": "2023-07-08 20:41:35"
+            }
+          ]
+        }
+      }
+    }
+    ```
+
+  - `inTitle`是所有关键词出现在标题中的帖子
+  - `inContent`是所有关键词出现在内容中的帖子
+  - 在`inTitle`中出现过的帖子不会再次出现在`inContent`中
+
+- **所有获取帖子的接口中的帖子按照创建时间降序排列。获取回复的接口的所有回复按照创建时间升序排列。每一个回复的子回复按照创建时间升序排列**
+
 ## Update 2023.7.9#3
 
 - 新的websocket连接方式

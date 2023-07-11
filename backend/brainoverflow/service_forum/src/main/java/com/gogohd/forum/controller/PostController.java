@@ -70,4 +70,12 @@ public class PostController {
         return R.success().message("Get post information success").data("post",
                 postService.getPostById(userId, postId));
     }
+
+    @GetMapping("posts/{courseId}/search/{keyword}")
+    @Operation(summary = "Search all the posts with keyword in title or content")
+    public R searchPost(HttpServletRequest request, @PathVariable String courseId, @PathVariable String keyword) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Search post success").data("posts",
+                postService.searchPosts(userId, courseId, keyword));
+    }
 }

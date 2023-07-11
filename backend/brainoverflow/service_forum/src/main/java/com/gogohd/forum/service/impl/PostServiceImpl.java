@@ -153,6 +153,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("createdAt", record.get("created_at"));
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -190,6 +191,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("createdAt", record.get("created_at"));
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -213,12 +215,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                 !Objects.equals(post.getPostBy(), userId)) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get this post information");
         }
+        Category category = categoryMapper.selectById(post.getCategoryId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("postId", post.getPostId());
         result.put("title", post.getTitle());
         result.put("content", post.getContent());
-        result.put("category", categoryMapper.selectById(post.getCategoryId()).getName());
+        result.put("category", category.getName());
+        result.put("color", category.getColor());
         result.put("createdAt", post.getCreatedAt());
         result.put("updatedAt", post.getUpdatedAt());
 
@@ -302,5 +306,67 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         result.put("replies", replies);
 
         return result;
+    }
+
+    @Override
+    public Map<String, Object> searchPosts(String userId, String courseId, String keyword) {
+        if (categoryMapper.selectStaffCountById(userId, courseId) == 0 &&
+                categoryMapper.selectStudentCountById(userId, courseId) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY,
+                    "You have no authority to search posts of this course's forum");
+        }
+
+        Set<String> visited = new HashSet<>();
+        Map<String, Object> finalResult = new HashMap<>();
+
+        finalResult.put("inTitle", baseMapper.selectPostsWithKeywordInTitle(courseId, keyword).stream()
+                .map(record -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("postId", record.get("post_id"));
+                    result.put("title", record.get("title"));
+                    result.put("content", record.get("content"));
+                    result.put("createdAt", record.get("created_at"));
+                    result.put("updatedAt", record.get("updated_at"));
+                    result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
+
+                    Map<String, Object> user = new HashMap<>();
+                    user.put("userId", record.get("user_id"));
+                    user.put("username", record.get("username"));
+                    user.put("email", record.get("email"));
+                    user.put("avatar", record.get("avatar"));
+
+                    result.put("postBy", user);
+
+                    visited.add((String) record.get("post_id"));
+                    return result;
+                }).collect(Collectors.toList()));
+
+        finalResult.put("inContent", baseMapper.selectPostsWithKeywordInContent(courseId, keyword).stream()
+                .filter(record -> {
+                    String id = (String) record.get("post_id");
+                    return !visited.contains(id);
+                })
+                .map(record -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("postId", record.get("post_id"));
+                    result.put("title", record.get("title"));
+                    result.put("content", record.get("content"));
+                    result.put("createdAt", record.get("created_at"));
+                    result.put("updatedAt", record.get("updated_at"));
+                    result.put("category", record.get("category"));
+                    result.put("color", record.get("color"));
+
+                    Map<String, Object> user = new HashMap<>();
+                    user.put("userId", record.get("user_id"));
+                    user.put("username", record.get("username"));
+                    user.put("email", record.get("email"));
+                    user.put("avatar", record.get("avatar"));
+
+                    result.put("postBy", user);
+                    return result;
+                }).collect(Collectors.toList()));
+
+        return finalResult;
     }
 }

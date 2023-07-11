@@ -37,9 +37,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "The category name cannot be empty");
         }
 
+        String color = createCategoryVo.getColor();
+        if (ObjectUtils.isEmpty(color)) {
+            throw new BrainException(ResultCode.ILLEGAL_ARGS, "The category color cannot be empty");
+        }
+
         // Create a new category
         Category category = new Category();
         category.setName(name);
+        category.setColor(color);
         category.setCourseId(courseId);
 
         if (baseMapper.insert(category) != 1) {
@@ -110,6 +116,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     result.put("name", category.getName());
                     result.put("createdAt", category.getCreatedAt());
                     result.put("updatedAt", category.getUpdatedAt());
+                    result.put("color", category.getColor());
 
                     return result;
                 }).collect(Collectors.toList());
@@ -132,6 +139,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         result.put("name", category.getName());
         result.put("createdAt", category.getCreatedAt());
         result.put("updatedAt", category.getUpdatedAt());
+        result.put("color", category.getColor());
 
         return result;
     }

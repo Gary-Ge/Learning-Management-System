@@ -113,4 +113,12 @@ public class AssignmentController {
         assignmentService.markAssignmentByStaffId(markerUserId, userId, assignmentId, markAssignmentVo);
         return R.success().message("Assignment marked successfully");
     }
+
+    @Operation(summary = "Staff download a submit of student")
+    @GetMapping("submit/{submitId}")
+    public R downloadSubmit(HttpServletRequest request, @PathVariable String submitId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Download submit success").data("fileUrl",
+                assignmentService.downloadSubmitBySubmitId(userId, submitId));
+    }
 }

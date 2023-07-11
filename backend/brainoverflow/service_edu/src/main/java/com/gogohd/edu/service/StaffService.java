@@ -11,4 +11,6 @@ public interface StaffService extends IService<Staff> {
     Object getStaffedCourseListByUserId(String userId);
 
     Object getStaffedStreamListDateByUserId(String userId);
+
+    Object getStaffedCourseListWithForumByUserId(String userId);
 }
