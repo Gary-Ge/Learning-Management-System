@@ -191,10 +191,11 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
             throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
         }
 
-//        if (streamMapper.selectStudentCountById(userId, stream.getCourseId()) == 0) {
-//            throw new BrainException(ResultCode.NO_AUTHORITY,
-//                    "You have no authority to answer this quick quiz");
-//        }
+        if (streamMapper.selectStudentCountById(userId, stream.getCourseId()) == 0 &&
+                streamMapper.selectStaffCountById(userId, stream.getCourseId()) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY,
+                    "You have no authority to answer this quick quiz");
+        }
 
         // Check if this user is online
         if (!onlineUsers.isOnline(userId, quiz.getStreamId())) {
@@ -267,13 +268,17 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
             throw new BrainException(ResultCode.ERROR, "Answer quiz failed");
         }
 
+        // Send a message to mq, informing that a new answer has been made
         AnswerMessage answerMessage = new AnswerMessage();
         answerMessage.setQuizId(quizId);
         answerMessage.setStreamId(quiz.getStreamId());
         amqpTemplate.convertAndSend(answerQueue, answerMessage);
 
-        // TODO: 统计当前提交比多少在线学生更快
+        // Get the count of answers
+        LambdaQueryWrapper<Answer> answerCountWrapper = new LambdaQueryWrapper<>();
+        answerCountWrapper.eq(Answer::getQuizId, quizId);
+        Long answersMade = answerMapper.selectCount(answerCountWrapper);
 
-        return "offline";
+        return String.valueOf(onlineUsers.fasterThan(answersMade, quiz.getStreamId()));
     }
 }

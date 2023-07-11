@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -72,5 +69,17 @@ public class OnlineUsers {
     public boolean isOnline(String userId, String streamId) {
         // Get all the userIds of this stream
         return new ArrayList<>(onlineUsers.get(streamId).values()).contains(userId);
+    }
+
+    public double fasterThan(Long answerMade, String streamId) {
+        List<String> userIds = new ArrayList<>(onlineUsers.get(streamId).values());
+        Set<String> userIdsNoDuplicate = new HashSet<>(userIds);
+
+        int size = userIdsNoDuplicate.size();
+        if (answerMade >= size) {
+            return 0;
+        } else {
+            return (size - answerMade) / (size * 1.0);
+        }
     }
 }
