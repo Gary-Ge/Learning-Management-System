@@ -13,6 +13,14 @@ export class CourseLayoutDTO {
     this.hasForum = hasForum;
   }
 }
+
+export class ShowMarkDTO {
+  mark: any;
+  
+  constructor(mark: any) {
+    this.mark = mark;
+  }
+}
 export class StreamLessonDTO {
   title: any;
   description: any;

@@ -588,9 +588,11 @@ export default function IndexPage() {
       <div className='stu_title'>
         <div className='stu_title_list'>
           {datalist.map( (course_item:any)  => 
-          <div className='stu_list_header' key={course_item.title}>
-            <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "selected": ""}>{course_item.title}</p>
-            <p className={course_item.key == String(data.length - 1) ? "stu_title_bar": ""}>|</p></div>  )}
+            <div className='stu_list_header' key={course_item.title}>
+              <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "selected": ""}>{course_item.title}</p>
+              <p className={course_item.key == String(data.length - 1) ? "stu_title_bar": ""}>|</p>
+            </div>  
+          )}
         </div>
         {
           funlist.length != 0 ? <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div> : ''
