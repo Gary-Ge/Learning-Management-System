@@ -1,5 +1,120 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.7.11
+
+- 添加接口`/service-stream/stream-quiz/quiz/{streamId}`，用于在直播时快速创建Quiz
+
+  - 该接口遵循“创建即发布”模式，一旦调用该接口成功，创建的Quiz会立即向所有在直播间内的用户发布，Quiz创建后无法修改，无法删除
+
+  - 该接口的请求体如下
+
+    ```json
+    {
+      "limitation": 0, // Quiz限制时间，单位为秒，超时无法提交答案
+      "questions": [ // 问题列表，里面的每一个对象都是一个问题，格式如下
+        {
+          "mark": 0, // 该题目的分数，可以没有
+          "type": 0, // 该题目的类型，0为单选，1为多选，只有这两种
+          "question": "", // 题目内容
+          "optionA": "", // 选项A内容
+          "optionB": "", // 选项B内容
+          "optionC": "", // 选项C内容，可以为空
+          "optionD": "", // 选项D内容，可以为空
+          "answer": "" // 答案，答案的格式见下面的内容
+        }
+      ]
+    }
+    ```
+
+  - 选项的要求：至少存在AB两个选项，至多存在ABCD四个选项，选项需要按顺序创建，即第一个选项必须是A，第二个必须是B，第三个必须是C，第四个必须是D。你不能创建ABD三个选项而将C留空，这样的请求会被拒绝。
+  - 答案的格式：答案是由一个非空字符串表示的，字符串中的每一个字符代表一个正确答案，字符串中字符的顺序和大小写不重要，但是不能出现重复的字符，也不能出现除了ABCD(和他们的小写)之外的其他任何字符（如果C和D选项不存在，那么C和D也不能出现）。不满足要求的答案格式会报bad answer format。一些示例如下
+    - 正确答案为A，则答案字符串可以为a或A
+    - 正确答案为AB，则答案字符串可以为ab，AB或ba，BA，Ba，Ab。但是不可以为AC，因为C选项不存在
+  - 在所有需求整数的地方如果传递了非整数，会带来bad format错误
+  - 问题会按照在questions列表中的顺序存入数据库，在发布时也会保持这个顺序
+  - quizId会被接口返回
+
+- 在创建了quiz之后，quiz会通过websocket长连接被发布，格式如下
+
+  ```json
+  {
+  	"type": 2, // 这里是事件的type，发布Quiz的事件类型为2
+    "streamId": "8a0be1a5317b3b04a96125331f32ddfe",
+    "quizId": "457943eabee18a9146503e9dc5166bf4",
+    "limitation": 1000,
+    "questions": [
+      {
+        "answer": "A",
+        "createdAt": "2023-07-11T18:17:04.074",
+        "optionA": "optionA",
+        "optionB": "optionB",
+        "optionC": "optionC",
+        "optionD": "optionD",
+        "question": "question1",
+        "questionId": "2067143d660c98c227f19859d751bb4f",
+        "quizId": "457943eabee18a9146503e9dc5166bf4",
+        "sort": 0, // 该问题在这个quiz中的排序
+        "type": 0 // 这里是问题的type，不是事件的type
+      }
+    ]
+  }
+  ```
+
+- 添加了接口`/service-stream/stream-quiz/quiz/answer/{quizId}`，用于提交一个快速Quiz的答案
+
+  - 同样，该接口遵循“创建即发布”模式，答案只能成功提交一次，提交后无法修改，无法删除。
+
+  - 该接口的请求体如下：
+
+    ```json
+    {
+      "answers": []
+    }
+    ```
+
+  - 接受一个answers列表，列表中的每一项都是一个答案字符串，答案字符串的格式要求与创建quiz时的答案字符串格式要求相同。
+
+  - 列表中答案字符串的顺序应与quiz中问题的顺序保持一致（可以参考发布Quiz事件中问题的顺序），后端会认为第一个答案对应第一个问题，以此类推。回答部分问题是不允许的，如果答案列表的长度和问题数量不一致，则请求会被拒绝。
+
+  - 该接口的响应如下
+
+    ```json
+    {
+      "success": true,
+      "code": 20000,
+      "message": "Answer quick quiz success",
+      "data": {
+        "fasterThan": "0.5"
+      }
+    }
+    ```
+
+    fasterThan字段返回一个介于0和1之间的值，表示当前用户的提交速度快于多少正在参与直播的用户。例如：0.5意味着当前用户的回答速度快于50%的在线用户
+
+- 在任何一个用户提交了答案之后，一个答案分布统计事件会通过websocket长连接通知所有正在参与直播的用户，事件如下
+
+  ```json
+  {
+  	"type": 3, // 这里是事件的type，答案分布统计的事件类型为3
+    "streamId": "8a0be1a5317b3b04a96125331f32ddfe",
+    "quizId": "457943eabee18a9146503e9dc5166bf4",
+    // TODO: 这里可能还会返回当前已经回答问题的人数，还没实现，不影响使用
+    "questions": [ // 问题列表，顺序与Quiz中问题的顺序相同，列表里的每一个对象都是一个问题的答案分布统计
+      {
+        "countA": 0, // 答案A的计数，下同
+        "countB": 1,
+        "countC": 0,
+        "countD": 0,
+        "distA": 0, // 答案A的占比，是一个介于0和1之间的值，意味着在所有提交的答案中有多少百分比的学生在这一道题中选择了A，下同
+        "distB": 1,
+        "distC": 0,
+        "distD": 0,
+        "questionId": "2067143d660c98c227f19859d751bb4f",
+      }
+    ]
+  }
+  ```
+
 ## Update 2023.7.10
 
 - 添加接口`service-edu/edu-assignment/submit/{submitId}`，用于教师下载学生的提交文件
