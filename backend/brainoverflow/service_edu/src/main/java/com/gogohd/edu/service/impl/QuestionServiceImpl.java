@@ -150,7 +150,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         baseMapper.insert(question);
 
-        return question.getQuizId();
+        return question.getQuestionId();
     }
 
     private void isStaffOrStudent(String userId, String courseId) {
