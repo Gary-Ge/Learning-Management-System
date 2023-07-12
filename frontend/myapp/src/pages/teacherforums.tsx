@@ -798,7 +798,7 @@ export default function teacherforums() {
                     })
                 }
                 <Button type="primary" className='btn_add mrt' onClick={() => {setIsTagModalOpen(true)}} >+</Button>
-                <Button type="primary" className='btn_add' onClick={deletetagmodelopen} >-</Button>
+                <Button type="primary" className={taglist.length == 0 ? 'display_non' : 'btn_add'} onClick={deletetagmodelopen} >-</Button>
             </div>
             <Button type="primary" className='btn_add mlt30 mt' onClick={showcreatethread}>+ New Thread</Button>
             <div className='stu_forum_content_wrap'>
@@ -966,7 +966,7 @@ export default function teacherforums() {
                 </Radio.Group>
             </Modal>
             <Modal className='fm' title="Delete a category" open={DelTagModalOpen} onOk={deltag} onCancel={DelTagModalCancel}>
-                <span className='mrt'>Category Name:</span>
+                <span className='mrt'>Select a Category:</span>
                 <Radio.Group
                     // options={taglist}
                     onChange={del_change_tag}
