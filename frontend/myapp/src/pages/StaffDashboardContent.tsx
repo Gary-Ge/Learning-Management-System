@@ -203,7 +203,7 @@ const StaffDashboardContent: React.FC = () => {
   const [singleQuizSection, setQuizSection] = useState(null);
   const handlesingleQuizSectionChange = (sectionData: any) => {
     // 在这里处理 singleSection 参数
-    // console.log('sectionData', sectionData);
+    //console.log('sectionData', sectionData);
     setQuizSection(sectionData);
     setSelectedOption('editQuizLesson');
     // 执行其他操作
@@ -573,7 +573,7 @@ const StaffDashboardContent: React.FC = () => {
           <VideoLessonEdit video={singleVideoSection} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
         {selectedOption === 'editQuizLesson' && (
-          <QuizEdit quiz={singleQuizSection} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
+          <QuizEdit quiz={singleQuizSection} onCancel={handleCancel} onSubmit={handleSubmitQuiz}/>
         )}
         {selectedOption === 'editStreamLesson' && (
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
