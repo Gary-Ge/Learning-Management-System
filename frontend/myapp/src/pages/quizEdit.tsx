@@ -414,7 +414,7 @@ const removeForm = (formId: number) => {
       }
     })
     .catch(error => {
-      message.error(error.message);
+      console.log(error);
     });
 }, [quiz]);
 
@@ -508,7 +508,7 @@ const removeForm = (formId: number) => {
       }
     })
     .catch(error => {
-      message.error(error.message);
+      console.log(error);
     });
   };
   
