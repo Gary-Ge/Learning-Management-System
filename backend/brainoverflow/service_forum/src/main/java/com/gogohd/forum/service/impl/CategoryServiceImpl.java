@@ -42,6 +42,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "The category color cannot be empty");
         }
 
+        // Check if this category name exists
+        LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Category::getName, name);
+        wrapper.eq(Category::getCourseId, courseId);
+        if (baseMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.ERROR, "This category already exist, please use another category name");
+        }
+
         // Create a new category
         Category category = new Category();
         category.setName(name);
@@ -63,6 +71,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         }
         if (baseMapper.selectStaffCountById(userId, category.getCourseId()) == 0) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to update this category");
+        }
+
+        // If the name is updated, check if this category exists
+        String name = updateCategoryVo.getName();
+        if (!ObjectUtils.isEmpty(name)) {
+            LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Category::getName, name);
+            wrapper.ne(Category::getCategoryId, categoryId);
+            wrapper.eq(Category::getCourseId, category.getCourseId());
+            if (baseMapper.exists(wrapper)) {
+                throw new BrainException(ResultCode.ERROR,
+                        "This category already exist, please use another category name");
+            }
         }
 
         // Update the category
