@@ -242,7 +242,7 @@ const createNewQuiz = () => {
     setQuizCreated(true);
   })
   .catch(error => {
-    console.log("create new quiz",error)
+   message.error(error.message)
     setQuizCreated(false);
   })
 }
@@ -291,7 +291,7 @@ const createQuiz = () => {
     shortAnswer:'' }]);
   })
   .catch(error => {
-    console.log("create quiz",error)
+    message.error(error.message)
     setQuizCreated(false);
   })
 }
