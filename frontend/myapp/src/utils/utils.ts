@@ -45,4 +45,5 @@ export const HOST_SECTION = '/service-edu/edu-section'
 export const HOST_RESOURCE = '/service-edu/edu-resource'
 export const HOST_ASSIGNMENT = '/service-edu/edu-assignment'
 export const HOST_FORUM_CATEGORY = '/service-forum/forum-category'
-
+export const HOST_FORUM_POST = '/service-forum/forum-post'
+export const HOST_FORUM_REPLY = '/service-forum/forum-reply'

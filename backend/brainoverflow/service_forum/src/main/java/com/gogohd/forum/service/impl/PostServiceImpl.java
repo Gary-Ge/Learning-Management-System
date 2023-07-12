@@ -154,6 +154,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
                     result.put("color", record.get("color"));
+                    result.put("categoryId", record.get("category_id"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -192,6 +193,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
                     result.put("color", record.get("color"));
+                    result.put("categoryId", record.get("category_id"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -223,6 +225,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         result.put("content", post.getContent());
         result.put("category", category.getName());
         result.put("color", category.getColor());
+        result.put("categoryId", category.getCategoryId());
         result.put("createdAt", post.getCreatedAt());
         result.put("updatedAt", post.getUpdatedAt());
 
@@ -329,6 +332,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
                     result.put("color", record.get("color"));
+                    result.put("categoryId", record.get("category_id"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));
@@ -356,6 +360,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                     result.put("updatedAt", record.get("updated_at"));
                     result.put("category", record.get("category"));
                     result.put("color", record.get("color"));
+                    result.put("categoryId", record.get("category_id"));
 
                     Map<String, Object> user = new HashMap<>();
                     user.put("userId", record.get("user_id"));

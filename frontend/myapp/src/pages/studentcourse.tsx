@@ -872,6 +872,7 @@ export default function IndexPage() {
                   )
                 }
               </div>
+<<<<<<< HEAD
               <div className={funlist[4].is_selected ? '': 'display_non'}>
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
@@ -885,6 +886,10 @@ export default function IndexPage() {
                     </>
                   )
                 }
+=======
+              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
+                {/* <LinkBoardStu stream={{}}/> */}
+>>>>>>> ca63a997a90b25cf175cb099370a18a1e71bdfef
               </div>
             </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }
