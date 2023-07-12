@@ -129,7 +129,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         }
         LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Category::getCourseId, courseId);
-        wrapper.orderByAsc(Category::getName);
+        wrapper.orderByAsc(Category::getUpdatedAt);
         return baseMapper.selectList(wrapper).stream()
                 .map(category -> {
                     Map<String, Object> result = new HashMap<>();

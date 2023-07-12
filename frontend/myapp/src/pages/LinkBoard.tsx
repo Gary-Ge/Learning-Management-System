@@ -340,7 +340,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   return (
     <>
     <SockJsClient
-      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${userId}`}
+      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
       topics={[`/topic/stream/${stream.streamId}`]}
       onMessage={(msg: any) => {
         console.log(msg); // 处理收到的消息

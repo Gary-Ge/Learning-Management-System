@@ -27,4 +27,11 @@ public interface StudentMapper extends BaseMapper<Student> {
             "INNER JOIN STUDENTS ON STUDENTS.course_id = COURSES.course_id " +
             "WHERE STUDENTS.user_id = #{userId}")
     List<Map<String, Object>> selectStreamDateByStudent(@Param("userId") String userId);
+
+    @Select("select course_id, title, description, cover, has_forum, category_name, user_id, " +
+            "username, email, avatar, COURSES.updated_at, COURSES.created_at from COURSES left join CATEGORIES ON " +
+            "COURSES.category_id=CATEGORIES.category_id " +
+            "left join USERS on COURSES.created_by=USERS.user_id where course_id in " +
+            "(select course_id from STUDENTS where STUDENTS.user_id=#{userId}) and has_forum=1 order by COURSES.created_at")
+    List<Map<String, Object>> selectCoursesWithForumAndCreators(@Param("userId") String userId);
 }
