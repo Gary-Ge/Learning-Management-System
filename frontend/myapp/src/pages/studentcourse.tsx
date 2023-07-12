@@ -93,6 +93,12 @@ let assign_list = [
     submits:[]as Array<List>,
   }
 ];
+let stream_list = [
+  {
+    key: '0', streamId: '', title: '', inProgress: '',
+    is_selected: false,
+  }
+];
 /*quiz part*/
 const questions = [
   {
@@ -128,8 +134,10 @@ export default function IndexPage() {
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
   const [assignlist,setassignmentLists]= useState(assign_list);
+  const [streamlist,setstreamLists]= useState(stream_list);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ass_left_list_show,set_ass_left_list_show]= useState(false);
+  const [stream_left_list_show,set_stream_left_list_show]= useState(false);
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -255,6 +263,7 @@ export default function IndexPage() {
       getcourseinfo(currentcourseid);
       getallsections(currentcourseid); // get all sections
       getallassignments(currentcourseid, '0');// get all assignment
+      getallstreams(currentcourseid, '0');// get all assignment
       fun_list.map(item => {
         item.is_selected = false;
       });
@@ -262,6 +271,7 @@ export default function IndexPage() {
       setfunLists([...fun_list]);
       setdataLists([...data]);
       set_ass_left_list_show(false);
+      set_stream_left_list_show(false);
       // console.log('++data',data);
     })
     .catch(error => {
@@ -415,6 +425,43 @@ export default function IndexPage() {
     }); 
   };
 
+  // get all streams
+  const getallstreams = (courseid:string, original_key: string) => {
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/streams/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('get all streams');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      // if (res.data.assignments.length == 0) {
+      //   setassignmentLists([]);
+      // } else {
+      stream_list = []
+      let res_stream = res.data.streams;
+      res_stream.map((item:any, idx:string)=>{
+        stream_list.push({
+          key: idx,
+          streamId: item.streamId,
+          title: item.title,
+          inProgress: item.inProgress,
+          is_selected: idx == original_key
+        });
+      });
+      setstreamLists([...stream_list]);
+      // console.log('stream_list', stream_list);
+    })
+    .catch(error => {
+      console.log(error.message);
+    }); 
+  };
+
   // get assignment download file
   const getassigndownloadlink = (assFileId:string) => {
     fetch(`${HOST_ASSIGNMENT}/assignment/assFile/${assFileId}`, {
@@ -448,9 +495,11 @@ export default function IndexPage() {
     fun_list[0].is_selected = true;
     setfunLists([...fun_list]);
     set_ass_left_list_show(false);
+    set_stream_left_list_show(false);
     
     getallsections(id); // get materials
     getallassignments(id, '0'); // update assignment
+    getallstreams(id, '0'); // update assignment
     getcourseinfo(id); // update course outline
   };
   const history = useHistory();
@@ -465,6 +514,11 @@ export default function IndexPage() {
       set_ass_left_list_show(!ass_left_list_show);
     } else {
       set_ass_left_list_show(false);
+    }
+    if(e.target.id == '4'){ // assignment show
+      set_stream_left_list_show(!stream_left_list_show);
+    } else {
+      set_stream_left_list_show(false);
     }
     if(e.target.id == '5'){
       history.push(`/studentforums?courseid=`);
@@ -563,6 +617,21 @@ export default function IndexPage() {
     setassignmentLists([...assign_list]);
     window.scrollTo(0, 0);
   }
+  // onclick to show stream content
+  const showstreamcontent = (e:any) => {
+    console.log(e.target.id);
+    console.log();
+    stream_list.map(item => {
+      item.is_selected = false;
+    });
+    stream_list.map(item => {
+      if (item.streamId == e.target.id) {
+        item.is_selected = true
+      }
+    })
+    setstreamLists([...stream_list]);
+    window.scrollTo(0, 0);
+  }
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -609,6 +678,11 @@ export default function IndexPage() {
               <div className={item.key == '3' && item.is_selected && ass_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
               {
                 assignlist.map(_itm => <div key={_itm.title} id={_itm.assid} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showasscontent}>{_itm.title}</div>)
+              }
+              </div>
+              <div className={item.key == '4' && item.is_selected && stream_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
+              {
+                streamlist.map(_itm => <div key={_itm.title} id={_itm.streamId} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showstreamcontent}>{_itm.title}</div>)
               }
               </div>
             </div>
@@ -798,8 +872,19 @@ export default function IndexPage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
-                <LinkBoardStu stream={{}}/>
+              <div className={funlist[4].is_selected ? '': 'display_non'}>
+                {
+                  streamlist.length == 0 ? <div>There is no stream now.</div> : ''
+                }
+                {
+                  streamlist.map(_item =>
+                    <>
+                    <div key={_item.key} id={_item.streamId} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
+                      <LinkBoardStu stream={_item}/>
+                    </div>
+                    </>
+                  )
+                }
               </div>
             </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }

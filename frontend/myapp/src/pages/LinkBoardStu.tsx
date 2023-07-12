@@ -192,23 +192,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
   useEffect(() => {
     const headers = new Headers();
     headers.append('Authorization', `Bearer ${token}`);
-    // start
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(res => res.json())
-    .then(res => {
-      // console.log('res', res);
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-    })
-    .catch(error => {
-      message.error(error.message);
-    });
     const interval = setInterval(() => {
       fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/status`, {
         method: "GET",
@@ -355,23 +338,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
             <UsergroupAddOutlined style={{ marginRight: '3px', fontSize: '20px' }} />
             Online People: 90
           </Text>
-          <Button 
-            onClick={handleStudentsClick} 
-            icon={<PlusCircleOutlined />} 
-            type="primary" 
-            ghost
-            style={{ fontFamily: 'Comic Sans MS', marginLeft: '10px', borderRadius: '5px' }} 
-          >
-            Students
-          </Button>
-          <Modal title="Online Students" open={isModalStuVisible} onCancel={handleModalStuClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
-            <Button key="cancel" onClick={handleModalStuClose}>
-              Cancel
-            </Button>,
-            <Button key="submit" type="primary" onClick={handleStuSubmit}>
-              Save
-            </Button>,
-          ]}></Modal>
           <Button 
             onClick={handleQuestionClick} 
             icon={<PlusCircleOutlined />} 
