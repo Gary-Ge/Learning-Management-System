@@ -31,6 +31,10 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const handleTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
+  const [seconds, setSeconds] = useState(Number);
+  const handleSecondsChange = (e:any) => {
+    setSeconds(e.target.value);
+  };
   const [question, setQuestion] = useState("");
   const handleQuestionChange = (e: any) => {
     setQuestion(e.target.value);
@@ -112,14 +116,16 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
           )}
         </div>
       ))}
-      <Button
-        type="text"
-        icon={<PlusCircleOutlined />}
-        onClick={addSingleOption}
-        style={{ color: '#0085FC' }}
-      >
-        Add Answers
-      </Button>
+      {singleOptions.length < 4 && 
+        <Button
+          type="text"
+          icon={<PlusCircleOutlined />}
+          onClick={addSingleOption}
+          style={{ color: '#0085FC' }}
+        >
+          Add Answers
+        </Button>
+      }
     </div>;
   }
   else if (selectedOption === 'mc') {
@@ -152,24 +158,16 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
 
         </div>
       ))}
-      <Button
-        type="text"
-        icon={<PlusCircleOutlined />}
-        onClick={addMultiOption}
-        style={{ color: '#0085FC' }}
-      >
-        Add Answers
-      </Button>
-    </div>;
-  }
-  else if (selectedOption === 'st') {
-    content = 
-    <div>
-      <Text style={{ fontFamily: 'Comic Sans MS' }}>Answers</Text>
-      <Input.TextArea
-        placeholder="you can input many words here ..."
-        style={{ fontFamily: 'Comic Sans MS' }}
-      />
+      {multiOptions.length < 4 && 
+        <Button
+          type="text"
+          icon={<PlusCircleOutlined />}
+          onClick={addMultiOption}
+          style={{ color: '#0085FC' }}
+        >
+          Add Answers
+        </Button>
+      }      
     </div>;
   }
   else {
@@ -184,6 +182,13 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
     setIsModalStuVisible(false);
   };
   const handleStuSubmit = () => {
+    console.log(title);
+    console.log(seconds);
+    console.log(question);
+    console.log(mark);
+    console.log(singleOptions);
+    console.log(multiOptions);
+    console.log(selectedMultiOption);
 
   };
   // stream
@@ -266,6 +271,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   // chat
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState("");
+  const [users, setUsers] = useState([]);
   const stompClient = useRef(null);
   const handleStompClientRef = (client: any) => {
     stompClient.current = client;
@@ -292,7 +298,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
     };  
     handleConnect(); // 在组件挂载时执行连接和订阅操作  
     // 清理函数不需要依赖数组，因为订阅操作只会在组件挂载和卸载时执行一次
-  }, []);
+  }, [message]);
 
   useEffect(() => {
     fetch(`http://175.45.180.201:10900/service-ucenter/ucenter/user`, {
@@ -340,11 +346,16 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   return (
     <>
     <SockJsClient
-      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${userId}`}
+      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
       topics={[`/topic/stream/${stream.streamId}`]}
       onMessage={(msg: any) => {
-        console.log(msg); // 处理收到的消息
-        setMessages(prevMessages => [...prevMessages, msg]);
+        if (msg.type === 0) {
+          setMessages(prevMessages => [...prevMessages, msg]);
+        }
+        else if (msg.type === 1) {
+          console.log('msg', msg.userList); // 处理收到的消息
+          setUsers(msg.userList);
+        }
       }}
       ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
     />
@@ -353,7 +364,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
         <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px' }}>
           <Text style={{ fontFamily: 'Comic Sans MS', fontWeight: 'bold' }}>
             <UsergroupAddOutlined style={{ marginRight: '3px', fontSize: '20px' }} />
-            Online People: 90
+            Online People: {users.length}
           </Text>
           <Button 
             onClick={handleStudentsClick} 
@@ -391,6 +402,10 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
           ]}>
             <div style={{display: 'flex',justifyContent:"center",alignItems:"center" }}>
               <Input style={{ width: '70%', borderRadius: '5px' }} placeholder="Type Question Title" value={title} onChange={handleTitleChange} />
+            </div>
+            <div style={{display: 'flex',justifyContent:"center",alignItems:"center", marginTop: '10px' }}>
+              <Text style={{ fontFamily: 'Comic Sans MS', marginRight: '5px' }}>Time Limitations</Text>
+              <Input type='number' style={{ width: '50%', borderRadius: '5px' }} placeholder="Type seconds" value={seconds} onChange={handleSecondsChange} />
             </div>
             <Form
               name="basic"
@@ -437,7 +452,6 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
                     >
                       <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="sc">Single Choice</Select.Option>
                       <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="mc">Multi Choice</Select.Option>
-                      <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="st">Single Text</Select.Option>
                     </Select>
                   </div>
                   <div style={{ flex: 1 }}>
@@ -456,18 +470,13 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
             <video ref={videoRef} controls width={"100%"} height={"100%"} style={{ borderRadius: '10px' }} />
           </div>
           <div>
-            <div>
-              {(messages || []).map((message, index) => (
-                <div key={index}>
-                  {index === 1 && message.avatar ? 
-                    <>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <img src={message.avatar} style={{ cursor:'pointer',  width: '80px', height: '80px', borderRadius: '50%' }} />
-                      <Text style={{ fontFamily: 'Comic Sans MS' }}>{message.username}</Text>
-                    </div>
-                    </>
-                  : <></>
-                  }
+            <div style={{ display: 'flex' }}>
+              {(users || []).map((user, index) => (
+                <div key={index} style={{ marginRight: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <img src={user.avatar} style={{ cursor:'pointer', width: '80px', height: '80px', borderRadius: '50%' }} />
+                    <Text style={{ fontFamily: 'Comic Sans MS' }}>{user.username}</Text>
+                  </div>
                 </div>
               ))}
             </div>

@@ -499,7 +499,7 @@ export default function IndexPage() {
     
     getallsections(id); // get materials
     getallassignments(id, '0'); // update assignment
-    getallstreams(id, '0'); // update assignment
+    getallstreams(id, '0'); // update stream
     getcourseinfo(id); // update course outline
   };
   const history = useHistory();
