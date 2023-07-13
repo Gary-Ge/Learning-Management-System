@@ -350,25 +350,12 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       topics={[`/topic/stream/${stream.streamId}`]}
       onMessage={(msg: any) => {
         if (msg.type === 0) {
-<<<<<<< Updated upstream
           setMessages(prevMessages => [...prevMessages, msg]);
         }
         else if (msg.type === 1) {
           console.log('msg', msg.userList); // 处理收到的消息
           setUsers(msg.userList);
         }
-=======
-          // chat
-        } else if (msg.type === 1) {
-          // userlist
-        } else if (msg.type === 2) {
-          // quiz
-        } else if (msg.type === 3) {
-          // answer
-        }
-        console.log(msg); // 处理收到的消息
-        setMessages(prevMessages => [...prevMessages, msg]);
->>>>>>> Stashed changes
       }}
       ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
     />

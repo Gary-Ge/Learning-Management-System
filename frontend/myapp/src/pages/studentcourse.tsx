@@ -71,13 +71,13 @@ const course_outline = [
 }];
 let materials_list = [
   {
-    key: '0', title: '', time: '', content: "",
+    id: '0', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },{
-    key: '1', title: '', time: '', content: "",
+    id: '1', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },{
-    key: '2', title: '', time: '', content: "",
+    id: '2', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },
 ];
@@ -368,7 +368,6 @@ export default function IndexPage() {
               // let url_link = getvideourl(inneritem.resourceId);
               let videolink:any
               getvideourl(inneritem.resourceId, inneritem)
-              
             }
           })
         }
