@@ -679,7 +679,7 @@ export default function IndexPage() {
                 assignlist.map(_itm => <div key={_itm.title} id={_itm.assid} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showasscontent}>{_itm.title}</div>)
               }
               </div>
-              <div className={item.key == '4' && item.is_selected && stream_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
+              <div className={item.key == '4' && item.is_selected && stream_left_list_show ? '' : 'display_non'}>
               {
                 streamlist.map(_itm => <div key={_itm.title} id={_itm.streamId} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showstreamcontent}>{_itm.title}</div>)
               }
