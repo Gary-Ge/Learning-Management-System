@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -41,4 +42,11 @@ public interface CourseMapper extends BaseMapper<Course> {
             "LEFT JOIN RESOURCES RESOURCE ON SECTION.section_id = RESOURCE.section_id " +
             "WHERE COURSE.course_id = #{courseId}")
     List<Map<String, Object>> selectCourseWithMaterials(@Param("courseId") String courseId);
+
+    @Select("SELECT S.stream_id AS stream_id, S.title AS stream_title, S.end AS stream_end, C.course_id AS course_id, C.title AS course_title " +
+            "FROM STREAMS S " +
+            "INNER JOIN COURSES C ON S.course_id = C.course_id " +
+            "WHERE S.course_id = #{courseId} AND S.end > #{currentDate} " +
+            "ORDER BY S.end")
+    List<Map<String, Object>> selectStreamDueByCourseId(@Param("courseId") String courseId, @Param("currentDate") LocalDateTime currentDate);
 }

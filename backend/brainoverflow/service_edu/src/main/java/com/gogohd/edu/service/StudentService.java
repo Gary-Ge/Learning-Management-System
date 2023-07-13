@@ -30,4 +30,6 @@ public interface StudentService extends IService<Student> {
     Object getEnrolledStreamListDateByUserId(String userId);
 
     Object getEnrolledCourseListWithForum(String userId);
+
+    Object getDueDateListByUserId(String userId);
 }

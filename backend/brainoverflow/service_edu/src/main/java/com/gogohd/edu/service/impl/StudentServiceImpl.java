@@ -14,10 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
@@ -466,5 +469,40 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                     map.put("creator", creator);
                     return map;
                 }).collect(Collectors.toList());
+    }
+
+    public Object getDueDateListByUserId(String userId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        List<Map<String, Object>> enrolledCourses = getEnrolledCoursesByUserId(userId);
+
+        Map<String, Object> dueDateList = new HashMap<>();
+        List<Object> assignmentList = new ArrayList<>();
+        List<Object> quizList = new ArrayList<>();
+        List<Object> streamList = new ArrayList<>();
+
+        for (Map<String, Object> enrolledCourse : enrolledCourses) {
+            String courseId = (String) enrolledCourse.get("courseId");
+
+            List<Map<String, Object>> assDueList = assignmentMapper.selectAssignmentDueByCourseId(courseId, currentTime);
+            if (!assDueList.isEmpty()) {
+                assignmentList.add(assDueList);
+            }
+
+            List<Map<String, Object>> quizDueList = quizMapper.selectQuizDueByCourseId(courseId, currentTime);
+            if (!quizDueList.isEmpty()) {
+                quizList.add(quizDueList);
+            }
+
+            List<Map<String, Object>> streamDueList = courseMapper.selectStreamDueByCourseId(courseId, currentTime);
+            if (!streamDueList.isEmpty()) {
+                streamList.add(streamDueList);
+            }
+        }
+
+        dueDateList.put("AssignmentList", assignmentList);
+        dueDateList.put("QuizList", quizList);
+        dueDateList.put("StreamList", streamList);
+
+        return dueDateList;
     }
 }

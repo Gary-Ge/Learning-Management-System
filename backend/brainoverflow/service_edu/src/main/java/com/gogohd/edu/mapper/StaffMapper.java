@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -34,5 +35,19 @@ public interface StaffMapper extends BaseMapper<Staff> {
     List<Map<String, Object>> selectCoursesWithForumAndCreators(@Param("userId") String userId);
 
 
-    List<Map<String, Object>> selectDueDateByStaff(@Param("userId") String userId);
+    @Select("SELECT STREAMS.title AS stream_title, STREAMS.end AS stream_end, " +
+            "ASSIGNMENTS.title AS assignment_title, ASSIGNMENTS.end AS assignment_end, " +
+            "QUIZZES.title AS quiz_title, QUIZZES.end AS quiz_end " +
+            "FROM COURSES " +
+            "INNER JOIN STAFFS ON COURSES.course_id = STAFFS.course_id " +
+            "LEFT JOIN STREAMS ON COURSES.course_id = STREAMS.course_id " +
+            "LEFT JOIN ASSIGNMENTS ON COURSES.course_id = ASSIGNMENTS.course_id " +
+            "LEFT JOIN QUIZZES ON COURSES.course_id = QUIZZES.course_id " +
+            "WHERE STAFFS.user_id = #{userId} " +
+            "AND (STREAMS.end IS NULL OR STREAMS.end > #{currentDate}) " +
+            "AND (ASSIGNMENTS.end IS NULL OR ASSIGNMENTS.end > #{currentDate}) " +
+            "AND (QUIZZES.end IS NULL OR QUIZZES.end > #{currentDate}) " +
+            "ORDER BY STREAMS.end, ASSIGNMENTS.end, QUIZZES.end")
+    List<Map<String, Object>> selectDueDateWithCreators(@Param("userId") String userId, @Param("currentDate") LocalDateTime currentDate);
+
 }

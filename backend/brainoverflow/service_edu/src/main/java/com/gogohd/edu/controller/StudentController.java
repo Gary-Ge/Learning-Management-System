@@ -105,4 +105,12 @@ public class StudentController {
         return R.success().message("Get enrolled course with forum success").data("courses",
                 studentService.getEnrolledCourseListWithForum(userId));
     }
+
+    @Operation(summary = "Get calendar this user is a student of")
+    @GetMapping("calendar")
+    public R getDueDateListDateByUserId(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get enrolled courses due date success").data("courses",
+                studentService.getDueDateListByUserId(userId));
+    }
 }

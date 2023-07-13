@@ -42,4 +42,12 @@ public class StaffController {
         return R.success().message("Get staffed courses with forum information success").data("courses",
                 staffService.getStaffedCourseListWithForumByUserId(userId));
     }
+
+    @Operation(summary = "Get calendar this user is a staff of")
+    @GetMapping("calendar")
+    public R getDueDateListDateByUserId(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get teach live courses due date success").data("courses",
+                staffService.getStaffedDueListByUserId(userId));
+    }
 }
