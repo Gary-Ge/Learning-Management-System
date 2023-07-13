@@ -85,6 +85,12 @@ interface List {
   assFileId: string,
   title: string
 }
+let quiz_list = [
+  {
+    key: '0',quizid:'',title:'',start: '',end: '',limitation:'',
+    is_selected: false,
+  }
+];
 let assign_list = [
   {
     key: '0', assid: '', title: '', start_time: '', end_time: '',
@@ -134,8 +140,10 @@ export default function IndexPage() {
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
   const [assignlist,setassignmentLists]= useState(assign_list);
+  const [quizlist,setquizLists]= useState(quiz_list);
   const [streamlist,setstreamLists]= useState(stream_list);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quiz_left_list_show,set_quiz_left_list_show]= useState(false);
   const [ass_left_list_show,set_ass_left_list_show]= useState(false);
   const [stream_left_list_show,set_stream_left_list_show]= useState(false);
 
@@ -262,6 +270,7 @@ export default function IndexPage() {
       }
       getcourseinfo(currentcourseid);
       getallsections(currentcourseid); // get all sections
+      getallquizzes(currentcourseid, '0');
       getallassignments(currentcourseid, '0');// get all assignment
       getallstreams(currentcourseid, '0');// get all assignment
       fun_list.map(item => {
@@ -270,6 +279,7 @@ export default function IndexPage() {
       fun_list[0].is_selected = true;
       setfunLists([...fun_list]);
       setdataLists([...data]);
+      set_quiz_left_list_show(false);
       set_ass_left_list_show(false);
       set_stream_left_list_show(false);
       // console.log('++data',data);
@@ -375,6 +385,40 @@ export default function IndexPage() {
       setmaterialLists([...materials_list]);
       console.log("materials_list:",materials_list);
       
+    })
+    .catch(error => {
+      console.log(error.message);
+    }); 
+  };
+  // get all assignments
+  const getallquizzes = (courseid:string, original_key: string) => {
+    fetch(`/service-edu/edu-quiz/quiz/course/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('get all quizzes');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      quiz_list = []
+      let res_quiz = res.data.quizzes;
+      res_quiz.map((item:any, idx:string)=>{
+        quiz_list.push({
+          key: idx,
+          quizid: item.quizId,
+          title: item.title,
+          start: item.start,
+          end: item.end,
+          limitation: item.limitation,
+          is_selected: idx == original_key
+        });
+      });
+      setquizLists([...quiz_list]);
     })
     .catch(error => {
       console.log(error.message);
@@ -493,10 +537,12 @@ export default function IndexPage() {
     });
     fun_list[0].is_selected = true;
     setfunLists([...fun_list]);
+    set_quiz_left_list_show(false);
     set_ass_left_list_show(false);
     set_stream_left_list_show(false);
     
     getallsections(id); // get materials
+    getallquizzes(id, '0');
     getallassignments(id, '0'); // update assignment
     getallstreams(id, '0'); // update stream
     getcourseinfo(id); // update course outline
@@ -509,6 +555,11 @@ export default function IndexPage() {
     });
     funlist[e.target.id].is_selected = true;
     setfunLists([...funlist]);
+    if(e.target.id == '2'){ // assignment show
+      set_quiz_left_list_show(!quiz_left_list_show);
+    } else {
+      set_quiz_left_list_show(false);
+    }
     if(e.target.id == '3'){ // assignment show
       set_ass_left_list_show(!ass_left_list_show);
     } else {
@@ -601,10 +652,22 @@ export default function IndexPage() {
       }
     })
   }
+  const showquizcontent = (e:any) => {
+    console.log('hh',e.target.id);
+    quiz_list.map(item => {
+      item.is_selected = false;
+    });
+    quiz_list.map(item => {
+      if (item.quizid == e.target.id) {
+        item.is_selected = true
+      }
+    })
+    setquizLists([...quiz_list]);
+    window.scrollTo(0, 0);
+  }
   // onclick to show ass content
   const showasscontent = (e:any) => {
     setIsStreamOpen(false);
-    console.log(e.target.id);
     console.log();
     assign_list.map(item => {
       item.is_selected = false;
@@ -676,6 +739,11 @@ export default function IndexPage() {
             <div key={item.key}>
               <div className={item.is_selected ? 'stu_active stu_left_list_title': 'stu_left_list_title'} onClick={onclicklist} id={item.key} key={item.key}>
                 <img src={item.img_link} className="stu_icon"/>{item.title}
+              </div>
+              <div className={item.key == '2' && item.is_selected && quiz_left_list_show ? '' : 'display_non'} >
+              {
+                quizlist.map(_itm => <div key={_itm.title} id={_itm.quizid} className={_itm.is_selected ? 'quiz_list_wrap quiz_left_list_active' : 'quiz_list_wrap'} onClick={showquizcontent}>{_itm.title}</div>)
+              }
               </div>
               <div className={item.key == '3' && item.is_selected && ass_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
               {
