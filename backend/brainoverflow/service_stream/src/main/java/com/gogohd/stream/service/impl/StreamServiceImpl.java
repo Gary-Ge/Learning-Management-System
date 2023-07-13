@@ -205,7 +205,7 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
     }
 
     @Override
-    public String startStream(String userId, String streamId) {
+    public void startStream(String userId, String streamId) {
         Stream stream = baseMapper.selectById(streamId);
         if (stream == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
@@ -214,16 +214,15 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to start this stream lesson");
         }
 
-        String pushUrl = stringRedisTemplate.opsForValue().get("stream://" + streamId);
-        if (pushUrl != null) {
-            return pushUrl;
+        if (!StreamUtils.isPushing(streamId)) {
+            throw new BrainException(ResultCode.ERROR, "The pushing has not started");
+        }
+        if (stringRedisTemplate.opsForValue().get("stream://" + streamId) != null) {
+            throw new BrainException(ResultCode.ERROR, "This stream lesson is already started");
         }
 
-        pushUrl = StreamUtils.generatePushUrl(streamId);
-        stringRedisTemplate.opsForValue().set("stream://" + streamId, pushUrl, 10800L,
+        stringRedisTemplate.opsForValue().set("stream://" + streamId, "inProgress", 10800L,
                 TimeUnit.SECONDS);
-
-        return pushUrl;
     }
 
     @Override
@@ -262,7 +261,15 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
     }
 
     @Override
-    public Boolean isPushing(String streamId) {
-        return StreamUtils.isPushing(streamId);
+    public String getPushUrl(String userId, String streamId) {
+        Stream stream = baseMapper.selectById(streamId);
+        if (stream == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Stream lesson not exist");
+        }
+        if (baseMapper.selectStaffCountById(userId, stream.getCourseId()) == 0) {
+            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to start this stream lesson");
+        }
+
+        return StreamUtils.generatePushUrl(streamId);
     }
 }
