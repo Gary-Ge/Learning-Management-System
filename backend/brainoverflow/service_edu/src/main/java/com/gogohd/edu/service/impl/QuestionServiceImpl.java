@@ -37,6 +37,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Autowired
     private AnswerMapper answerMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     private final String NO_AUTHORITY_GET = "You have no authority to get question information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this question";
     private final String NO_AUTHORITY_UPDATE = "You have no authority to update this question";
@@ -370,7 +373,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String quizId) {
-        if (quizMapper.selectById(quizId) == null) {
+        Quiz quiz = quizMapper.selectById(quizId);
+        if (quiz == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
         }
 
@@ -393,6 +397,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             resultMap.put("question", question);
             resultMap.put("answer", answer);
 
+            if (answer != null) {
+                Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                        .eq(Student::getUserId, answer.getUserId()));
+
+                if (student != null) {
+                    User user = userMapper.selectById(student.getUserId());
+                    resultMap.put("user", user);
+                }
+            }
             resultList.add(resultMap);
         }
 

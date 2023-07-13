@@ -13,7 +13,7 @@ import java.util.Map;
 @Mapper
 public interface AssignmentMapper extends BaseMapper<Assignment> {
 
-    @Select("select submit_id, name, SUBMITS.created_at as created_at, mark, user_id, username, email, avatar " +
+    @Select("select answer_id, name, SUBMITS.created_at as created_at, mark, user_id, username, email, avatar " +
             "from SUBMITS left join USERS on submitted_by=user_id where assignment_id=#{assignmentId} order by user_id;")
     List<Map<String, Object>> selectSubmitsByAssignmentId(@Param("assignmentId") String assignmentId);
 
