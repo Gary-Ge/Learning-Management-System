@@ -21,7 +21,14 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
     setIsModalVisible(false);
   };
   const handleSubmit = () => {
-
+    console.log("!!!!!!!!!!!");
+    console.log('title', title);
+    console.log('seconds', seconds);
+    console.log('question', question);
+    console.log('mark', mark);
+    console.log('singleOptions', singleOptions);
+    console.log('multiOptions', multiOptions);
+    console.log('selectedMultiOption', selectedMultiOption);
   };
   const handleQuestionClick = () => {
     setIsModalVisible(true);
@@ -182,13 +189,6 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
     setIsModalStuVisible(false);
   };
   const handleStuSubmit = () => {
-    console.log(title);
-    console.log(seconds);
-    console.log(question);
-    console.log(mark);
-    console.log(singleOptions);
-    console.log(multiOptions);
-    console.log(selectedMultiOption);
 
   };
   // stream

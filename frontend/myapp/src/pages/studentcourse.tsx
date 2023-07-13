@@ -604,6 +604,7 @@ export default function IndexPage() {
   }
   // onclick to show ass content
   const showasscontent = (e:any) => {
+    setIsStreamOpen(false);
     console.log(e.target.id);
     console.log();
     assign_list.map(item => {
@@ -618,7 +619,9 @@ export default function IndexPage() {
     window.scrollTo(0, 0);
   }
   // onclick to show stream content
+  const [isStreamOpen, setIsStreamOpen] = useState(false);
   const showstreamcontent = (e:any) => {
+    setIsStreamOpen(true);
     console.log(e.target.id);
     console.log();
     stream_list.map(item => {
@@ -876,7 +879,7 @@ export default function IndexPage() {
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
                 }
-                {
+                {isStreamOpen && 
                   streamlist.map(_item =>
                     <>
                     <div key={_item.key} id={_item.streamId} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
