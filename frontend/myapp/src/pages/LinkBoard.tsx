@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Layout, Typography, Button, Form, Input, Avatar, message, Modal, DatePicker, Select, Radio, Tag, Checkbox } from 'antd';
+import { Layout, Typography, Button, Form, Input, Avatar, message, Modal, DatePicker, Select, Radio, Tag, Checkbox, Row, Col, Progress, Space, Statistic } from 'antd';
 import {
   DeleteOutlined,
   UsergroupAddOutlined,
@@ -10,33 +10,184 @@ import {
 import {getToken} from '../utils/utils'
 import FlvJs from 'flv.js';
 import SockJsClient from 'react-stomp';
+import { validNotNull } from '../utils/utilsStaff';
+import fail from '../../../images/fail.png';
+import { PieChart, Pie, BarChart, Bar, Cell, XAxis, CartesianGrid, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Title, Text } = Typography;
 
+const dataDist = [
+  { name: 'A', value: 0 },
+  { name: 'B', value: 0 },
+  { name: 'C', value: 0 },
+  { name: 'D', value: 0 },
+];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const pieChart = (
+  <ResponsiveContainer width="100%" height={300}>
+    <PieChart>
+      <Pie
+        data={dataDist}
+        dataKey="value"
+        nameKey="name"
+        cx="50%"
+        cy="50%"
+        outerRadius={80}
+        fill="#8884d8"
+        label={(entry: any) => `${entry.name} ${(entry.value * 100).toFixed(2)}%`}
+      >
+        {dataDist.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Pie>
+    </PieChart>
+  </ResponsiveContainer>
+);
+
+const dataCount = [
+  { name: 'A', value: 0 },
+  { name: 'B', value: 0 },
+  { name: 'C', value: 0 },
+  { name: 'D', value: 0 },
+];
+const barChart = (
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={dataCount}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="value" fill="#8884d8" />
+    </BarChart>
+  </ResponsiveContainer>
+);
+
+
 const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const token = getToken();
+  // stream
+  const videoRef = useRef(null);
+  const [pushStarted, setPushStarted] = useState(false);
+  const [showPushUrlModal, setShowPushUrlModal] = useState(false);
+  const [pushUrl, setPushUrl] = useState('');
+  useEffect(() => {
+    if (stream.inProgress) {
+      setPushStarted(true);
+    } else {
+      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/pushUrl`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          setPushUrl(res.data.pushUrl);
+          setShowPushUrlModal(true);
+        })
+        .catch(error => {
+          message.error(error.message);
+        });
+    }
+  }, []);
+  const handleStartPush = () => {
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message);
+        }
+        setShowPushUrlModal(false);
+        setPushStarted(true);
+      })
+      .catch(error => {
+        message.error(error.message);
+      });
+  };
+  useEffect(() => {
+    if (pushStarted && FlvJs.isSupported()) {
+      const videoElement = videoRef.current;
+      videoElement.muted = true;
+  
+      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/play`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(res => {
+          if (res.code !== 20000) {
+            throw new Error(res.message);
+          }
+          const flvPlayer = FlvJs.createPlayer({
+            type: 'flv',
+            isLive: true,
+            url: res.data.playUrl,
+          });
+          flvPlayer.attachMediaElement(videoRef.current);
+          flvPlayer.load();
+          flvPlayer.play();
+          flvPlayer.on('error', err => {
+            console.log('FLVJS: ', err);
+          });
+          return () => {
+            flvPlayer.unload();
+            flvPlayer.detachMediaElement();
+            flvPlayer.destroy();
+            videoRef.current.src = '';
+            videoRef.current.removeAttribute('src');
+          };
+        })
+        .catch(error => {
+          message.error(error.message);
+        });
+    }
+  }, [pushStarted]);
+
+  // chat
+  const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token}`);
+  const send = (message: any) => { // 发送信息
+    fetch(`http://175.45.180.201:10900/service-stream/stream-chat/message/${stream.streamId}/${message}`, {
+      method: 'POST',
+      headers: headers
+    })
+    .then(res => res.json())
+    .then(res => console.log(res.data))
+    .catch(error => {
+      message.error(error.message);
+    });
+    setInputValue('');
+  }
+  const [inputValue, setInputValue] = useState('');
+  const handleInputChange = (e: any) => {
+    setInputValue(e.target.value);
+  };
+  const handleEnterPress = (e: any) => {
+    if (e.key === 'Enter') {
+      send(inputValue);
+    }
+  };
+
+  // question
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
-  const handleSubmit = () => {
-    console.log("!!!!!!!!!!!");
-    console.log('title', title);
-    console.log('seconds', seconds);
-    console.log('question', question);
-    console.log('mark', mark);
-    console.log('singleOptions', singleOptions);
-    console.log('multiOptions', multiOptions);
-    console.log('selectedMultiOption', selectedMultiOption);
-  };
   const handleQuestionClick = () => {
     setIsModalVisible(true);
   };
-  
-  const [title, setTitle] = useState("");
-  const handleTitleChange = (e:any) => {
-    setTitle(e.target.value);
+  const handleModalClose = () => {
+    setIsModalVisible(false);
   };
   const [seconds, setSeconds] = useState(Number);
   const handleSecondsChange = (e:any) => {
@@ -50,7 +201,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const handleOnlineQuizMarkChange = (e:any) => {
     setMark(e.target.value);
   };
-
+  // single
   const [singleOptions, setSingleOptions] = useState([]);
   const addSingleOption = () => {
     const newOption = {
@@ -67,7 +218,19 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const handleRadioChange = (optionId: any) => {
     SetSelectedSingleOption(optionId);
   };
-
+  const handleOptionChange = (optionId: any, value: any) => {
+    const updatedOptions = singleOptions.map((singleOption) => {
+      if (singleOption.id === optionId) {
+        return {
+          ...singleOption,
+          value: value,
+        };
+      }
+      return singleOption;
+    });
+    setSingleOptions(updatedOptions);
+  };
+  // multi
   const [multiOptions, setMultiOptions] = useState([]);
   const addMultiOption = () => {
     const newOption = {
@@ -91,7 +254,19 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       setSelectedMultiOption([...selectedMultiOption, optionId]);
     }
   };
-
+  const handleMultiOptionChange = (optionId: any, value: any) => {
+    const updatedOptions = multiOptions.map((multiOption) => {
+      if (multiOption.id === optionId) {
+        return {
+          ...multiOption,
+          value: value,
+        };
+      }
+      return multiOption;
+    });
+    setMultiOptions(updatedOptions);
+  };
+  // select type
   const [selectedOption, setSelectedOption] = useState('');
   let content;
   if (selectedOption === 'sc') {
@@ -103,7 +278,12 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       {singleOptions.map(singleOption => (
         <div key={singleOption.id} style={{ display: 'flex', marginBottom: '5px' }}>
           <div style={{ flex: 1 }}>
-            <Input placeholder="Option content" style={{ fontFamily: 'Comic Sans MS' }} />
+            <Input 
+              placeholder="Option content" 
+              style={{ fontFamily: 'Comic Sans MS' }} 
+              value={singleOption.value} // 将输入框的值与对应的 value 关联起来
+              onChange={(e) => handleOptionChange(singleOption.id, e.target.value)} // 更新对应的 value 值
+            />
           </div>
           <Button
             type="text"
@@ -144,7 +324,12 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
       {multiOptions.map(multiOption => (
         <div key={multiOption.id} style={{ display: 'flex', marginBottom: '5px' }}>
           <div style={{ flex: 1 }}>
-            <Input placeholder="Option content" style={{ fontFamily: 'Comic Sans MS' }} />
+            <Input 
+              placeholder="Option content" 
+              style={{ fontFamily: 'Comic Sans MS' }} 
+              value={multiOption.value} // 将输入框的值与对应的 value 关联起来
+              onChange={(e) => handleMultiOptionChange(multiOption.id, e.target.value)}
+            />
           </div>
           <Button
             type="text"
@@ -180,7 +365,130 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   else {
     content = null;
   }
+  // submit
+  let online_quiz = {
+    limitation: 0,
+    questions: [{
+      mark: 0, type: 0, question: '', 
+      optionA: '', optionB: '', optionC: '', optionD: '',
+      answer: ''
+    }],
+  }
+  const handleSubmit = () => {
+    if (!validNotNull(seconds)) {
+      alert('Please input a valid question seconds')
+      return
+    }
+    if (!validNotNull(question)) {
+      alert('Please input a valid question')
+      return
+    }
+    if (!validNotNull(mark)) {
+      alert('Please input a valid question mark')
+      return
+    }
+    online_quiz.limitation = seconds;
+    online_quiz.questions[0].question = question;
+    online_quiz.questions[0].mark = mark;
+
+    if (selectedOption === 'sc') {
+      online_quiz.questions[0].type = 0;
+      singleOptions.map((item: any, index: number) => {
+        if(item.id == selectedSingleOption) {
+          if (index == 0) {
+            online_quiz.questions[0].answer = 'A' || 'a';
+          }
+          else if (index == 1) {
+            online_quiz.questions[0].answer = 'B' || 'b';
+          }
+          else if (index == 2) {
+            online_quiz.questions[0].answer = 'C' || 'c';
+          }
+          else if (index == 3) {
+            online_quiz.questions[0].answer = 'D' || 'd';
+          }
+        }
+        if (index === 0) {
+          online_quiz.questions[0].optionA = item.value;
+        }
+        else if (index === 1) {
+          online_quiz.questions[0].optionB = item.value;
+        }
+        else if (index === 2) {
+          online_quiz.questions[0].optionC = item.value;
+        }
+        else if (index === 3) {
+          online_quiz.questions[0].optionD = item.value;
+        }
+      })      
+    }
+    else if (selectedOption === 'mc') {
+      online_quiz.questions[0].type = 1
+      let answer = '';;
+      multiOptions.map((item: any, index: number) => {
+        if (index === 0) {
+          online_quiz.questions[0].optionA = item.value;
+        }
+        else if (index === 1) {
+          online_quiz.questions[0].optionB = item.value;
+        }
+        else if (index === 2) {
+          online_quiz.questions[0].optionC = item.value;
+        }
+        else if (index === 3) {
+          online_quiz.questions[0].optionD = item.value;
+        }
+        if (selectedMultiOption.includes(item.id)) {
+          answer += String.fromCharCode(65 + index); // 将索引值转换为对应的大写字母
+        }
+      })
+      online_quiz.questions[0].answer = answer;
+    }
+    // console.log('online_quiz', online_quiz);
+    const requestData = JSON.stringify(online_quiz);
+    fetch(`http://175.45.180.201:10900/service-stream/stream-quiz/quiz/${stream.streamId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: requestData
+    })
+    .then(res => res.json())
+    .then(res => {
+      // console.log('ass_res', res);
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      message.success('online quiz create successfully');
+      setSeconds(0);
+      setQuestion('');
+      setMark(0);
+      setSingleOptions([]);
+      SetSelectedSingleOption(null);
+      setMultiOptions([]);
+      setSelectedMultiOption([]);
+      setSelectedOption('');
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
+    setIsModalVisible(false);    
+  }; 
+  const [type, setType] = useState(Number);
+  const [showQuestion, setShowQuestion] = useState({});
+  const [isModalOpenMark, setIsModalOpenMark] = useState(true);
+  const handleModalMarkClose = () => {
+    setIsModalOpenMark(false);
+  };
+  const handleMarkSubmit = () => {
+    setIsModalOpenMark(false);
+  };
+  const handleMarkClick = () => {
+    setIsModalOpenMark(true);
+  };
   
+  // add students
   const [isModalStuVisible, setIsModalStuVisible] = useState(false);
   const handleStudentsClick = () => {
     setIsModalStuVisible(true);
@@ -191,157 +499,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const handleStuSubmit = () => {
 
   };
-  // stream
-  const videoRef = useRef(null);
-  const [pushStarted, setPushStarted] = useState(false);
-  useEffect(() => {
-    const headers = new Headers();
-    headers.append('Authorization', `Bearer ${token}`);
-    // start
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(res => res.json())
-    .then(res => {
-      // console.log('res', res);
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-    })
-    .catch(error => {
-      message.error(error.message);
-    });
-    const interval = setInterval(() => {
-      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/status`, {
-        method: "GET",
-        headers: headers
-      }).then(res => res.json())
-        .then(res => {
-          if (res.data.isPushing) {
-            setPushStarted(true);
-            clearInterval(interval);
-          }
-        })
-    }, 2000); // 使⽤定时器轮询，判断推流是否开始
-  });
-  useEffect(() => {
-    // 如果推流已经开始，创建播放器
-    if (pushStarted && FlvJs.isSupported()) {
-      const videoElement = videoRef.current;
-      videoElement.muted = true; // 必须设置为静⾳播放，否则⾃动播放⽆法开始，⽤户可以⼿动打开声⾳
-      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/play`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => res.json())
-      .then(res => {
-        // console.log('res', res);
-        if (res.code !== 20000) {
-          throw new Error(res.message)
-        }
-        const flvPlayer = FlvJs.createPlayer({
-          type: 'flv',
-          isLive: true,
-          url: res.data.playUrl,
-        });
-        flvPlayer.attachMediaElement(videoRef.current);
-        flvPlayer.load();
-        flvPlayer.play();
-        flvPlayer.on('error', (err) => {
-          console.log('FLVJS: ', err);
-        });
-        return () => {
-          flvPlayer.unload();
-          flvPlayer.detachMediaElement();
-          flvPlayer.destroy();
-          videoRef.current.src = '';
-          videoRef.current.removeAttribute('src');
-        };
-      })
-      .catch(error => {
-        message.error(error.message);
-      });      
-    }
-  }, [pushStarted]);
-  // chat
-  const [messages, setMessages] = useState([]);
-  const [userId, setUserId] = useState("");
-  const [users, setUsers] = useState([]);
-  // const stompClient = useRef(null);
-  // const handleStompClientRef = (client: any) => {
-  //   stompClient.current = client;
-  // };
-  // useEffect(() => {
-  //   const handleConnect = () => {
-  //     if (stompClient.current && stompClient.current.connected) {
-  //       const client = stompClient.current; // 获取底层的 Stomp 客户端实例
   
-  //       // 订阅消息
-  //       const subscription = client.subscribe(`/topic/stream/${stream.streamId}`, (message: any) => {
-  //         // 处理收到的消息
-  //         const data = JSON.parse(message.body);
-  //         const clientName = data.username;
-  //         // 在这里根据客户名字进行相应的操作
-  //         console.log('客户名字:', clientName);
-  //       });
-  
-  //       // 可选：如果需要在组件卸载时取消订阅，可以保存订阅对象并在 useEffect 的 cleanup 函数中取消订阅
-  //       return () => {
-  //         subscription.unsubscribe();
-  //       };
-  //     }
-  //   };  
-  //   handleConnect(); // 在组件挂载时执行连接和订阅操作  
-  //   // 清理函数不需要依赖数组，因为订阅操作只会在组件挂载和卸载时执行一次
-  // }, [message]);
-
-  useEffect(() => {
-    fetch(`http://175.45.180.201:10900/service-ucenter/ucenter/user`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(res => res.json())
-    .then(res => {
-      // console.log('res', res);
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-      setUserId(res.data.user.userId);
-    })
-    .catch(error => {
-      message.error(error.message);
-    });
-  }, [userId])
-  const headers = new Headers();
-  headers.append('Authorization', `Bearer ${token}`);
-  const send = (message: any) => { // 发送信息
-    fetch(`http://175.45.180.201:10900/service-stream/stream-chat/message/${stream.streamId}/${message}`, {
-      method: 'POST',
-      headers: headers
-    })
-    .then(res => res.json())
-    .then(res => console.log(res.data))
-    .catch(error => {
-      message.error(error.message);
-    });
-    setInputValue('');
-  }
-  const [inputValue, setInputValue] = useState('');
-  const handleInputChange = (e: any) => {
-    setInputValue(e.target.value);
-  };
-  const handleEnterPress = (e: any) => {
-    if (e.key === 'Enter') {
-      send(inputValue);
-    }
-  };
 
   return (
     <>
@@ -353,11 +511,49 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
           setMessages(prevMessages => [...prevMessages, msg]);
         }
         else if (msg.type === 1) {
-          console.log('msg', msg.userList); // 处理收到的消息
+          // console.log('msg', msg.userList); // 处理收到的消息
           setUsers(msg.userList);
         }
+        else if (msg.type === 2) {
+          setShowQuestion(msg);
+          setType(msg.type);
+          // console.log('msg2', msg); // 处理收到的消息
+        }
+        else if (msg.type === 3) {
+          setType(msg.type);
+          console.log('msg3', msg); // 处理收到的消息
+          dataDist.map((item:any)=>{
+            // console.log(item)
+            if (item.name === 'A') {
+              item.value = msg.questions[0].distA;
+            }
+            else if (item.name === 'B') {
+              item.value = msg.questions[0].distB;
+            }
+            else if (item.name === 'C') {
+              item.value = msg.questions[0].distC;
+            }
+            else if (item.name === 'D') {
+              item.value = msg.questions[0].distD;
+            }
+          })
+          dataCount.map((item:any)=>{
+            // console.log(item)
+            if (item.name === 'A') {
+              item.value = msg.questions[0].countA;
+            }
+            else if (item.name === 'B') {
+              item.value = msg.questions[0].countB;
+            }
+            else if (item.name === 'C') {
+              item.value = msg.questions[0].countC;
+            }
+            else if (item.name === 'D') {
+              item.value = msg.questions[0].countD;
+            }
+          })
+        }
       }}
-      // ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
     />
     <Layout style={{ minHeight: '100vh' }}>
       <Layout style={{  }}>        
@@ -400,9 +596,6 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
               Save
             </Button>,
           ]}>
-            <div style={{display: 'flex',justifyContent:"center",alignItems:"center" }}>
-              <Input style={{ width: '70%', borderRadius: '5px' }} placeholder="Type Question Title" value={title} onChange={handleTitleChange} />
-            </div>
             <div style={{display: 'flex',justifyContent:"center",alignItems:"center", marginTop: '10px' }}>
               <Text style={{ fontFamily: 'Comic Sans MS', marginRight: '5px' }}>Time Limitations</Text>
               <Input type='number' style={{ width: '50%', borderRadius: '5px' }} placeholder="Type seconds" value={seconds} onChange={handleSecondsChange} />
@@ -463,10 +656,68 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
               </div>
             </Form>
           </Modal>
+          {type === 3 && 
+            <>
+            <Button 
+              onClick={handleMarkClick} 
+              type="primary" 
+              ghost
+              style={{ fontFamily: 'Comic Sans MS', marginLeft: '10px', borderRadius: '5px' }} 
+            >
+              Results
+            </Button>
+            <Modal title="Online Quiz" open={isModalOpenMark} onCancel={handleModalMarkClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
+              <Button key="cancel" onClick={handleModalMarkClose}>
+                Cancel
+              </Button>,
+              <Button key="submit" type="primary" onClick={handleMarkSubmit}>
+                Save
+              </Button>,
+            ]}>
+              <Layout style={{ background: '#FFFFFF' }}>
+                <Content
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '30px',
+                    background: '#FFFFFF',
+                    borderRadius: '10px',
+                    maxWidth: '800px',
+                    width: '100%',
+                    margin: '30px auto',
+                    height: 'auto'
+                  }}
+                >
+                  <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold' }}>Qustion: {showQuestion.questions[0].question}</Title>
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'auto', marginBottom: '15px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div>The percentage of students who chose the answer</div>
+                      {pieChart}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div>The number of options the student chooses</div>
+                      {barChart}
+                    </div>
+                  </div>
+                </Content>
+              </Layout>
+            </Modal>
+            </>
+          }
           <Text style={{ fontFamily: 'Comic Sans MS', fontWeight: 'bold', float: 'right' }}>
             Course Name: {stream.title}
           </Text>
           <div style={{ marginTop: '15px', marginBottom: '15px', border: 'none', borderRadius: '10px', minHeight: 400, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <Modal
+              visible={showPushUrlModal}
+              onCancel={() => setShowPushUrlModal(false)}
+              onOk={handleStartPush}
+              okText="Start Push"
+            >
+              <p>Push URL: {pushUrl}</p>
+            </Modal>
             <video ref={videoRef} controls width={"100%"} height={"100%"} style={{ borderRadius: '10px' }} />
           </div>
           <div>

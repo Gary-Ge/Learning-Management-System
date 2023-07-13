@@ -16,7 +16,7 @@ const { Title, Text } = Typography;
 import downloadicon from '../../../images/download.png';
 import { ShowMarkDTO } from '../utils/entities';
 
-const ShowMark: React.FC<{ course: any; assInfor: any; onCancel: () => void; onSubmit: () => void }> = ({ course, assInfor, onCancel, onSubmit }) => {
+const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: () => void; onSubmit: () => void }> = ({ quizes, course, assInfor, onCancel, onSubmit }) => {
   const token = getToken();
 
   const handleCancel = () => {
@@ -32,6 +32,9 @@ const ShowMark: React.FC<{ course: any; assInfor: any; onCancel: () => void; onS
     const selectedAss = assInfor.find((assOption: any) => assOption.assignmentId === value);
     if (selectedAss) {
       setSelectedId(selectedAss.assignmentId);
+    }
+    else {
+      setSelectedId(value)
     }
   };
   const [submitAssignments, setSubmitAssignments] = useState<any[]>([]);
@@ -52,11 +55,41 @@ const ShowMark: React.FC<{ course: any; assInfor: any; onCancel: () => void; onS
       console.log(error.message);
     }
   };
-
   useEffect(() => {
     fetchSubmitAssignments(); // 初始加载章节数据
   }, [selectedId]);
 
+
+  const [selectedQuizId, setSelectedQuizId] = useState<string>("");
+  const handleQuizChange = (value: string) => {
+    const selectedQuiz = quizes.find((quiz: any) => quiz.quizId === value);
+    if (selectedQuiz) {
+      setSelectedQuizId(selectedQuiz.quizId);
+    }
+  };
+  const [submitQuizes, setSubmitQuizes] = useState<any[]>([]);
+  const fetchSubmitQuizes = async () => {
+    try {
+      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-question/quiz/${selectedQuizId}/answers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      const fetchedQuizes = data.data.answers;
+      setSubmitQuizes(fetchedQuizes);
+    } catch (error:any) {
+      console.log(error.message);
+    }
+  };
+  useEffect(() => {
+    fetchSubmitQuizes(); // 初始加载章节数据
+  }, [selectedQuizId]);
+
+  
   const [dataSource, setDataSource] = useState<any[]>([]);
   useEffect(() => {
     const fetchData = async () => {
@@ -182,6 +215,10 @@ const ShowMark: React.FC<{ course: any; assInfor: any; onCancel: () => void; onS
     },
   ];
 
+  const quizcolumns = [
+    { title: 'Student ID', dataIndex: 'id', key: 'id' },
+    { title: 'Student Name', dataIndex: 'name', key: 'name' },
+  ];
   return (
     <>
       {/* <input defaultValue={token}></input> */}
@@ -221,19 +258,83 @@ const ShowMark: React.FC<{ course: any; assInfor: any; onCancel: () => void; onS
                     {assOption.title}
                   </Select.Option>
                 ))}
+                <Select.Option
+                  key="quizes"
+                  style={{ fontFamily: 'Comic Sans MS', color: 'black' }}
+                  value="Quizes"
+                >
+                  ALL Quizes
+                </Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item style={{  }}>
-              <Text style={{ fontFamily: 'Comic Sans MS', color: 'red' }} >Please press the key "Enter" to update grade</Text>
-              <div style={{ overflowX: 'auto', width: '100%' }}>
-                <Table 
-                  style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
-                  key={selectedId} 
-                  dataSource={dataSource} 
-                  columns={columns} 
-                />
-              </div>
-            </Form.Item>
+            {selectedId === 'Quizes' ? (
+              <>
+              <Form.Item>
+                <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Choose Quiz:</Text>
+                <Select
+                  placeholder="Select Option"
+                  style={{ width: '100%', fontFamily: 'Comic Sans MS' }}
+                  onChange={handleQuizChange}
+                  value={selectedQuizId}
+                >
+                  {(quizes || []).map((quiz: any) => (
+                    <Select.Option
+                      key={quiz.quizId}
+                      style={{ fontFamily: 'Comic Sans MS', color: 'black' }}
+                      value={quiz.quizId}
+                    >
+                      {quiz.title}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item style={{  }}>
+                <Select
+                  key={selectedQuizId}
+                  placeholder="Select Option"
+                  style={{ width: '100%', fontFamily: 'Comic Sans MS' }}
+                  // onChange={handleQuizChange}
+                  // value={selectedQuizId}
+                >
+                  <Select.Option
+                    >
+                      {selectedQuizId}
+                    </Select.Option>
+                  {/* {(quizes || []).map((quiz: any) => (
+                    <Select.Option
+                      key={quiz.quizId}
+                      style={{ fontFamily: 'Comic Sans MS', color: 'black' }}
+                      value={quiz.quizId}
+                    >
+                      {quiz.title}
+                    </Select.Option>
+                  ))} */}
+                </Select>
+                {/* <Text style={{ fontFamily: 'Comic Sans MS', color: 'red' }} >Please press the key "Enter" to update grade</Text> */}
+                <div style={{ overflowX: 'auto', width: '100%' }}>
+                  <Table 
+                    style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
+                    key={selectedQuizId} 
+                    // dataSource={dataSource} 
+                    columns={quizcolumns} 
+                  />
+                </div>
+              </Form.Item>
+              </>
+            ) : (
+              <Form.Item style={{  }}>
+                <Text style={{ fontFamily: 'Comic Sans MS', color: 'red' }} >Please press the key "Enter" to update grade</Text>
+                <div style={{ overflowX: 'auto', width: '100%' }}>
+                  <Table 
+                    style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
+                    key={selectedId} 
+                    dataSource={dataSource} 
+                    columns={columns} 
+                  />
+                </div>
+              </Form.Item>
+            )}
+            
             <Form.Item>
               <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
                 Submit

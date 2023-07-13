@@ -230,6 +230,7 @@ const StaffDashboardContent: React.FC = () => {
   };
 
   const [assOptions, setAssOptions] = useState<any[]>([]);
+  const [quizes, setQuizes] = useState<any[]>([]);
   const fetchOptions = (courseId: string) => {
     fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
       method: 'GET',
@@ -263,6 +264,24 @@ const StaffDashboardContent: React.FC = () => {
       // Assuming the course title is returned in the 'title' field of the response
       const fetchedAssignments = data.data.assignments;
       setAssOptions(fetchedAssignments);
+      // console.log('data', fetchedAssignments);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+    // 发起 fetch 请求获取选项数据
+    fetch(`http://175.45.180.201:10900/service-edu/edu-quiz/quiz/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedQuizes = data.data.quizzes;
+      setQuizes(fetchedQuizes);
       // console.log('data', fetchedAssignments);
     })
     .catch((error) => {
@@ -585,7 +604,7 @@ const StaffDashboardContent: React.FC = () => {
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          <ShowMark assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
+          <ShowMark quizes={quizes} assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />
