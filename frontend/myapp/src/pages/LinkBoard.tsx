@@ -272,33 +272,33 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState("");
   const [users, setUsers] = useState([]);
-  const stompClient = useRef(null);
-  const handleStompClientRef = (client: any) => {
-    stompClient.current = client;
-  };
-  useEffect(() => {
-    const handleConnect = () => {
-      if (stompClient.current && stompClient.current.connected) {
-        const client = stompClient.current; // 获取底层的 Stomp 客户端实例
+  // const stompClient = useRef(null);
+  // const handleStompClientRef = (client: any) => {
+  //   stompClient.current = client;
+  // };
+  // useEffect(() => {
+  //   const handleConnect = () => {
+  //     if (stompClient.current && stompClient.current.connected) {
+  //       const client = stompClient.current; // 获取底层的 Stomp 客户端实例
   
-        // 订阅消息
-        const subscription = client.subscribe(`/topic/stream/${stream.streamId}`, (message: any) => {
-          // 处理收到的消息
-          const data = JSON.parse(message.body);
-          const clientName = data.username;
-          // 在这里根据客户名字进行相应的操作
-          console.log('客户名字:', clientName);
-        });
+  //       // 订阅消息
+  //       const subscription = client.subscribe(`/topic/stream/${stream.streamId}`, (message: any) => {
+  //         // 处理收到的消息
+  //         const data = JSON.parse(message.body);
+  //         const clientName = data.username;
+  //         // 在这里根据客户名字进行相应的操作
+  //         console.log('客户名字:', clientName);
+  //       });
   
-        // 可选：如果需要在组件卸载时取消订阅，可以保存订阅对象并在 useEffect 的 cleanup 函数中取消订阅
-        return () => {
-          subscription.unsubscribe();
-        };
-      }
-    };  
-    handleConnect(); // 在组件挂载时执行连接和订阅操作  
-    // 清理函数不需要依赖数组，因为订阅操作只会在组件挂载和卸载时执行一次
-  }, [message]);
+  //       // 可选：如果需要在组件卸载时取消订阅，可以保存订阅对象并在 useEffect 的 cleanup 函数中取消订阅
+  //       return () => {
+  //         subscription.unsubscribe();
+  //       };
+  //     }
+  //   };  
+  //   handleConnect(); // 在组件挂载时执行连接和订阅操作  
+  //   // 清理函数不需要依赖数组，因为订阅操作只会在组件挂载和卸载时执行一次
+  // }, [message]);
 
   useEffect(() => {
     fetch(`http://175.45.180.201:10900/service-ucenter/ucenter/user`, {
@@ -357,7 +357,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
           setUsers(msg.userList);
         }
       }}
-      ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
+      // ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
     />
     <Layout style={{ minHeight: '100vh' }}>
       <Layout style={{  }}>        
