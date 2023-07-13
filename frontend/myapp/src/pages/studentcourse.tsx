@@ -71,13 +71,13 @@ const course_outline = [
 }];
 let materials_list = [
   {
-    id: '0', title: '', time: '', content: "",
+    key: '0', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },{
-    id: '1', title: '', time: '', content: "",
+    key: '1', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },{
-    id: '2', title: '', time: '', content: "",
+    key: '2', title: '', time: '', content: "",
     file_list: [], cover: '', type:''
   },
 ];
