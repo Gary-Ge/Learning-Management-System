@@ -98,4 +98,11 @@ public class StudentController {
                 studentService.getEnrolledStreamListDateByUserId(userId));
     }
 
+    @Operation(summary = "Get all the course this user enrolled in with forum")
+    @GetMapping("coursesWithForum")
+    public R getEnrolledCourseWithForum(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get enrolled course with forum success").data("courses",
+                studentService.getEnrolledCourseListWithForum(userId));
+    }
 }

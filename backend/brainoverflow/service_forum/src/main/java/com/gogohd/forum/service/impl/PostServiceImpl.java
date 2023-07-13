@@ -214,7 +214,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         }
 
         if (categoryMapper.selectStaffCountById(userId, post.getCourseId()) == 0 &&
-                !Objects.equals(post.getPostBy(), userId)) {
+                categoryMapper.selectStudentCountById(userId, post.getCourseId()) == 0) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get this post information");
         }
         Category category = categoryMapper.selectById(post.getCategoryId());

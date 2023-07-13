@@ -65,7 +65,7 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
     }
 
     public Object getStaffedCourseListWithForumByUserId(String userId) {
-        return baseMapper.selectCoursesWithForumWAndCreators(userId).stream()
+        return baseMapper.selectCoursesWithForumAndCreators(userId).stream()
                 .map(record -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("courseId", record.get("course_id"));
@@ -86,5 +86,9 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                     map.put("creator", creator);
                     return map;
                 }).collect(Collectors.toList());
+    }
+
+    public Object getStaffedDueListByUserId(String userId) {
+        return null;
     }
 }

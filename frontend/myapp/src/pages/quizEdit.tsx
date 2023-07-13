@@ -17,33 +17,6 @@ import UploadImageButton from './UploadImageButton';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
-const quillModules = {
-  toolbar: [
-    [{ 'header': [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'align': [] }],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    [{ 'indent': '-1' }, { 'indent': '+1' }],
-    ['link', 'image', 'video'],
-    [{ 'color': [] }, { 'background': [] }],
-    ['clean'],
-  ],
-};
-const quillFormats = [
-  'header',
-  'bold',
-  'italic',
-  'underline',
-  'strike',
-  'align',
-  'list',
-  'indent',
-  'link',
-  'image',
-  'video',
-  'color',
-  'background',
-];
 
 const QuizEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; quiz: any }> = ({ onCancel, onSubmit, quiz }) => {
   const token = getToken();
