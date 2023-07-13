@@ -87,4 +87,8 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                     return map;
                 }).collect(Collectors.toList());
     }
+
+    public Object getStaffedDueListByUserId(String userId) {
+        return null;
+    }
 }

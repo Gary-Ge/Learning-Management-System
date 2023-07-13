@@ -32,9 +32,13 @@ public interface CourseMapper extends BaseMapper<Course> {
             "SECTION.section_id, SECTION.title AS section_title, SECTION.description AS section_description, " +
             "SECTION.cover AS section_cover, SECTION.type, " +
             "SECTION.created_by AS section_created_by, SECTION.updated_by AS section_updated_by, " +
-            "SECTION.created_at AS section_created_at, SECTION.updated_at AS section_updated_at " +
+            "SECTION.created_at AS section_created_at, SECTION.updated_at AS section_updated_at, " +
+            "RESOURCE.resource_id, RESOURCE.title AS resource_title, RESOURCE.source, RESOURCE.type AS resource_type, " +
+            "RESOURCE.created_by AS resource_created_by, RESOURCE.created_at AS resource_created_at, " +
+            "RESOURCE.section_id " +
             "FROM COURSES COURSE " +
             "LEFT JOIN SECTIONS SECTION ON COURSE.course_id = SECTION.course_id " +
+            "LEFT JOIN RESOURCES RESOURCE ON SECTION.section_id = RESOURCE.section_id " +
             "WHERE COURSE.course_id = #{courseId}")
     List<Map<String, Object>> selectCourseWithMaterials(@Param("courseId") String courseId);
 }

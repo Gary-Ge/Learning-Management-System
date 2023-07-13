@@ -33,4 +33,6 @@ public interface StaffMapper extends BaseMapper<Staff> {
             "(select course_id from STAFFS where STAFFS.user_id=#{userId}) and has_forum=1 order by COURSES.created_at")
     List<Map<String, Object>> selectCoursesWithForumAndCreators(@Param("userId") String userId);
 
+
+    List<Map<String, Object>> selectDueDateByStaff(@Param("userId") String userId);
 }
