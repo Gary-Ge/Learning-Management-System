@@ -389,24 +389,22 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Question question : questionList) {
             LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
-            answerWrapper.eq(Answer::getUserId, userId);
             answerWrapper.eq(Answer::getQuestionId, question.getQuestionId());
-            Answer answer = answerMapper.selectOne(answerWrapper);
+            List<Answer> answerList = answerMapper.selectList(answerWrapper);
 
-            Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put("question", question);
-            resultMap.put("answer", answer);
+            for (Answer answer : answerList) {
+                Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put("question", question);
+                resultMap.put("answer", answer);
 
-            if (answer != null) {
-                Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
-                        .eq(Student::getUserId, answer.getUserId()));
+                User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                        .eq(User::getUserId, answer.getUserId()));
 
-                if (student != null) {
-                    User user = userMapper.selectById(student.getUserId());
+                if (user != null) {
                     resultMap.put("user", user);
                 }
+                resultList.add(resultMap);
             }
-            resultList.add(resultMap);
         }
 
         return resultList;
@@ -440,9 +438,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         Float mark = markQuestionVo.getMark();
         Quiz quiz = quizMapper.selectById(baseMapper.selectById(answers.get(0).getQuestionId()).getQuizId());
-        if (LocalDateTime.now().isBefore(quiz.getEnd())) {
+        if (LocalDateTime.now().isBefore(quiz.getStart())) {
             throw new BrainException(ResultCode.ERROR,
-                    "You cannot mark the question before the due date of the quiz");
+                    "You cannot mark the question before the start date of the quiz");
         }
         if (mark < 0 || mark > question.getMark()) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS,
