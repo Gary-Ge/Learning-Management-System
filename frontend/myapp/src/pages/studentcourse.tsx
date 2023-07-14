@@ -742,7 +742,7 @@ export default function IndexPage() {
               </div>
               <div className={item.key == '2' && item.is_selected && quiz_left_list_show ? '' : 'display_non'} >
               {
-                quizlist.map(_itm => <div key={_itm.title} id={_itm.quizid} className={_itm.is_selected ? 'quiz_list_wrap quiz_left_list_active' : 'quiz_list_wrap'} onClick={showquizcontent}>{_itm.title}</div>)
+                quizlist.map(_itm => <div key={_itm.title} id={_itm.quizid} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showquizcontent}>{_itm.title}</div>)
               }
               </div>
               <div className={item.key == '3' && item.is_selected && ass_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
