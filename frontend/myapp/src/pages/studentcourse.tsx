@@ -24,6 +24,21 @@ import time_icon from '../../../images/timeicon.png';
 import uploadicon from '../../../images/uploadicon.png';
 import gototopicon from '../../../images/gototop.png';
 
+function getCurrentDateTime(): string {
+  const date = new Date();
+
+  const year = date.getFullYear().toString().padStart(4, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+const currentDateTime = getCurrentDateTime();
+
 
 let data:any = [
   // {
@@ -89,8 +104,23 @@ let quiz_list = [
   {
     key: '0',quizid:'',title:'',start: '',end: '',limitation:'',
     is_selected: false,
+	question_list: [
+  {
+    key: '0',questionid:'',title:'',type:0,cover:'',shortanswer:'',mark:'',
+    options: [
+      { id: 0, value: '' },
+      { id: 1, value: ''},
+      { id: 2, value: ''},
+      { id: 3, value: ''},
+      { id: 4, value: ''},
+      { id: 5, value: ''},
+    ],
   }
-];
+]
+  }
+]
+
+
 let assign_list = [
   {
     key: '0', assid: '', title: '', start_time: '', end_time: '',
@@ -390,7 +420,7 @@ export default function IndexPage() {
       console.log(error.message);
     }); 
   };
-  // get all assignments
+  // get all quizzes
   const getallquizzes = (courseid:string, original_key: string) => {
     fetch(`/service-edu/edu-quiz/quiz/course/${courseid}`, {
       method: "GET",
@@ -400,30 +430,74 @@ export default function IndexPage() {
       }
     })
     .then(res => res.json())
-    .then(res => {
+    .then(async res => {
       console.log('get all quizzes');
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      quiz_list = []
+
       let res_quiz = res.data.quizzes;
-      res_quiz.map((item:any, idx:string)=>{
-        quiz_list.push({
+      let quiz_list = await Promise.all(res_quiz.map(async (item:any, idx:string)=>{
+        let is_selected = idx == original_key;
+        
+        // Fetch the questions for this quiz
+        let response = await fetch(`/service-edu/edu-question/questions/${item.quizId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        let question_list = [];
+
+        if(response.ok) {
+          let questionData = await response.json(); 
+
+          question_list = questionData.data.questions.map((question:any,idx:number) => {
+            let options = [
+              { id: 0, value: question.a },
+              { id: 1, value: question.b },
+              { id: 2, value: question.c},
+              { id: 3, value: question.d },
+              { id: 4, value: question.e},
+              { id: 5, value: question.f},
+            ].filter(option => option.value !== '');
+            return {
+              key: idx,
+              questionid: question.questionId,
+              title: question.content, 
+              type: question.type,
+              cover: question.cover,
+              shortanswer: question.shortAnswer,
+              mark: question.mark,
+              options:options,
+            };
+          });
+        } else {
+          console.error(`Error in fetching questions for quizid: ${item.quizId}`);
+        }
+
+        return {
           key: idx,
           quizid: item.quizId,
           title: item.title,
           start: item.start,
           end: item.end,
           limitation: item.limitation,
-          is_selected: idx == original_key
-        });
-      });
-      setquizLists([...quiz_list]);
+          is_selected: is_selected,
+          question_list: question_list  // Add the question_list to the quiz object
+        };
+      }));
+
+      setquizLists(quiz_list);
+      console.log('no',quiz_list)
     })
     .catch(error => {
       console.log(error.message);
     }); 
   };
+
   // get all assignments
   const getallassignments = (courseid:string, original_key: string) => {
     fetch(`${HOST_STUDENT}/assignments/${courseid}`, {
