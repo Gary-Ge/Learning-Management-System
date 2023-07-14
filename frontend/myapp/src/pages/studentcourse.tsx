@@ -142,6 +142,8 @@ export default function IndexPage() {
   const [quiz_left_list_show,set_quiz_left_list_show]= useState(false);
   const [ass_left_list_show,set_ass_left_list_show]= useState(false);
   const [stream_left_list_show,set_stream_left_list_show]= useState(false);
+  const [startedQuiz, setStartedQuiz] = useState<string | null>(null);
+  const [buttonTexts, setButtonTexts] = useState<Record<string, string>>({});
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -755,6 +757,42 @@ export default function IndexPage() {
   const gototop = () => {
     window.scrollTo(0, 0);
   }
+  useEffect(() => {
+    const quizStarted = localStorage.getItem("quizStarted");
+    if (quizStarted) {
+      const newButtonTexts: Record<string, string> = {};
+      quizlist.forEach((quiz) => {
+        newButtonTexts[quiz.quizid] = "Continue";
+      });
+      setButtonTexts(newButtonTexts);
+    }
+    const storedStartedQuiz = localStorage.getItem("startedQuiz");
+    if (storedStartedQuiz) {
+      setStartedQuiz(storedStartedQuiz);
+    }
+  }, []);
+  const handleClick = (_item:any) => {
+    const now = new Date();
+    const start = new Date(_item.start);
+    const end = new Date(_item.end);
+
+    if (now < start) {
+      alert('Quiz is not started yet,please join in after'+  _item.start);
+      return;
+    }
+
+    if (now > end) {
+      alert('Quiz is finished.');
+      return;
+    }
+    localStorage.setItem("quizStarted", "true");
+    localStorage.setItem("startedQuiz", _item.quizid);
+    setStartedQuiz(_item.quizid);
+    setButtonTexts((prevState) => ({
+      ...prevState,
+      [_item.quizid]: "Continue"
+    }));
+  };
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -853,6 +891,8 @@ export default function IndexPage() {
                 {
                   quizlist.map(_item =>
                     <div key={_item.key} id={_item.quizid} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
+                  {startedQuiz === _item.quizid ? (
+                  <>
                   <div style={{display: 'flex', justifyContent: 'center',fontSize: '2em'}}>
                     {_item.title} 
                   </div>
@@ -962,9 +1002,6 @@ export default function IndexPage() {
                       return null;
                     }
                   })}
-                </div>
-                )} 
-
                   <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
                     <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
                       Save
@@ -973,6 +1010,28 @@ export default function IndexPage() {
                       Cancel
                     </Button>
                   </Form.Item>
+                </>
+                ) : (
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    marginTop: '20%'
+                }}>
+                    <div style={{ fontSize: '25px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                        Click below button to start your quiz,you have {_item.limitation} min.
+                    </div>
+                    <Button type="primary" 
+                        key={_item.quizid}
+                        onClick={() => handleClick(_item)}
+                        style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '50px', width: '120px',marginTop:'7%' }}>
+                        {buttonTexts[_item.quizid] || "Begin"}
+                    </Button>
+                </div>
+              )}
+                </div>
+                )} 
                 </div>
               <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
                 {
