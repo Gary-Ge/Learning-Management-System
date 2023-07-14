@@ -24,21 +24,6 @@ import time_icon from '../../../images/timeicon.png';
 import uploadicon from '../../../images/uploadicon.png';
 import gototopicon from '../../../images/gototop.png';
 
-function getCurrentDateTime(): string {
-  const date = new Date();
-
-  const year = date.getFullYear().toString().padStart(4, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
-const currentDateTime = getCurrentDateTime();
-
 
 let data:any = [
   // {
@@ -106,7 +91,7 @@ let quiz_list = [
     is_selected: false,
 	question_list: [
   {
-    key: '0',questionid:'',title:'',type:0,cover:'',shortanswer:'',mark:'',
+    key: '0',questionid:'',title:'',type:0,cover:'',shortanswer:'',mark:0,
     options: [
       { id: 0, value: '' },
       { id: 1, value: ''},
@@ -135,26 +120,7 @@ let stream_list = [
     is_selected: false,
   }
 ];
-/*quiz part*/
-const questions = [
-  {
-    id: 1,
-    type: 'radio',
-    question: 'What is the adk course?',
-    options: ['Comp9900', 'Comp9311', 'Comp9331', 'Comp9024']
-  },
-  {
-    id: 2,
-    type: 'checkbox',
-    question: 'What is the adk course?',
-    options: ['Comp9900', 'Comp9417', 'Comp9517', 'Comp9024']
-  },
-  {
-    id: 3,
-    type: 'text',
-    question: 'Write your favorite course.'
-  },
-];
+
 
 const handleSubmit = () => {
   console.log('success')
@@ -437,8 +403,7 @@ export default function IndexPage() {
       }
 
       let res_quiz = res.data.quizzes;
-      let quiz_list = await Promise.all(res_quiz.map(async (item:any, idx:string)=>{
-        let is_selected = idx == original_key;
+      let fetchedQuizList = await Promise.all(res_quiz.map(async (item:any, idx:string)=>{
         
         // Fetch the questions for this quiz
         let response = await fetch(`/service-edu/edu-question/questions/${item.quizId}`, {
@@ -485,13 +450,13 @@ export default function IndexPage() {
           start: item.start,
           end: item.end,
           limitation: item.limitation,
-          is_selected: is_selected,
+          is_selected: idx == original_key,
           question_list: question_list  // Add the question_list to the quiz object
         };
       }));
 
-      setquizLists(quiz_list);
-      console.log('no',quiz_list)
+      setquizLists(fetchedQuizList);
+      console.log('no',fetchedQuizList)
     })
     .catch(error => {
       console.log(error.message);
@@ -728,15 +693,15 @@ export default function IndexPage() {
   }
   const showquizcontent = (e:any) => {
     console.log('hh',e.target.id);
-    quiz_list.map(item => {
+    quizlist.map(item => {
       item.is_selected = false;
     });
-    quiz_list.map(item => {
+    quizlist.map(item => {
       if (item.quizid == e.target.id) {
         item.is_selected = true
       }
     })
-    setquizLists([...quiz_list]);
+    setquizLists([...quizlist]);
     window.scrollTo(0, 0);
   }
   // onclick to show ass content
@@ -882,8 +847,14 @@ export default function IndexPage() {
                 }
               </div>
               <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
+               {
+                  quizlist.length == 0 ? <div>There is no quiz now.</div> : ''
+                }
+                {
+                  quizlist.map(_item =>
+                    <div key={_item.key} id={_item.quizid} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
                   <div style={{display: 'flex', justifyContent: 'center',fontSize: '2em'}}>
-                    Quiz 1 
+                    {_item.title} 
                   </div>
                   <div style={{display: 'flex', justifyContent: 'flex-end',fontSize: '1em',marginTop: '20px'}}>
                     <div>
@@ -893,63 +864,97 @@ export default function IndexPage() {
                       Left Time 12:56
                     </div>
                   </div>
-                  {questions.map((question) => {
-                    if (question.type === 'radio') {
+                  {_item.question_list.map((question) => {
+                    if (question.type === 0) {
                       return (
-                        <div style={{marginLeft: '10%'}} key={question.id}>
-                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
-                            {question.question}
+                        <div key={question.key}>
+                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '50px' }}>
+                            <div style={{fontSize: '1.75em'}}>
+                              {question.key+1}.{question.title}
+                            </div>
+                              <div style={{ fontSize: '1em',marginTop:'2%' }}>
+                                ({question.mark} {question.mark === 0 || question.mark === 1 ? 'mark' : 'marks'})
+                              </div>
                           </div>
                           <div>
+                          {question.cover && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                              <img src={question.cover} alt="Question Cover" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                            </div>
+                          )}
                             <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '30px'}}>
                               <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Radio.Group name={`radio-${question.id}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                              <Radio.Group name={`radio-${question.questionid}`} style={{marginLeft: '50px',marginTop: '5px'}}>
                                 <Space direction="vertical">
-                                {question.options ? question.options.map((option, index) => (
-                                    <Radio value={index+1} key={index} style={{marginTop: '10px'}}>{option}</Radio>
-                                  )) : null}
+                                {question.options && Object.values(question.options).map((option) => (
+                                  <Radio value={option.id} key={option.id} style={{ marginTop: '10px' }}>
+                                    {option.value}
+                                  </Radio>
+                                ))}
                                 </Space>
                               </Radio.Group>
                             </div>
                           </div>
                         </div>
                       );
-                    } else if (question.type === 'checkbox') {
+                    } else if (question.type === 1) {
                       return (
-                        <div style={{marginLeft: '10%'}} key={question.id}>
-                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
-                            {question.question}
+                        <div key={question.key}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '50px' }}>
+                            <div style={{fontSize: '1.75em'}}>
+                            {question.key+1}.{question.title}
+                            </div>
+                              <div style={{ fontSize: '1em',marginTop:'2%' }}>
+                                ({question.mark} {question.mark === 1||question.mark === 0 ? 'mark' : 'marks'})
+                              </div>
                           </div>
                           <div>
+                          {question.cover && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                              <img src={question.cover} alt="Question Cover" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                            </div>
+                          )}
                             <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '40px'}}>
                             <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Checkbox.Group name={`checkbox-${question.id}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                              <Checkbox.Group name={`checkbox-${question.questionid}`} style={{ marginLeft: '50px', marginTop: '5px' }}>
                                 <Space direction="vertical">
-                                  {question.options ? question.options.map((option, index) => (
-                                    <Checkbox value={index+1} key={index} style={{marginTop: '10px'}}>{option}</Checkbox>
-                                  )) : null}
+                                  {question.options && Object.values(question.options).map((option) => (
+                                    <Checkbox value={option.id} key={option.id} style={{ marginTop: '10px' }}>
+                                      {option.value}
+                                    </Checkbox>
+                                  ))}
                                 </Space>
                               </Checkbox.Group>
                             </div>
                           </div>
                         </div>
                       );
-                    } else if (question.type === 'text') {
+                    } else if (question.type === 2) {
                       return (
-                        <div style={{marginLeft: '10%'}} key={question.id}>
-                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
-                            {question.question}
+                        <div  key={question.key}>
+                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '50px' }}>
+                            <div style={{fontSize: '1.75em'}}>
+                            {question.key+1}.{question.title}
+                            </div>
+                              <div style={{ fontSize: '1em',marginTop:'2%' }}>
+                                ({question.mark} {question.mark === 1||question.mark === 0 ? 'mark' : 'marks'})
+                              </div>
                           </div>
+                          {question.cover && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                              <img src={question.cover} alt="Question Cover" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                            </div>
+                          )}
                           <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '40px'}}>
                             Answer:
                           </div>
                           <Input.TextArea
                               placeholder="you can input many words here ..."
-                              style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '80%' }}
+                              style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '100%' }}
                           />
                         </div>
                       );
@@ -957,8 +962,10 @@ export default function IndexPage() {
                       return null;
                     }
                   })}
+                </div>
+                )} 
 
-                  <Form.Item style={{display: 'flex', justifyContent: 'flex-start', marginTop: '60px',marginLeft: '10%'}}>
+                  <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
                     <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
                       Save
                     </Button>
