@@ -321,8 +321,117 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   // 当selectedType为all时
   // 添加学生和成绩等数据信息
   const [dataSource, setDataSource] = useState<any[]>(dataQuizSource);
+  const fetchGradeData = async () => {
+    const users: any[] = [];
+    const quizAnswerInfor: any[] = [];
+    for (const quiz of quizes || []) {
+      try {
+        const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-question/quiz/${quiz.quizId}/answers`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        const fetchedQuizes = data.data.answers;
+        quizAnswerInfor.push(fetchedQuizes);
+      } catch (error:any) {
+        console.log(error.message);
+      }
+    }
+    for (const quiz of quizAnswerInfor || []) {
+      for (const answer of quiz || []) {
+        const existingUser = users.find((user) => user.userId === answer.user.userId);
+        if (existingUser) {
+          if (answer.answer.mark !== -1) {
+            users.find((user) => user.userId === answer.user.userId).grade += answer.answer.mark
+          }
+        } else {
+          if (answer.answer.mark === -1) {
+            users.push({
+              userId: answer.user.userId,
+              email: answer.user.email,
+              name: answer.user.username,
+              grade: 0,
+              avatar: answer.user.avatar,
+            });
+          } else {
+            users.push({
+              userId: answer.user.userId,
+              email: answer.user.email,
+              name: answer.user.username,
+              grade: answer.answer.mark,
+              avatar: answer.user.avatar,
+            });
+          }
+        }
+      }
+    }
+    const assSubmitsInfor: any[] = [];
+    for (const ass of assInfor || []) {
+      try {
+        const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${ass.assignmentId}/submits`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        const data = await response.json();
+        const fetchedAssignments = data.data.assignment.submits;
+        assSubmitsInfor.push(fetchedAssignments);
+      } catch (error:any) {
+        console.log(error.message);
+      }
+    }
+    for (const assSubmits of assSubmitsInfor || []) {
+      for (const submit of assSubmits || []) {
+        const existingUser = users.find((user) => user.userId === submit.userId);
+        if (existingUser) {
+          if (submit.mark !== -1) {
+            users.find((user) => user.userId === submit.userId).grade += submit.mark
+          }
+        } else {
+          if (submit.mark === -1) {
+            users.push({
+              userId: submit.userId,
+              email: submit.email,
+              name: submit.username,
+              grade: 0,
+              avatar: submit.avatar,
+            });
+          } else {
+            users.push({
+              userId: submit.userId,
+              email: submit.email,
+              name: submit.username,
+              grade: submit.mark,
+              avatar: submit.avatar,
+            });
+          }          
+        }
+      }
+    }
+    const results: any[] = [];
+    for (const user of users || []) {
+      results.push({
+        id: user.email,
+        name: user.name,
+        grade: user.grade,
+      });
+    }
+    return [results, users];
+  };
   useEffect(() => {
-    
+    const fetchData = async () => {
+      if (selectedType === "total") {
+        const results = await fetchGradeData();
+        setDataSource(results[0]);
+      }
+    };
+    fetchData();
   }, [selectedType]);
 
   const handleCancel = () => {
