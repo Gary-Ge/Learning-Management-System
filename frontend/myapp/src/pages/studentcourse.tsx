@@ -142,6 +142,7 @@ export default function IndexPage() {
   const [buttonTexts, setButtonTexts] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<{ [key: string]: any }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<null | number>(null);
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -847,7 +848,26 @@ export default function IndexPage() {
     localStorage.setItem("quizStarted", "true");
     localStorage.setItem("startedQuiz", _item.quizid);
     setStartedQuiz(_item.quizid);
+    setTimeLeft(_item.limitation * 60); 
   };
+  const formatTime = (time:any) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+  useEffect(() => {
+    if (startedQuiz !== null &&  timeLeft !== null&&timeLeft > 0) {
+      const timerId = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+
+      // Cleanup function
+      return () => clearInterval(timerId);
+    }
+    else if (timeLeft === 0) {
+      submitQuizAnswers(startedQuiz);
+    }
+  }, [startedQuiz, timeLeft]);
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -956,7 +976,7 @@ export default function IndexPage() {
                       <ClockCircleOutlined />
                     </div>
                     <div style={{marginLeft: '20px'}}>
-                      Left Time 12:56
+                    Left Time {timeLeft !== null ? formatTime(timeLeft) : 'Not started'}
                     </div>
                   </div>
                   {_item.question_list.map((question) => {
