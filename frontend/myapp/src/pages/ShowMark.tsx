@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, Select, Table, message, InputNumber, Badge } from 'antd';
+import { Layout, theme, Typography, Button, Form, Modal, Select, Table, message, InputNumber, Badge, Checkbox } from 'antd';
 import {
   CheckCircleOutlined,
   HeartFilled
@@ -104,36 +104,64 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       const results: any[] = [];
       for (const student of submitAssignments || []) {
         // console.log('student.files.submitId', student.files[0].submitId)
-        try {
-          const response = await fetch(
-            `http://175.45.180.201:10900/service-edu/edu-assignment/submit/${student.files[0].submitId}`,
-            {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          const data = await response.json();
-          const assignmentSubmitFileUrl = data.data.fileUrl;
-          results.push({
-            id: student.email,
-            name: student.username,
-            grade: [student.mark, student.userId],
-            download: assignmentSubmitFileUrl,
-          });
-        } catch (error: any) {
-          console.log(error.message);
+        const files: any[] = [];
+        for (const file of student.files || []) {
+          try {
+            const response = await fetch(
+              `http://175.45.180.201:10900/service-edu/edu-assignment/submit/${file.submitId}`,
+              {
+                method: 'GET',
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            const data = await response.json();
+            const assignmentSubmitFileUrl = data.data.fileUrl;
+            files.push({
+              submitId: file.submitId,
+              file: assignmentSubmitFileUrl,
+              filename: file.name,
+            });
+          } catch (error: any) {
+            console.log(error.message);
+          }
         }
+        results.push({
+          id: student.email,
+          name: student.username,
+          grade: [student.mark, student.userId],
+          download: files,
+        });
       }
       setDataAssignmentSource(results);
     };
     fetchData();
   }, [submitAssignments]);
   // 点击下载学生上传的assignment
-  const handleDownload = (url: string) => {
-    const w:any = window.open("about:blank");  
-    w.location.href = url;
+  const [isFileVisible, setIsFileVisible] = useState(false);
+  const [files, setFiles] = useState([]);
+  const handleOpenFiles = (files: any) => {
+    setIsFileVisible(true);
+    setFiles(files);
+  };  
+  const handleModalClose = () => {
+    setIsFileVisible(false);
+  }
+  const [selectedMultiOption, setSelectedMultiOption] = useState<any[]>([]);
+  const handleCheckBoxChange = (file: any) => {
+    if (selectedMultiOption.includes(file)) {
+      setSelectedMultiOption(selectedMultiOption.filter(option => option !== file));
+    } else {
+      setSelectedMultiOption([...selectedMultiOption, file]);
+    }
+  };
+  const handleDownload = () => {
+    for (const file of selectedMultiOption || []) {
+      window.open(file, '_blank');
+    }
+    setSelectedMultiOption([]);
+    setIsFileVisible(false);
   };
   // 当前课程所选assignment的纵坐标信息
   const assignmentColumns = [
@@ -143,9 +171,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       title: 'Download | View',
       dataIndex: 'download',
       key: 'download',
-      render: (download: string) => (
+      render: (download: any) => (
+        <>
         <Button
-          onClick={() => handleDownload(download)}
+          onClick={() => handleOpenFiles(download)}
           style={{
             border: 'none',
             display: 'flex',
@@ -157,6 +186,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           <div>|</div>
           <CheckCircleOutlined style={{ color: 'red', marginLeft: '10px', fontSize: '20px' }} />
         </Button>
+        </>
       ),
     },
     {
@@ -479,6 +509,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           // border: '1px solid red'
         }}
       >
+        {/* <Text>{token}</Text> */}
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>{course.title}: Students Grades</Title>
         <Form style={{ margin: '0 auto', maxWidth: '700px', width: '100%' }}>
           <Form.Item>
@@ -527,6 +558,40 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     columns={assignmentColumns} 
                   />
                 </div>
+                {isFileVisible && (
+                  <>
+                  <Modal title="Submitted Files" open={isFileVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
+                    <Button key="cancel" onClick={handleModalClose}>
+                      Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleDownload}>
+                      Save
+                    </Button>,
+                  ]}>
+                    <Form>
+                      <Form.Item>
+                        <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Choose the following assignment submit files:</Text>
+                      </Form.Item>
+                      {(files || []).map((file: any) => (
+                        <>
+                          <div key={file.file} style={{ display: 'flex', marginBottom: '5px' }}>
+                            <div style={{ flex: 1 }}>
+                              <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >
+                                {file.filename}
+                              </Text>
+                            </div>
+                            <Checkbox
+                              style = {{marginTop: '5px'}}
+                              checked={selectedMultiOption.includes(file.file)}
+                              onChange={() => handleCheckBoxChange(file.file)}
+                            />
+                          </div>
+                        </>
+                      ))}
+                    </Form>
+                  </Modal>
+                  </>
+                )}
                 </>
               }
             </Form.Item>
@@ -628,79 +693,85 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
             <Form.Item>
               <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '10px 200px 0 200px', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                  <Badge.Ribbon text="2st" placement="start" color='silver'>
-                    <Content
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                        width: '100%', height: 'auto',
-                        border: '1px solid black'
-                      }}
-                    >
-                      <img src={firstSixData[1].avatar} width={'40%'}/>
-                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                          {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
-                        </span>
-                      </Text>
-                      <div>
+                {firstSixData[1] && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                    <Badge.Ribbon text="2st" placement="start" color='silver'>
+                      <Content
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                          width: '100%', height: 'auto',
+                          border: '1px solid black'
+                        }}
+                      >
+                        <img src={firstSixData[1].avatar} width={'40%'}/>
                         <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                          {firstSixData[1].grade}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                            {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
+                          </span>
                         </Text>
-                      </div>
-                    </Content>
-                  </Badge.Ribbon>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                  <img src={crown} width={'30%'}/>
-                  <Badge.Ribbon text="1st" placement="start" color='red'>
-                    <Content
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '10px', borderRadius: '10px', background: '#FFFFFF',
-                        width: '100%', height: 'auto',
-                        border: '1px solid black'
-                      }}
-                    >
-                      <img src={firstSixData[0].avatar} width={'40%'}/>
-                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                          {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
-                        </span>
-                      </Text>
-                      <div>
+                        <div>
+                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                            {firstSixData[1].grade}
+                          </Text>
+                        </div>
+                      </Content>
+                    </Badge.Ribbon>
+                  </div>
+                )}
+                {firstSixData[0] && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                    <img src={crown} width={'30%'}/>
+                    <Badge.Ribbon text="1st" placement="start" color='red'>
+                      <Content
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          padding: '10px', borderRadius: '10px', background: '#FFFFFF',
+                          width: '100%', height: 'auto',
+                          border: '1px solid black'
+                        }}
+                      >
+                        <img src={firstSixData[0].avatar} width={'40%'}/>
                         <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                          {firstSixData[0].grade}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                            {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
+                          </span>
                         </Text>
-                      </div>
-                    </Content>
-                  </Badge.Ribbon>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                  <Badge.Ribbon text="3st" placement="start" color='orange'>
-                    <Content
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                        width: '100%', height: 'auto',
-                        border: '1px solid black'
-                      }}
-                    >
-                      <img src={firstSixData[2].avatar} width={'40%'}/>
-                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                          {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
-                        </span>
-                      </Text>
-                      <div>
+                        <div>
+                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                            {firstSixData[0].grade}
+                          </Text>
+                        </div>
+                      </Content>
+                    </Badge.Ribbon>
+                  </div>                  
+                )}
+                {firstSixData[2] && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                    <Badge.Ribbon text="3st" placement="start" color='orange'>
+                      <Content
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                          width: '100%', height: 'auto',
+                          border: '1px solid black'
+                        }}
+                      >
+                        <img src={firstSixData[2].avatar} width={'40%'}/>
                         <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                          {firstSixData[2].grade}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                            {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
+                          </span>
                         </Text>
-                      </div>
-                    </Content>
-                  </Badge.Ribbon>
-                </div>
+                        <div>
+                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                            {firstSixData[2].grade}
+                          </Text>
+                        </div>
+                      </Content>
+                    </Badge.Ribbon>
+                  </div>
+                )}
               </div>
               <div style={{ overflowX: 'auto', width: '100%' }}>
                 <Table 

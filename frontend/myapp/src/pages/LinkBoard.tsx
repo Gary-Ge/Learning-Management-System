@@ -508,19 +508,6 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
   const handleMarkClick = () => {
     setIsModalOpenMark(true);
   };
-  
-  // add students
-  const [isModalStuVisible, setIsModalStuVisible] = useState(false);
-  const handleStudentsClick = () => {
-    setIsModalStuVisible(true);
-  };
-  const handleModalStuClose = () => {
-    setIsModalStuVisible(false);
-  };
-  const handleStuSubmit = () => {
-
-  };
-  
 
   return (
     <>
@@ -602,23 +589,6 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
             <UsergroupAddOutlined style={{ marginRight: '3px', fontSize: '20px' }} />
             Online People: {users.length}
           </Text>
-          <Button 
-            onClick={handleStudentsClick} 
-            icon={<PlusCircleOutlined />} 
-            type="primary" 
-            ghost
-            style={{ fontFamily: 'Comic Sans MS', marginLeft: '10px', borderRadius: '5px' }} 
-          >
-            Students
-          </Button>
-          <Modal title="Online Students" open={isModalStuVisible} onCancel={handleModalStuClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
-            <Button key="cancel" onClick={handleModalStuClose}>
-              Cancel
-            </Button>,
-            <Button key="submit" type="primary" onClick={handleStuSubmit}>
-              Save
-            </Button>,
-          ]}></Modal>
           <Button 
             onClick={handleQuestionClick} 
             icon={<PlusCircleOutlined />} 
