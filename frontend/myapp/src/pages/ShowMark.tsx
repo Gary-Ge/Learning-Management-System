@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, Select, Table, message, InputNumber } from 'antd';
+import { Layout, theme, Typography, Button, Form, Input, Select, Table, message, InputNumber, Badge } from 'antd';
 import {
   CheckCircleOutlined,
   HeartFilled
 } from '@ant-design/icons';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
+import crown from '../../../images/crown.png';
 import downloadicon from '../../../images/download.png';
 import { getToken } from '../utils/utils'
 import { ShowMarkDTO } from '../utils/entities';
@@ -319,8 +320,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   }, [selectedQuestionId]);
   
   // 当selectedType为all时
-  // 添加学生和成绩等数据信息
-  const [dataSource, setDataSource] = useState<any[]>(dataQuizSource);
+  // 添加学生, 排名和成绩等数据信息
   const fetchGradeData = async () => {
     const users: any[] = [];
     const quizAnswerInfor: any[] = [];
@@ -424,15 +424,41 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     }
     return [results, users];
   };
+  const [dataSource, setDataSource] = useState<any[]>([]);
+  const [firstSixData, setFirstSixData] = useState<any[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       if (selectedType === "total") {
         const results = await fetchGradeData();
-        setDataSource(results[0]);
+        setDataSource(results[0].sort((a, b) => b.grade - a.grade));
+        const users: any[] = [];
+        for (const user of results[1].sort((a, b) => b.grade - a.grade) || []) {
+          users.push({
+            avatar: user.avatar,
+            name: user.name,
+            grade: user.grade,
+          });
+        }
+        setFirstSixData(users);
       }
     };
     fetchData();
   }, [selectedType]);
+  const rankColumns = [
+    { title: 'Student Avatar', 
+      dataIndex: 'avatar', 
+      key: 'avatar',
+      width: 200,
+      align: 'center',
+      render: (record: any) => (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <img src={record} width={'30%'} />
+        </div>
+      ),
+    },
+    { title: 'Student Name', dataIndex: 'name', key: 'name' },
+    { title: 'Student Grade', dataIndex: 'grade', key: 'grade' },
+  ];
 
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
@@ -599,15 +625,102 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           }
           {selectedType === 'total' && 
             <>
-            <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Show total grade for each student</Text>
-            <div style={{ overflowX: 'auto', width: '100%' }}>
-              <Table 
-                style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
-                key={selectedType} 
-                dataSource={dataSource} 
-                columns={totalGradeColumns} 
-              />
-            </div>
+            <Form.Item>
+              <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '10px 200px 0 200px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                  <Badge.Ribbon text="2st" placement="start" color='silver'>
+                    <Content
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                        width: '100%', height: 'auto',
+                        border: '1px solid black'
+                      }}
+                    >
+                      <img src={firstSixData[1].avatar} width={'40%'}/>
+                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                          {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
+                        </span>
+                      </Text>
+                      <div>
+                        <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                          {firstSixData[1].grade}
+                        </Text>
+                      </div>
+                    </Content>
+                  </Badge.Ribbon>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                  <img src={crown} width={'30%'}/>
+                  <Badge.Ribbon text="1st" placement="start" color='red'>
+                    <Content
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        padding: '10px', borderRadius: '10px', background: '#FFFFFF',
+                        width: '100%', height: 'auto',
+                        border: '1px solid black'
+                      }}
+                    >
+                      <img src={firstSixData[0].avatar} width={'40%'}/>
+                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                          {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
+                        </span>
+                      </Text>
+                      <div>
+                        <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                          {firstSixData[0].grade}
+                        </Text>
+                      </div>
+                    </Content>
+                  </Badge.Ribbon>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                  <Badge.Ribbon text="3st" placement="start" color='orange'>
+                    <Content
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                        width: '100%', height: 'auto',
+                        border: '1px solid black'
+                      }}
+                    >
+                      <img src={firstSixData[2].avatar} width={'40%'}/>
+                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                          {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
+                        </span>
+                      </Text>
+                      <div>
+                        <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                          {firstSixData[2].grade}
+                        </Text>
+                      </div>
+                    </Content>
+                  </Badge.Ribbon>
+                </div>
+              </div>
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <Table 
+                  style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
+                  dataSource={firstSixData} 
+                  columns={rankColumns} 
+                />
+              </div>
+            </Form.Item>
+            <Form.Item>
+              <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Show total grade for each student</Text>
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <Table 
+                  style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
+                  key={selectedType} 
+                  dataSource={dataSource} 
+                  columns={totalGradeColumns} 
+                />
+              </div>
+            </Form.Item>
             </>
           }
         </Form>
