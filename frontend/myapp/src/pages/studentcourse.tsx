@@ -122,10 +122,6 @@ let stream_list = [
 ];
 
 
-const handleSubmit = () => {
-  console.log('success')
-};
-
 export default function IndexPage() {
   // const [isenrollflag, setisenrollflag] = useState(true);
   const token = getToken();
@@ -144,6 +140,7 @@ export default function IndexPage() {
   const [stream_left_list_show,set_stream_left_list_show]= useState(false);
   const [startedQuiz, setStartedQuiz] = useState<string | null>(null);
   const [buttonTexts, setButtonTexts] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<{ [key: string]: any }>({});
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -757,6 +754,74 @@ export default function IndexPage() {
   const gototop = () => {
     window.scrollTo(0, 0);
   }
+  const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
+    switch (questionType) {
+      case 0: // 对于单选题
+      case 1: // 对于多选题
+        setAnswers(prevAnswers => ({
+          ...prevAnswers,
+          [quizId + '_' + questionId]: { 
+              quizId: quizId, 
+              questionId: questionId, 
+              options: answer,  // answer 是一个数组
+              content: '' 
+            } 
+        }));
+        break;
+      case 2: // 对于问答题
+        setAnswers(prevAnswers => ({
+          ...prevAnswers,
+          [quizId + '_' + questionId]: { 
+              quizId: quizId, 
+              questionId: questionId, 
+              options: [],  
+              content: answer // answer 是用户输入的字符串
+            } 
+        }));
+        break;
+      default:
+        break;
+    }
+  };  
+  const submitQuizAnswers = async (quizId:any) => {
+    // 对于对象中的每个属性（即问题）进行迭代
+    for (const key in answers) {
+        // 如果属性的 key 包含了 quizId
+        if (key.startsWith(quizId + '_')) {
+            const answer = answers[key];
+
+            // 创建请求参数
+            let params = new URLSearchParams();
+            if (answer.options.length > 0) {
+                params.append('optionIds', answer.options);
+            }
+            if (answer.content !== '') {
+                params.append('content', answer.content);
+            }
+            const response = await fetch(`/service-edu/edu-student/submit/question/${answer.questionId}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  "Authorization": `Bearer ${token}`
+              },
+              body: params
+          });
+
+          const data = await response.json();
+          if (data.success) {
+              console.log(`Question ${answer.questionId} submitted successfully.`);
+          } else {
+              console.log(`Failed to submit question ${answer.questionId}. Error: ${data.message}`);
+              return;
+          }
+      }
+  }
+  message.success("quiz submit successfully")
+};  
+
+  useEffect(() => {
+    console.log(answers);  // 每次answers更新时都会打印
+  }, [answers]);
   useEffect(() => {
     const quizStarted = localStorage.getItem("quizStarted");
     if (quizStarted) {
@@ -926,7 +991,7 @@ export default function IndexPage() {
                               <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Radio.Group name={`radio-${question.questionid}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                              <Radio.Group name={`radio-${question.questionid}`} style={{marginLeft: '50px',marginTop: '5px'}} onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}>
                                 <Space direction="vertical">
                                 {question.options && Object.values(question.options).map((option) => (
                                   <Radio value={option.id} key={option.id} style={{ marginTop: '10px' }}>
@@ -960,7 +1025,7 @@ export default function IndexPage() {
                             <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Checkbox.Group name={`checkbox-${question.questionid}`} style={{ marginLeft: '50px', marginTop: '5px' }}>
+                              <Checkbox.Group name={`checkbox-${question.questionid}`} style={{ marginLeft: '50px', marginTop: '5px' }} onChange={value => handleAnswerChange(_item.quizid,question.questionid, value, question.type)}>
                                 <Space direction="vertical">
                                   {question.options && Object.values(question.options).map((option) => (
                                     <Checkbox value={option.id} key={option.id} style={{ marginTop: '10px' }}>
@@ -993,6 +1058,7 @@ export default function IndexPage() {
                             Answer:
                           </div>
                           <Input.TextArea
+                              onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}
                               placeholder="you can input many words here ..."
                               style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '100%' }}
                           />
@@ -1003,8 +1069,8 @@ export default function IndexPage() {
                     }
                   })}
                   <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
-                    <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
-                      Save
+                    <Button type="primary"  onClick={() => submitQuizAnswers(_item.quizid)}  style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                      Submit
                     </Button>
                     <Button style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }} onClick={handleCancel}>
                       Cancel
