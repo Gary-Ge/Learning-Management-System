@@ -141,6 +141,7 @@ export default function IndexPage() {
   const [startedQuiz, setStartedQuiz] = useState<string | null>(null);
   const [buttonTexts, setButtonTexts] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<{ [key: string]: any }>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -816,6 +817,7 @@ export default function IndexPage() {
           }
       }
   }
+  setIsSubmitted(true);
   message.success("quiz submit successfully")
 };  
 
@@ -823,14 +825,6 @@ export default function IndexPage() {
     console.log(answers);  // 每次answers更新时都会打印
   }, [answers]);
   useEffect(() => {
-    const quizStarted = localStorage.getItem("quizStarted");
-    if (quizStarted) {
-      const newButtonTexts: Record<string, string> = {};
-      quizlist.forEach((quiz) => {
-        newButtonTexts[quiz.quizid] = "Continue";
-      });
-      setButtonTexts(newButtonTexts);
-    }
     const storedStartedQuiz = localStorage.getItem("startedQuiz");
     if (storedStartedQuiz) {
       setStartedQuiz(storedStartedQuiz);
@@ -842,21 +836,17 @@ export default function IndexPage() {
     const end = new Date(_item.end);
 
     if (now < start) {
-      alert('Quiz is not started yet,please join in after'+  _item.start);
+      message.error('Quiz is not started yet,please join in after'+  _item.start);
       return;
     }
 
     if (now > end) {
-      alert('Quiz is finished.');
+      message.error('Quiz is finished.');
       return;
     }
     localStorage.setItem("quizStarted", "true");
     localStorage.setItem("startedQuiz", _item.quizid);
     setStartedQuiz(_item.quizid);
-    setButtonTexts((prevState) => ({
-      ...prevState,
-      [_item.quizid]: "Continue"
-    }));
   };
   return (
     <div className='stu_wrap'>
@@ -991,7 +981,7 @@ export default function IndexPage() {
                               <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Radio.Group name={`radio-${question.questionid}`} style={{marginLeft: '50px',marginTop: '5px'}} onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}>
+                              <Radio.Group name={`radio-${question.questionid}`} disabled={isSubmitted} style={{marginLeft: '50px',marginTop: '5px'}} onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}>
                                 <Space direction="vertical">
                                 {question.options && Object.values(question.options).map((option) => (
                                   <Radio value={option.id} key={option.id} style={{ marginTop: '10px' }}>
@@ -1025,7 +1015,7 @@ export default function IndexPage() {
                             <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Checkbox.Group name={`checkbox-${question.questionid}`} style={{ marginLeft: '50px', marginTop: '5px' }} onChange={value => handleAnswerChange(_item.quizid,question.questionid, value, question.type)}>
+                              <Checkbox.Group name={`checkbox-${question.questionid}`} disabled={isSubmitted} style={{ marginLeft: '50px', marginTop: '5px' }} onChange={value => handleAnswerChange(_item.quizid,question.questionid, value, question.type)}>
                                 <Space direction="vertical">
                                   {question.options && Object.values(question.options).map((option) => (
                                     <Checkbox value={option.id} key={option.id} style={{ marginTop: '10px' }}>
@@ -1058,6 +1048,7 @@ export default function IndexPage() {
                             Answer:
                           </div>
                           <Input.TextArea
+                              disabled={isSubmitted}
                               onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}
                               placeholder="you can input many words here ..."
                               style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '100%' }}
@@ -1069,12 +1060,19 @@ export default function IndexPage() {
                     }
                   })}
                   <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
-                    <Button type="primary"  onClick={() => submitQuizAnswers(_item.quizid)}  style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
-                      Submit
-                    </Button>
-                    <Button style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }} onClick={handleCancel}>
-                      Cancel
-                    </Button>
+                  {
+                      !isSubmitted && 
+                      <Button type="primary" onClick={() => submitQuizAnswers('quizId')}style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                        Submit
+                      </Button>
+                    }
+
+                    {
+                      !isSubmitted &&
+                      <Button onClick={handleCancel} style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                        Cancel
+                      </Button>
+                    }
                   </Form.Item>
                 </>
                 ) : (
