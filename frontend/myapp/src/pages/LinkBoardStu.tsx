@@ -118,8 +118,8 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
   }, [playbackUrl]);
 
   // chat
-  const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
   const send = (message: any) => { // 发送信息
@@ -172,7 +172,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
     return time < 10 ? `0${time}` : time;
   };
   const [selectedOption, setSelectedOption] = useState(""); // 存储选项结果的状态
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
   const [fasterThan, setFasterThan] = useState(Number);
   const [quizId, setQuizId] = useState('');
   let answer = {
@@ -231,17 +231,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
     setIsModalVisible(false);
   };
   
-  const [isModalStuVisible, setIsModalStuVisible] = useState(false);
-  const handleStudentsClick = () => {
-    setIsModalStuVisible(true);
-  };
-  const handleModalStuClose = () => {
-    setIsModalStuVisible(false);
-  };
-  const handleStuSubmit = () => {
-
-  };
-
   return (
     <>
     <SockJsClient

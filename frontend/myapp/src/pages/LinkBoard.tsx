@@ -176,8 +176,8 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
   }, [pushStarted]);
 
   // chat
-  const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
   const send = (message: any) => { // 发送信息
@@ -223,7 +223,7 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
     setMark(e.target.value);
   };
   // single
-  const [singleOptions, setSingleOptions] = useState([]);
+  const [singleOptions, setSingleOptions] = useState<any[]>([]);
   const addSingleOption = () => {
     const newOption = {
       id: Date.now(), // 生成独特的 ID
@@ -252,7 +252,7 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
     setSingleOptions(updatedOptions);
   };
   // multi
-  const [multiOptions, setMultiOptions] = useState([]);
+  const [multiOptions, setMultiOptions] = useState<any[]>([]);
   const addMultiOption = () => {
     const newOption = {
       id: Date.now(), // 生成独特的 ID
@@ -267,7 +267,7 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
     const updatedCorrect = selectedMultiOption.filter(option => option !== optionId)
     setSelectedMultiOption(updatedCorrect);
   };
-  const [selectedMultiOption, setSelectedMultiOption] = useState([]);
+  const [selectedMultiOption, setSelectedMultiOption] = useState<any[]>([]);
   const handleCheckBoxChange = (optionId: any) => {
     if (selectedMultiOption.includes(optionId)) {
       setSelectedMultiOption(selectedMultiOption.filter(option => option !== optionId));
