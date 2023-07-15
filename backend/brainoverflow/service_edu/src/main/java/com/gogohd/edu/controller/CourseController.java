@@ -85,9 +85,10 @@ public class CourseController {
     }
 
     @Operation(summary = "Search courses materials (sections) by course ID")
-    @GetMapping("courses/{courseId}/materials")
-    public R searchCourseMaterials(HttpServletRequest request, @PathVariable String courseId) {
-        return R.success().message("Get all courses success").data("courses",
-                courseService.selectCourseWithMaterials(courseId));
+    @GetMapping("courses/{courseId}/materials/{keyword}")
+    public R searchCourseMaterials(HttpServletRequest request, @PathVariable String courseId,
+                                   @PathVariable String keyword) {
+        return R.success().message("Search materials success").data("sections",
+                courseService.selectCourseWithMaterials(courseId, keyword));
     }
 }
