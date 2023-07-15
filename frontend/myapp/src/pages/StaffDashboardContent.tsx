@@ -220,6 +220,24 @@ const StaffDashboardContent: React.FC = () => {
     setStreamSection(sectionData);
     setSelectedOption('streamLink');
   };
+  const streamCancel = (streamId: string) => {
+    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${streamId}/finish`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((res) => {
+      if (res.code !== 20000) {
+        throw new Error(res.message);
+      }
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+  };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
     // 在这里处理 singleAssignment 参数
@@ -232,6 +250,7 @@ const StaffDashboardContent: React.FC = () => {
   const [assOptions, setAssOptions] = useState<any[]>([]);
   const [quizes, setQuizes] = useState<any[]>([]);
   const fetchOptions = (courseId: string) => {
+    // 当前课程信息
     fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
       method: 'GET',
       headers: {
@@ -251,6 +270,7 @@ const StaffDashboardContent: React.FC = () => {
     .catch((error) => {
       console.log(error.message);
     });
+    // 当前课程创建的的所有assignments
     // 发起 fetch 请求获取选项数据
     fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${courseId}`, {
       method: 'GET',
@@ -269,6 +289,7 @@ const StaffDashboardContent: React.FC = () => {
     .catch((error) => {
       console.log(error.message);
     });
+    // 当前课程创建的所有quizzes
     // 发起 fetch 请求获取选项数据
     fetch(`http://175.45.180.201:10900/service-edu/edu-quiz/quiz/course/${courseId}`, {
       method: 'GET',
@@ -598,7 +619,7 @@ const StaffDashboardContent: React.FC = () => {
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
         )}
         {selectedOption === 'streamLink' && (
-          <LinkBoard stream={singleStreamSection} />
+          <LinkBoard stream={singleStreamSection} onClick={streamCancel} />
         )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />

@@ -64,8 +64,29 @@ const barChart = (
 );
 
 
-const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
+const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> = ({ stream, onClick }) => {
   const token = getToken();
+  
+  // const [showConfirmation, setShowConfirmation] = useState(false);
+  // const handleClick = (event: any) => {
+  //   const componentAElement = document.getElementById("LinkBoard");
+  //   const targetElement = event.target;
+
+  //   if (componentAElement && !componentAElement.contains(targetElement)) {
+  //     setShowConfirmation(true);
+  //   }
+  // };
+  // useEffect(() => {
+  //   document.addEventListener('click', handleClick);
+  //   return () => {
+  //     document.removeEventListener('click', handleClick);
+  //   };
+  // }, [handleClick]);
+  // const handleConfirmation = () => {
+  //   setShowConfirmation(false);
+  //   onClick(stream.streamId);
+  // };
+
   // stream
   const videoRef = useRef(null);
   const [pushStarted, setPushStarted] = useState(false);
@@ -477,7 +498,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
   }; 
   const [type, setType] = useState(Number);
   const [showQuestion, setShowQuestion] = useState({});
-  const [isModalOpenMark, setIsModalOpenMark] = useState(true);
+  const [isModalOpenMark, setIsModalOpenMark] = useState(false);
   const handleModalMarkClose = () => {
     setIsModalOpenMark(false);
   };
@@ -503,6 +524,24 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
 
   return (
     <>
+    {/* <div id="LinkBoard">
+      {showConfirmation && (
+        <Modal
+          title="Finish Stream"
+          visible={showConfirmation}
+          style={{ fontFamily: "Comic Sans MS" }}
+          footer={[
+            <Button key="submit" type="primary" onClick={handleConfirmation}>
+              Confirm
+            </Button>,
+          ]}
+        >
+          <div>
+            You have already finished the Stream!
+          </div>
+        </Modal>
+      )}
+    </div> */}
     <SockJsClient
       url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
       topics={[`/topic/stream/${stream.streamId}`]}
@@ -552,6 +591,7 @@ const LinkBoard: React.FC<{ stream: any }> = ({ stream }) => {
               item.value = msg.questions[0].countD;
             }
           })
+          setIsModalOpenMark(true);
         }
       }}
     />

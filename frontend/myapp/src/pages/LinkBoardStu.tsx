@@ -261,6 +261,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           setQuizId(msg.quizId);
           setType(msg.type);
           setCorrectAnswer(msg.questions[0].answer);
+          setIsModalVisible(true);
           // console.log('msg2', msg); // 处理收到的消息
         }
         else if (msg.type === 3) {
@@ -296,6 +297,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
               item.value = msg.questions[0].countD;
             }
           })
+          setIsModalVisible(true);
         }
       }}
       // ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
@@ -316,15 +318,16 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           >
             Questions
           </Button>
-          <Modal title="Online Quiz" open={isModalVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
-            <Button key="cancel" onClick={handleModalClose}>
-              Cancel
-            </Button>,
-            <Button key="submit" type="primary" onClick={handleSubmit}>
-              Save
-            </Button>,
-          ]}>
-            {type === 2 && 
+          
+          {type === 2 && 
+            <Modal title="Online Quiz" open={isModalVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
+              <Button key="cancel" onClick={handleModalClose}>
+                Cancel
+              </Button>,
+              <Button key="submit" type="primary" onClick={handleSubmit}>
+                Save
+              </Button>,
+            ]}>
               <div>
                 {seconds > 0 ? (
                   <>
@@ -408,8 +411,17 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
                   </>
                 )}
               </div>
-            }
-            {type === 3 && 
+            </Modal>
+          }
+          {type === 3 && 
+            <Modal title="Online Quiz" open={isModalVisible} onCancel={handleModalClose} style={{fontFamily: 'Comic Sans MS'}} footer={[
+              <Button key="cancel" onClick={handleModalClose}>
+                Cancel
+              </Button>,
+              <Button key="submit" type="primary" onClick={handleSubmit}>
+                Save
+              </Button>,
+            ]}>
               <>
               <Layout style={{ background: '#FFFFFF' }}>
                 <Content
@@ -477,8 +489,8 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
 
               </Layout>
               </>
-            }
-          </Modal>
+            </Modal>
+          }
           <Text style={{ fontFamily: 'Comic Sans MS', fontWeight: 'bold', float: 'right' }}>
             Course Name: {stream.title}
           </Text>
