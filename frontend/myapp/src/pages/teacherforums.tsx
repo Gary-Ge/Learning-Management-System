@@ -8,6 +8,24 @@ import { useLocation } from 'umi';
 import emptyimg from '../../../images/teacher.png';
 import defaultimg from '../../../images/defaultimg.png';
 import gototopicon from '../../../images/gototop.png';
+import { EditTwoTone, PlusCircleTwoTone, MinusCircleTwoTone, PlusSquareTwoTone} from '@ant-design/icons';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'align': [] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      ['link', 'image', 'video'],
+      [{ 'color': [] }, { 'background': [] }],
+      ['clean'],
+    ],
+  };
+  const quillFormats = [
+    'header','bold','italic','underline','strike','align','list','indent','link','image','video','color','background',
+  ];
 let tab_list_data_new: { key: string; title: any; id: any; is_selected: boolean; }[] = [];
 let course_no_forums:{ value: string; label: string; courseid: string; category: string;
     description: string; cover: string; hasForum: boolean
@@ -29,7 +47,7 @@ let current_post = {
 }
 
 const { Search, TextArea } = Input;
-const onSearch = (value: string) => console.log(value);
+
 const plainOptions = ['Private', 'Anonymous'];
 
 export default function teacherforums() {
@@ -56,19 +74,24 @@ export default function teacherforums() {
         return 'stu_forum_tag tag_blue';
     }
     // tag list
+    const [isTagAll, setisTagAll] = useState(true);
     const [isTagModalOpen, setIsTagModalOpen] = useState(false);
     const [inputTagName, set_tag_name] = useState('');
-    const [colorvalue, setcolorvalue] = useState('Blue');
+    const [colorvalue, setcolorvalue] = useState('');
+    const [addOrEditTagflag, setaddOrEditTagflag] = useState(true); // true : add tag, false: delete tag
     // create tag : change tag color
     const changecolorvalue = (e: RadioChangeEvent) => {
-        console.log('radio checked', e.target.value);
         setcolorvalue(e.target.value);
     };
+    const [edit_tag_value, set_edit_tag_value]= useState('');
+    // edit tag
+    const edit_change_tag = (e: RadioChangeEvent) => {
+        set_edit_tag_value(e.target.value);
+    }
     // delete tag
     const [DelTagModalOpen, setDelTagModalOpen] = useState(false);
     const [del_tag_value, setDelTagValue] = useState('');
     const del_change_tag = (e: RadioChangeEvent) => {
-        console.log('radio checked', e.target);
         setDelTagValue(e.target.value);
     }
     // thread
@@ -91,14 +114,15 @@ export default function teacherforums() {
     const [edit_thread_content, set_edit_thread_content] = useState('');
     // reply
     const [post_answer, set_post_answer] = useState('');
-    const changepostanswer = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        set_post_answer(e.target.value);
+    const changepostanswer = (value: string) => {
+        set_post_answer(value);
     };
     const [ReplyModalOpen, setReplyModalOpen] = useState(false);
     const [currentReplyId, setcurrentReplyId] = useState('');
     const [ReplyToReplyValue, setReplyToReplyValue] = useState(''); // model textarea
     const [replyModaliscreate, setreplyModaliscreate] = useState(true); // true : model for create reply, false: update reply
-
+    // search
+    const [searchValue, setsearchValue] = useState('');
     useEffect(() => {
         // getall course -> tabs title
         getallcourse_haveforum();
@@ -116,9 +140,21 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-              throw new Error(res.message)
+            //   throw new Error(res.message)
+                message.error(res.message)
+                return
             }
             console.log('staff forums',res.data.courses);
+            if (res.data.courses.length == 0) {
+                tab_list_data_new = []
+                message.info('There is no forum now.');
+                setdataLists([]);
+                settaglist([]);
+                setLeftList([]);
+                set_showcontentflag('0');
+                getallcourse();
+                return
+            }
             let getcourses = res.data.courses
             tab_list_data_new = []
             getcourses.map((item:any, index: string) => {
@@ -189,8 +225,9 @@ export default function teacherforums() {
         console.log(id);
         getalltag_a_course(id); // id means courseid
         set_showcontentflag('0');
-    };
-    const getalltag_a_course = (id: string) => {
+        setsearchValue('')
+    }
+    const getalltag_a_course = (id: string) => { // id means courseid
         fetch(`${HOST_FORUM_CATEGORY}/categories/${id}`, {
             method: "GET",
             headers: {
@@ -201,7 +238,9 @@ export default function teacherforums() {
         .then(res => res.json())
         .then(res => {
             if (res.code !== 20000) {
-                throw new Error(res.message)
+                // throw new Error(res.message)
+                message.error(res.message);
+                return;
             }
             console.log('category',res.data.categories);
             let categories = res.data.categories
@@ -210,7 +249,7 @@ export default function teacherforums() {
                 tag_list.push({
                     key: index, 
                     title: item.name, 
-                    is_selected: index == '0' ? true : false, 
+                    is_selected: false, // index == '0' ? true : false, 
                     color: item.color, 
                     id: item.categoryId,
                     label: item.name,
@@ -220,15 +259,72 @@ export default function teacherforums() {
             settaglist([...tag_list]);
             // get all post of course and category
             if (tag_list.length) {
-                getallposts(id, tag_list[0].id);
+                // getallposts(id, tag_list[0].id);
+                onAllTagBtn();
             } else {
+                setisTagAll(true);
                 setLeftList([]); // no tags no posts list
             }
             
         })
     }
-    // tag function: click tag
+    // tag function: click tag(All)
+    const onAllTagBtn = () => {
+        setisTagAll(true);
+        // update tag list
+        tag_list.map(item => {
+            item.is_selected = false
+        })
+        settaglist([...tag_list]);
+        let current_course_id = ''
+        tab_list_data_new.map((item:any) => { // get current course id
+            if (item.is_selected) {
+                current_course_id = item.id
+            }
+        });
+        console.log('current_course_id', current_course_id, tab_list_data_new);
+        fetch(`${HOST_FORUM_POST}/posts/${current_course_id}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Authorization": `Bearer ${token}`
+            }
+          })
+        .then(res => res.json())
+        .then(res => {
+            if (res.code !== 20000) {
+                // throw new Error(res.message)
+                message.error(res.message)
+                return
+            }
+            console.log('get all post from all btn', res.data.posts)
+            left_list = []
+            let posts = res.data.posts
+            posts.map((item:any, index: string) => {
+                left_list.push({
+                    key: index,
+                    id: item.postId,
+                    title: item.title,
+                    is_selected: index == '0' ? true : false,
+                    color: item.color,
+                    time: item.updatedAt,
+                    author: item.postBy.username,
+                    tag: item.category
+                })
+            })
+            setLeftList([...left_list]); // update left list
+            if(left_list.length != 0){
+                getapostinfo(left_list[0].id);
+            } else {
+                set_showcontentflag('0');
+                setsearchValue('')
+            }
+           
+        })
+    }
+    // tag function: click tag(other)
     const clicktag = (id: string) => {
+        setisTagAll(false);
         console.log('click tag id: ',id);
         tag_list.map(item => {
             item.is_selected = false
@@ -247,7 +343,9 @@ export default function teacherforums() {
         });
         getallposts(current_course_id, id);
         // set_showcontentflag('0');
+        setsearchValue('')
     }
+
     // tag function: get a tag info
     const get_a_tag_info = (tagid:string) => {
         fetch(`${HOST_FORUM_CATEGORY}/category/${tagid}`, {
@@ -292,7 +390,7 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-              throw new Error(res.message)
+            //   throw new Error(res.message)
               message.error(res.message);
               return;
             }
@@ -309,6 +407,61 @@ export default function teacherforums() {
 
     const TagModalCancel = () => {
         setIsTagModalOpen(false);
+    }
+    // tag function: add tag
+    const addtagmodelopen = () => {
+        setaddOrEditTagflag(true);
+        set_tag_name('');
+        setcolorvalue('');
+        setIsTagModalOpen(true);
+    }
+    // tag function: edit tag
+    const edittagmodelopen = () => {
+        set_tag_name('');
+        setcolorvalue('');
+        set_edit_tag_value('');
+        setaddOrEditTagflag(false);
+        setIsTagModalOpen(true);
+    }
+    const edittag = () => {
+        // fetch
+        if (edit_tag_value == '' || inputTagName=='' || colorvalue =='') {
+            message.error('All the value can not be empty!');
+            return
+        }
+        console.log(edit_tag_value);
+        console.log(inputTagName);
+        console.log(colorvalue);
+        let formdata = {
+            'name': inputTagName,
+            'color': colorvalue
+        }
+        fetch(`${HOST_FORUM_CATEGORY}/category/${edit_tag_value}`, {
+            method: "PUT",
+            body: JSON.stringify(formdata),
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            }
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.code !== 20000) {
+              message.error(res.message);
+              return;
+            }
+            message.success(res.message);
+            setIsTagModalOpen(false);
+            // update tag list
+            // get all tag list
+            let current_course_id = ''
+            datalist.map((item:any) => { // current course id
+                if (item.is_selected) {
+                    current_course_id = item.id
+                }
+            });
+            getalltag_a_course(current_course_id); // id means courseid
+          })
     }
     // tag function: delete tag
     const deletetagmodelopen = () => {
@@ -342,7 +495,6 @@ export default function teacherforums() {
                 getalltag_a_course(current_course_id); // id means courseid
             }
         })
-        
     }
     const DelTagModalCancel = () => {
         setDelTagModalOpen(false);
@@ -355,8 +507,8 @@ export default function teacherforums() {
         setcreate_thread_tag_value(value);
     };
     // create thread content
-    const createthreadcontent =  (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        set_create_thread_content(e.target.value);
+    const createthreadcontent =  (value: string) => {
+        set_create_thread_content(value);
         console.log(create_thread_content);
     };
     const changeAuthorName = ({ target: { value } }: RadioChangeEvent) => {
@@ -399,6 +551,7 @@ export default function teacherforums() {
               return;
             }
             message.success(res.message);
+            window.scrollTo(0, 0);
             // update post list
             getallposts(current_course_id, create_thread_tag_value);
             
@@ -440,6 +593,7 @@ export default function teacherforums() {
             })
             setLeftList([...left_list]); // update left list
             // update tag list
+            setisTagAll(false);
             tag_list.map(item => {
                 item.is_selected = false
                 if (item.id == tagid) {
@@ -508,7 +662,7 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-              throw new Error(res.message)
+            //   throw new Error(res.message)
               message.error(res.message);
             } else {
                 message.success(res.message);
@@ -599,8 +753,8 @@ export default function teacherforums() {
     const edit_thread_change_tag = (event:any) => {
         set_edit_thread_tag_value(event.target.value);
     }
-    const editThreadContentChange = (event:any) => {
-        set_edit_thread_content(event.target.value);
+    const editThreadContentChange = (value: string) => {
+        set_edit_thread_content(value);
     }
     // reply function: reply to a post (click comment)
     const replytoapost = () => {
@@ -631,8 +785,8 @@ export default function teacherforums() {
         })
     }
     // reply to reply model
-    const ReplyToReplyValueChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setReplyToReplyValue(e.target.value);
+    const ReplyToReplyValueChange = (value: string) => {
+        setReplyToReplyValue(value);
     }
     const showReplayModal = (replyId: string, content: string)=> {
         setReplyToReplyValue(content);
@@ -773,22 +927,91 @@ export default function teacherforums() {
         
     };
 
+    // search
+    const searchOnchange = (event:any) => {
+        setsearchValue(event.target.value)
+    }
+    const onSearch = (value: string)=> {
+        console.log(value);
+        if (value == '') {return}
+        let current_course_id = ''
+        datalist.map((item:any) => { // current course id
+            if (item.is_selected) {
+                current_course_id = item.id
+            }
+        });
+        fetch(`${HOST_FORUM_POST}/posts/${current_course_id}/search/${value}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Authorization": `Bearer ${token}`
+            }
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.code !== 20000) {
+                message.error(res.message)
+                return
+            }
+            console.log(res.data);
+            // 1. tag list update to all(original)
+            setisTagAll(true);
+            // update tag list
+            tag_list.map(item => {
+                item.is_selected = false
+            })
+            // 2. post list update
+            left_list = []
+            let posts = res.data.posts.inTitle.concat(res.data.posts.inContent)
+            posts.map((item:any, index: string) => {
+                left_list.push({
+                    key: index,
+                    id: item.postId,
+                    title: item.title,
+                    is_selected: index == '0' ? true : false,
+                    color: item.color,
+                    time: item.updatedAt,
+                    author: item.postBy.username,
+                    tag: item.category
+                })
+            })
+            setLeftList([...left_list]); // update left list
+            if(left_list.length != 0){
+                getapostinfo(left_list[0].id); // 3. get one post info to show on the right
+            } else {
+                set_showcontentflag('0');
+            }
+            
+
+          })
+    }
+
     return(
         <div className='forum_wrap'>
             <Navbar />
-            <div className='stu_forum_title'>Teacher Course Forums</div>
-            <div className='stu_title'>
-                <div className='stu_title_list'>
-                    {datalist.map( (course_item:any)  => 
-                    <div className='stu_list_header' key={course_item.title}>
-                        <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "forum_selected": ""}>{course_item.title}</p>
-                        <p className={course_item.key == String(datalist.length - 1) ? "stu_title_bar": ""}>|</p>
-                    </div>)}
-                    <Button type="primary" className={courseflag ? 'btn_add' : 'display_non' } onClick={addcourseModal}>+ Add Course</Button>
+            <div className='stu_forum_title'>Staff Course Forums</div>
+            <div className='forum_title'>
+                <p className='forum_course'>Course:</p>
+
+                <div className='forum_title_list'>
+                    {
+                        datalist.length == 0 ? <span>There is no forum. Please create a forum of a course.</span>:''
+                    }
+                    {   datalist.map( (course_item:any)  => 
+                        <div className='forum_list_header' key={course_item.title}>
+                            <p key={course_item.id} onClick={() => onclickcourse(course_item.key, course_item.id)} id={course_item.key} className={course_item.is_selected ? "forum_selected mrt": "mrt"}>{course_item.title}</p>
+                            <p className={course_item.key == datalist.length - 1 ? "display_non": "mrt"}>|</p>
+                        </div>
+                    )}
+                    {/* <Button type="primary" className={courseflag ? 'btn_add mlt10' : 'display_non' } onClick={addcourseModal}>+ Add Course</Button> */}
+                    {
+                        courseflag ? <PlusSquareTwoTone className='edit_icon' onClick={addcourseModal}/> : ''
+                    }
                 </div>
-                <Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/>
             </div>
-            <div className='stu_forum_tag_wrap'>
+            <p className={datalist.length == 0 ? 'display_non':'forum_course mbt mlt30'}>Category:</p>
+            <div className={datalist.length == 0 ? 'display_non':'stu_forum_tag_wrap'}>
+                <div className={isTagAll ? 'stu_forum_tag tag_all tag_active' : 'stu_forum_tag tag_all' } onClick={onAllTagBtn}>All</div>
                 {
                     taglist.map((item:any)=> {
                         return(
@@ -797,10 +1020,22 @@ export default function teacherforums() {
                         )
                     })
                 }
-                <Button type="primary" className='btn_add mrt' onClick={() => {setIsTagModalOpen(true)}} >+</Button>
-                <Button type="primary" className={taglist.length == 0 ? 'display_non' : 'btn_add'} onClick={deletetagmodelopen} >-</Button>
+                <PlusCircleTwoTone className='edit_icon' onClick={addtagmodelopen}/>
+                {
+                    taglist.length == 0 ? '' :
+                    <>
+                    <EditTwoTone className='edit_icon' onClick={edittagmodelopen}/>
+                    <MinusCircleTwoTone className='edit_icon' onClick={deletetagmodelopen}/>
+                    </>
+                }
             </div>
-            <Button type="primary" className='btn_add mlt30 mt' onClick={showcreatethread}>+ New Thread</Button>
+            {
+                datalist.length == 0 ? '' : <>
+                <Search placeholder="input search text" onSearch={onSearch} onChange={searchOnchange} value={searchValue} allowClear className='forum_search'/>
+                <Button type="primary" className='btn_add mt' onClick={showcreatethread}>+ New Thread</Button>
+                </>
+            }
+
             <div className='stu_forum_content_wrap'>
                 <div className={leftlist.length > 5 ? 'stu_forum_list scroll_y': 'stu_forum_list'}>
                     {
@@ -823,7 +1058,7 @@ export default function teacherforums() {
                         })
                     }
                     {
-                       leftlist.length == 0 ? <p className='tips'>No Thread now...</p> : <p className='tips'>--The End--</p>
+                       leftlist.length == 0 ? <p className='tips' style={{marginTop: '300px'}}>No Thread now...</p> : <p className='tips'>--The End--</p>
                     }
                     
                 </div>
@@ -860,14 +1095,23 @@ export default function teacherforums() {
                                 </Radio.Group>
                             </div>
                         </div>
-                            <div className='create_left_title'>Thread Content:</div>
-                            <div className='create_textarea'>
-                                <TextArea rows={8} allowClear onChange={createthreadcontent} value = {create_thread_content}/>
-                            </div>
-                            <div className='create_author_wrap'>
-                                <Radio.Group options={plainOptions} onChange={changeAuthorName} value={create_thread_author} />
-                            </div>
-                            <Button type="primary" className='creat_btn' onClick={createThread}>Submit</Button>
+                        <div className='create_left_title'>Thread Content:</div>
+                        <div className='create_textarea' style={{height: '256px'}}>
+                            {/* <TextArea rows={8} allowClear onChange={createthreadcontent} value = {create_thread_content}/> */}
+                            <ReactQuill
+                                // theme='snow'
+                                modules={quillModules}
+                                // formats={quillFormats}
+                                // placeholder=""
+                                value={create_thread_content}
+                                onChange={createthreadcontent}
+                                style={{height: '180px', width: '680px', color:'#000'}}
+                            />
+                        </div>
+                        {/* <div className='create_author_wrap'>
+                            <Radio.Group options={plainOptions} onChange={changeAuthorName} value={create_thread_author} />
+                        </div> */}
+                        <Button type="primary" className='creat_btn' onClick={createThread}>Submit</Button>
                     </div>
                 </div>
                 <div className={showcontentflag == '2' ? 'stu_forum_content' : 'display_non'}>
@@ -883,8 +1127,8 @@ export default function teacherforums() {
                         <div className={`stu_forum_tag ${tagcss(currentpost.color)} height25`}>{currentpost.category}</div>
                     </div>
                     <div className='stu_forum_thread_wrap'>
-                        <div className='line_h'>
-                            {currentpost.content}
+                        <div className='line_h' dangerouslySetInnerHTML={{__html: currentpost.content}}>
+                            {/* {currentpost.content} */}
                         </div>
                         <div className='gray6 mt'>
                             <span className='mrt pointer' onClick={replytoapost}>comment</span>|
@@ -894,7 +1138,7 @@ export default function teacherforums() {
                         {
                             currentpost.replies.map((item:any, index:number)=> {
                                 return(
-                                    <div key={index.toString()}>
+                                    <div key={index.toString()} style={{ width: '720px'}}>
                                         <div className='forum_avatar_wrap padding_left'>
                                             <img src={item.replyBy.avatar} className='forum_moment_avatar mrt'/>
                                             <div className='forum_thread_avatar_wrap mrt'>
@@ -902,7 +1146,7 @@ export default function teacherforums() {
                                                 <div className='gray6 font_small12'>{item.updatedAt}</div>
                                             </div>
                                         </div>
-                                        <div className='forum_comment'>{item.content}</div>
+                                        <div className='forum_comment' dangerouslySetInnerHTML={{__html: item.content}}></div>
                                         <div className='replytopost'>
                                             <span className='mrt pointer' onClick={() => {showReplayModal(item.replyId, '')}}>replay</span>|
                                             <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(item.replyId, item.content)}}>edit</span>|
@@ -920,7 +1164,7 @@ export default function teacherforums() {
                                                                 <div className='gray6 font_small12'>{_item.updatedAt}</div>
                                                             </div>
                                                         </div>
-                                                        <div className='forum_second_comment'>{_item.content}</div>
+                                                        <div className='forum_second_comment' dangerouslySetInnerHTML={{__html: _item.content}}></div>
                                                         <div className='reply_btn'>
                                                             <span className='mrt pointer' onClick={() => {showReplayModal(_item.replyId, '')}}>replay</span>|
                                                             <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(_item.replyId, _item.content)}}>edit</span>|
@@ -937,10 +1181,18 @@ export default function teacherforums() {
                     </div>
                     <div className='forum_answer_wrap'>
                         <div className='font_large font_weight'>Your Comment</div>
-                        <div className='create_textarea'>
-                            <TextArea rows={8} allowClear onChange={changepostanswer} value = {post_answer}/>
+                        <div className='create_textarea' style={{height: '270px'}}>
+                            {/* <TextArea rows={8} allowClear onChange={changepostanswer} value = {post_answer}/> */}
+                            <ReactQuill
+                                modules={quillModules}
+                                formats={quillFormats}
+                                placeholder=""
+                                value={post_answer}
+                                onChange={changepostanswer}
+                                style={{height: '180px', width: '680px'}}
+                            />
                         </div>
-                        <Button type="primary" className='creat_btn' onClick={submitReplyToApost}>Submit</Button>
+                        <Button type="primary" className='creat_btn mrt63' onClick={submitReplyToApost}>Submit</Button>
                     </div>
                 </div>
             </div>
@@ -949,44 +1201,65 @@ export default function teacherforums() {
                 <Select
                     value={defaultcourse}
                     defaultActiveFirstOption
-                    style={{ width: 260 }}
                     // onChange={handleChange}
                     onSelect={handleChange}
                     options={coursesnoforum}
                 />
             </Modal>
-            <Modal className='fm' title="Create a category" open={isTagModalOpen} onOk={createtag} onCancel={TagModalCancel}>
+            <Modal className='fm' title={addOrEditTagflag ? "Create a category" : "Edit a category"} open={isTagModalOpen} onOk={ addOrEditTagflag ? createtag : edittag} onCancel={TagModalCancel}>
+                {
+                    addOrEditTagflag ? '':<>
+                        <span className='edit_tag_title'>Select a Category:</span><br/>
+                        <Radio.Group
+                            onChange={edit_change_tag}
+                            value={edit_tag_value}
+                            buttonStyle="solid"
+                            className='edit_tag_radio'>
+                        {
+                            taglist.map(item => {
+                                return(<div className='mbt5'>
+                                    <Radio key={item.key} value={item.id}>{item.label}</Radio></div>
+                                )
+                            })
+                        }
+                        </Radio.Group>
+                        <br/>
+                    </>
+                }
                 <span className='mrt'>Category Name:</span>
-                <Input value={inputTagName} onChange={changetagname} style={{ width: '300px' }} />
+                <Input value={inputTagName} onChange={changetagname} className='tag_name_input' />
                 <p className='mt'>Select Category Color:</p>
-                <Radio.Group onChange={changecolorvalue} value={colorvalue}>
+                <Radio.Group onChange={changecolorvalue} value={colorvalue} className="mlt110">
                     <Radio value={'Blue'}>Blue</Radio><br/>
                     <Radio value={'Red'}>Red</Radio><br/>
                     <Radio value={'Pink'}>Pink</Radio>
                 </Radio.Group>
             </Modal>
-            <Modal className='fm' title="Delete a category" open={DelTagModalOpen} onOk={deltag} onCancel={DelTagModalCancel}>
-                <span className='mrt'>Select a Category:</span>
+            <Modal className='fm' title="Delete a Category" open={DelTagModalOpen} onOk={deltag} onCancel={DelTagModalCancel}>
+                <span className='mrt'>Select a Category:</span><br/>
                 <Radio.Group
                     // options={taglist}
                     onChange={del_change_tag}
                     value={del_tag_value}
                     // optionType="button"
                     buttonStyle="solid"
+                    className='mlt110 mt'
                 >
                 {
                     taglist.map(item => {
                         return(
-                            <Radio key={item.key} value={item.id}>{item.label}</Radio>
+                            <div className='mbt5' key={item.key}>
+                                <Radio key={item.key} value={item.id}>{item.label}</Radio>
+                            </div>
                         )
                     })
                 }
                 </Radio.Group>
             </Modal>
-            <Modal className='fm' title="Delete a post" open={DelPostModalOpen} onOk={delpost} onCancel={DelPostModalCancel}>
+            <Modal className='fm' title="Delete a Thread" open={DelPostModalOpen} onOk={delpost} onCancel={DelPostModalCancel} >
                 <p>Do you want to remove the thread ? </p>
             </Modal>
-            <Modal className='fm' open={EditPostModalOpen} onOk={editpost} onCancel={EditPostModalCancel}>
+            <Modal className='fm' open={EditPostModalOpen} onOk={editpost} onCancel={EditPostModalCancel} width="700px">
                 <div className='edit_wrap_title'>Edit Thread</div>
                 <div className='create_title fm'>
                     <div className='create_left_title'>Thread Title:</div>
@@ -1013,17 +1286,30 @@ export default function teacherforums() {
                     </div>
                 </div>
                 <div className='create_left_title fm'>Thread Content:</div>
-                <div className='create_textarea fm'>
-                    <TextArea rows={8} allowClear onChange={editThreadContentChange} value = {edit_thread_content}/>
+                <div className='create_textarea fm' style={{width: '520px', height: '250px'}}>
+                    <ReactQuill
+                                modules={quillModules}
+                                formats={quillFormats}
+                                placeholder=""
+                                value={edit_thread_content}
+                                onChange={editThreadContentChange}
+                                style={{height: '180px', width: '520px'}}
+                            />
                 </div>
-                {/* <div className='create_author_wrap'>
-                    <Radio.Group options={plainOptions} onChange={changeAuthorName} value={create_thread_author} />
-                </div> */}
-                {/* <Button type="primary" className='creat_btn' onClick={createThread}>Submit</Button> */}
             </Modal>
-            <Modal className='fm' open={ReplyModalOpen} onOk={ReplyToReplyModalChange} onCancel={ReplyToReplyModalCancel}>
+            <Modal className='fm' open={ReplyModalOpen} onOk={ReplyToReplyModalChange} onCancel={ReplyToReplyModalCancel} width="650px">
                 <p> Reply to :</p>
-                <TextArea rows={8} allowClear onChange={ReplyToReplyValueChange} value = {ReplyToReplyValue}/>
+                {/* <TextArea rows={8} allowClear onChange={ReplyToReplyValueChange} value = {ReplyToReplyValue}/> */}
+                <div className='create_textarea fm' style={{width: '520px', height: '250px'}}>
+                    <ReactQuill
+                                modules={quillModules}
+                                formats={quillFormats}
+                                placeholder=""
+                                value={ReplyToReplyValue}
+                                onChange={ReplyToReplyValueChange}
+                                style={{height: '180px', width: '520px'}}
+                            />
+                </div>
             </Modal>
             <div><img src={gototopicon} className="gotopicon" onClick={gototop}/></div>
             <Footer/>

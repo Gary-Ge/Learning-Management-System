@@ -7,6 +7,9 @@ import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button,Pagination,messag
 import { SmileOutlined} from '@ant-design/icons';
 import {  HOST,CHANGEFILE_URL,getToken, HOST_STUDENT,COURSE_URL,HOST_COURSE} from '../utils/utils';
 import moment from 'moment';
+
+import type { Dayjs } from 'dayjs';
+import type { CellRenderInfo } from 'rc-picker/lib/interface';
 function checkToken() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -79,7 +82,6 @@ export default function IndexPage() {
     history.push(`/viewstudentcourse?courseid=${id}&title=${title}`);
   }
 
-
   const [customize, setCustomize] = useState(true);
   const [userData, setUserData] = useState({});
   const token = getToken()
@@ -90,7 +92,9 @@ export default function IndexPage() {
   const [allcourseDetails, setAllCourseDetails] = useState<Array<any>>([]);
   const [firstcourseDetails, setFirstCourseDetails] = useState<Array<any>>([{cover: '',title:'',date:'',description:''}]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedDate, setSelectedDate] = useState<string | null>(moment().format('YYYY-MM-DD'));
+  const [selectedDate, setSelectedDate] = useState<string>(moment().format('YYYY-MM-DD'));
+  const [allDue,setAllDue] = useState([])
+  const [nodueflag, setnodueflag] = useState(true)
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,
@@ -110,8 +114,85 @@ export default function IndexPage() {
     localStorage.setItem('userData', JSON.stringify(newUserData));
   }
 
+  const dateCellRender = (value: Dayjs) => {
+    // const listData = getListData(value);
+    let listData:any = []
+    allDue.map((item:any) => {
+      if (item.time.substring(8,9) == '0') {
+        if (item.time.substring(9) == value.date().toString() && item.time.substring(5,7) == selectedDate.substring(5,7)) { // selectedDate.substring(5,7) // moment().format('YYYY-MM-DD').substring(5,7)
+          listData = [{content: item.title}]
+        }
+      } else {
+        if (item.time.substring(8) == value.date().toString() && item.time.substring(5,7) == selectedDate.substring(5,7)) { // selectedDate.substring(5,7) // moment().format('YYYY-MM-DD').substring(5,7)
+          listData = [{content: item.title}]
+        }
+      }
+    })
 
+    return (
+      <ul className="events">
+        {listData.map((item:any) => (
+          // <li key={item.content}>
+            <div key={item.content} className="red"></div> // style={{, width:'25px', height:'5px'}}
+        ))}
+      </ul>
+    );
+  };
+
+
+  // const cellRender = (current: Dayjs, info: CellRenderInfo<Dayjs>) => {
+  //   if (info.type === 'date') return dateCellRender(current);
+  //   if (info.type === 'month') return monthCellRender(current);
+  //   return info.originNode;
+  // };
+  // get calendar
+  const getCalendar = () => {
+    fetch(`${HOST_STUDENT}/calendar`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        // throw new Error(res.message)
+        message.error(res.message);
+        return
+      }
+      console.log('calendar',res.data.courses);
+      let get_all_due = res.data.courses
+      let all_due:any = []
+      get_all_due.AssignmentList.map((item:any)=> {
+        all_due = all_due.concat(item)
+      })
+      get_all_due.QuizList.map((item:any)=> {
+        all_due = all_due.concat(item)
+      })
+      get_all_due.StreamList.map((item:any)=> {
+        all_due = all_due.concat(item)
+      })
+      console.log('calendar all_due',all_due);
+      all_due.map((item: any)=>{
+        if(item.assignment_id){
+          item.title = `${item.course_title}, Assignment: ${item.assignment_title}, Time: ${item.assignment_end.substring(11)}`
+          item.time = item.assignment_end.substring(0,10)
+        }
+        if(item.quiz_id){
+          item.title = `${item.course_title}, Quiz: ${item.quiz_title}, Time: ${item.quiz_end.substring(11)}`
+          item.time = item.quiz_end.substring(0,10)
+        }
+        if(item.stream_id){
+          item.title = `${item.course_title}, Stream Lesson: ${item.stream_title}, Time: ${item.stream_end.substring(11)}`
+          item.time = item.stream_end.substring(0,10)
+        }
+      })
+      setAllDue(all_due)
+    })
+  }
   useEffect(() => {
+    getCalendar();
     fetch(`${HOST}${CHANGEFILE_URL}`, {
       method: "GET",
       headers: {
@@ -167,7 +248,7 @@ export default function IndexPage() {
         throw new Error(res.message)
       }
       setAllCourseDetails(res.data.courses)
-      console.log('+++',res.data.courses[0]);
+      // console.log('+++',res.data.courses[0]);
       setFirstCourseDetails([res.data.courses[0]])
     })
     .catch(error => {
@@ -370,10 +451,23 @@ useEffect(() => {
     </div>
     <div className='calendar_and_exp'>
         <div className='calendar'>
-        <Calendar fullscreen={false} onSelect={date => setSelectedDate(date.format('YYYY-MM-DD'))} />
+        <Calendar fullscreen={false} onSelect={date => setSelectedDate(date.format('YYYY-MM-DD'))} dateCellRender={dateCellRender}/>  
+        {/* dateCellRender={dateCellRender} */}
         </div>
         <div className='exp'>
-          {selectedDate}
+          <p>{selectedDate}</p>
+          {
+            allDue.map((item:any, index)=> {
+              if(item.time == selectedDate) {
+                return(
+                  <div key={index}>{item.title}</div>
+                )
+              }
+            })
+          }
+          {
+            <div className='no_more_due'>-No More Dues-</div>
+          }
         </div>
       </div>
     </div>
