@@ -45,10 +45,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     private SectionMapper sectionMapper;
 
     @Autowired
-    private AssignmentMapper assignmentMapper;
-
-    @Autowired
-    private QuizMapper quizMapper;
+    private ResourceMapper resourceMapper;
 
     private final String TITLE_EXISTS = "Course title has been used, please change the course title";
 
@@ -345,14 +342,65 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     }
 
     @Override
-    public List<Map<String, Object>> selectCourseWithMaterials(String courseId) {
+    public List<Map<String, Object>> selectCourseWithMaterials(String courseId, String keyword) {
         // Retrieve the course by courseId
         Course course = baseMapper.selectById(courseId);
         if (course == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Course not found");
         }
 
-        return baseMapper.selectCourseWithMaterials(courseId);
+        LambdaQueryWrapper<Section> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Section::getCourseId, courseId);
+        wrapper.orderByAsc(Section::getCreatedAt);
+
+        return sectionMapper.selectList(wrapper).stream()
+                .filter(section -> {
+                    String title = section.getTitle();
+                    return title.toUpperCase().contains(keyword.toUpperCase());
+                })
+                .map(section -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("sectionId", section.getSectionId());
+                    result.put("title", section.getTitle());
+                    result.put("description", section.getDescription());
+                    result.put("createdAt", section.getCreatedAt());
+                    result.put("updatedAt", section.getUpdatedAt());
+
+                    // Get the resources of this section, if any
+                    LambdaQueryWrapper<Resource> resourceWrapper = new LambdaQueryWrapper<>();
+                    resourceWrapper.eq(Resource::getSectionId, section.getSectionId());
+                    result.put("resources", resourceMapper.selectList(resourceWrapper).stream()
+                            .map(resource -> {
+                                Map<String, String> map = new HashMap<>();
+                                map.put("resourceId", resource.getResourceId());
+                                map.put("title", resource.getTitle());
+                                map.put("type", resource.getType() == 0 ? "File" : "Video");
+
+                                return map;
+                            }).collect(Collectors.toList()));
+
+                    switch (section.getType()) {
+                        case 0:
+                            result.put("type", "Text Section");
+                            result.put("cover", null);
+                            result.put("youtubeLink", null);
+                            break;
+                        case 1:
+                            result.put("type", "YouTube Video Section");
+                            result.put("cover", null);
+                            result.put("youtubeLink", section.getYoutubeLink());
+                            break;
+                        case 2:
+                            result.put("type", "Custom Video Section");
+                            result.put("cover", section.getCover());
+                            result.put("youtubeLink", null);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return result;
+                }).collect(Collectors.toList());
     }
 
 }
