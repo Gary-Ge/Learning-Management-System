@@ -752,6 +752,10 @@ export default function IndexPage() {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    localStorage.removeItem('timeLeft');
+    setStartedQuiz(null);
+    setAnswers({});
+    setTimeLeft(null);
   };
   const gototop = () => {
     window.scrollTo(0, 0);
@@ -866,8 +870,26 @@ export default function IndexPage() {
     }
     else if (timeLeft === 0) {
       submitQuizAnswers(startedQuiz);
+      localStorage.removeItem('timeLeft');
+        setStartedQuiz(null);
+        setAnswers({});
+        setTimeLeft(null);
+        setIsSubmitted(false)
     }
   }, [startedQuiz, timeLeft]);
+  useEffect(() => {
+    const storedTimeLeft = localStorage.getItem('timeLeft');
+    if (storedTimeLeft !== null) {
+      setTimeLeft(Number(storedTimeLeft));
+    }
+  }, []);
+  useEffect(() => {
+    if (timeLeft !== null) {
+      localStorage.setItem('timeLeft', timeLeft.toString());
+    }
+  }, [timeLeft]);
+  
+
   return (
     <div className='stu_wrap'>
       <Navbar />
