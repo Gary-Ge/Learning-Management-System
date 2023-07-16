@@ -28,7 +28,7 @@ const QuizEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; quiz: any
     options: {id: number, value: string, isCorrect: boolean}[]; 
     selectedOption: string; 
     correctOptionId: string; 
-    mark?: number | undefined;
+    mark: number,
     questionId:string,
     cover:string,
     questionTitle:string,
@@ -620,6 +620,7 @@ const removeForm = (formId: number) => {
                 <Form.Item
                   style={{ flex: 1 }}
                   name={`Mark ${form.id}`}
+                  initialValue={form.mark}
                 >
                   <Input
                     type="number"
