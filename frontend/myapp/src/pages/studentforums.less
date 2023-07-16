@@ -11,16 +11,30 @@
     font-weight: bold;
     padding-top: 20px;
     padding-left: 30px;
+    padding-bottom: 10px;
   }
-  .stu_title_list{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  .mbt{
+    margin-bottom: 10px!important;
   }
-  .stu_title{
+  .mbt5{
+    margin-bottom: 5px;
+  }
+.forum_title_list{
+    margin-bottom: 5px;
+}
+.forum_title_list p{
+    display: inline-block;
+    margin-bottom: 0;
+}
+  .forum_title{
     color: gray;
     font-size: 16px;
     padding-left: 30px;
+  }
+  .forum_course{
+    margin-bottom: 5px;
+    color: #000;
+    font-size: 16px;
   }
   .stu_flex{
     flex: 1
@@ -40,16 +54,15 @@
     // line-height: 40px;
     border-bottom: 5px solid #B1DDF0;
   }
-  .stu_list_header{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  .forum_list_header{
+    display: inline-block;
+    cursor: pointer;
   }
   .stu_title_bar{
     display: none;
   }
   .display_non{
-    display: none;
+    display: none!important;
   }
   .mrt{
     margin-right: 10px;
@@ -60,9 +73,13 @@
   .mt5{
     margin-top: 5px;
   }
+  .mrt63{
+    margin-right: 63px!important;
+  }
   .stu_forum_tag_wrap{
-    margin-top: 10px;
     padding-left: 30px;
+    display: flex;
+    align-items: center;
   }
   .stu_forum_tag{
     display: inline-block;
@@ -71,8 +88,14 @@
     font-size: 13px;
     cursor: pointer;
   }
-  .tag_blue{
+
+  .tag_all{
     color: #6666FF;
+    border: 1px dashed #c199E0;
+    // float: left;
+  }
+  .tag_blue {
+    color: #1FC6B2;
     border: 1px dashed #0E8088;
   }
   .tag_red{
@@ -84,11 +107,10 @@
     border: 1px dashed #6666FF;
   }
   .tag_active{
-    background-color: #B0E3E6;
+    background-color: #B0E3E6;//#D3E1EE; //
   }
   .btn_add{
     height: 32px;
-    // margin-left: 20px;
   }
   .stu_forum_content_wrap{
     // border: 1px solid red;
@@ -103,10 +125,10 @@
   .stu_forum_thread_wrap{
     padding-left: 90px;
     padding-right: 20px;
-    margin-top: 20px;
+    // margin-top: 20px;
   }
   .stu_forum_list{
-    width: 450px;
+    min-width: 450px;
     height: 600px;
     // height: calc(100vh - 187px);
     // overflow: scroll;
@@ -165,6 +187,12 @@
   }
   .pointer{
     cursor: pointer;
+  }
+  .forum_search{
+    width: 305px;
+    margin-left: 30px;
+    margin-top: 20px;
+    margin-right: 20px;
   }
 .stu_forum_left_list_wrap{
     padding: 10px;
@@ -238,10 +266,20 @@
 .forum_comment{
     padding-left: 54px;
     margin-bottom: 5px;
+    width: 750px;
+    word-break: break-all;
+}
+.forum_comment img{
+  max-width: 600px;
 }
 .forum_second_comment{
+    // width: 520px;
+    word-wrap: break-word;
     padding-left: 45px;
     margin-bottom: 5px;
+}
+.forum_second_comment img{
+  max-width: 600px;
 }
 .forum_thread_avatar_wrap{
     display: flex;
@@ -259,8 +297,10 @@
     font-weight: bold;
 }
 .line_h{
-    line-height: 30px;
-    font-size: 16px;
+    width: 720px;
+    word-break: break-all;
+    // line-height: 30px;
+    // font-size: 16px;
 }
 .thread_input_wrap{
     display: flex;
@@ -334,4 +374,29 @@
     margin-left: 54px;
     display: inline-block;
     // margin-bottom: 20px;
+}
+.edit_icon{
+    // border: 1px solid red;
+    width: 30px;
+    // height: 30px;
+    // line-height: 30px;
+    font-size: 20px;
+    // margin-right: 10px;
+}
+.mlt110{
+    margin-left: 110px;
+}
+.tag_name_input{
+    width: 300px;
+}
+.edit_tag_radio{
+    margin-bottom: 20px;
+    margin-left: 110px;
+}
+.edit_tag_title{
+    display: inline-block;
+    margin-bottom: 10px;
+}
+.ql-editor {
+  color: #000;
 }

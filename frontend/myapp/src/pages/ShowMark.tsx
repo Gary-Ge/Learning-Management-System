@@ -10,7 +10,6 @@ import crown from '../../../images/crown.png';
 import downloadicon from '../../../images/download.png';
 import { getToken } from '../utils/utils'
 import { ShowMarkDTO } from '../utils/entities';
-import { cloneDeep } from 'lodash';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;

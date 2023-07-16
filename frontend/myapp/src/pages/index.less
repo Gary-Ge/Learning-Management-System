@@ -155,16 +155,17 @@
 }
 .exp {
   background: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
   padding: 20px;
   border-radius: 5px;
   width: 400px;
-  height: 150px;
+  min-height: 150px;
   max-width: 90%;
   margin: auto;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  // overflow: hidden;
 }
 
 .card {
@@ -226,6 +227,21 @@
 // .custom-card  .ant-card-meta-avatar {
 //   width: 50%;
 // }
+.ant-picker-cell-in-view .red{
+  background: orange;
+  width: 25px;
+  height: 5px;
+  // style={{, width:'25px', height:'5px'}}
+}
+.staff_calendar{
+  display: none;
+}
+.ant-picker-cell-in-view .staff_calendar{
+  // background: orange;
+  font-size: 12px;
+  display: inline-block;
+  // style={{, width:'25px', height:'5px'}}
+}
 .calendar {
   background: #ffffff;
   padding: 20px;
@@ -437,4 +453,9 @@
   margin-top: 20px;
 }
 }
-
+.no_more_due{
+  color: #B3B3B3;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 10px;
+}

@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 import "./login.less"; 
-import { Button, Form, Input, Radio } from 'antd';
+import { Button, Form, Input, Radio, message } from 'antd';
 import { Link,useHistory } from 'umi'; 
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { LoginDTO } from '../utils/entities';
@@ -30,11 +30,11 @@ export default function LoginPage() {
 
   const handleSubmit = () => {
     if (!validEmail(email)) {
-      alert('please input a valid Email')
+      message.error('please input a valid Email')
       return
     } 
     if (!validNotNull(password)) {
-      alert('please input a password')
+      message.error('please input a password')
       return
     }
     const dto = new LoginDTO(email,password);
@@ -52,7 +52,7 @@ export default function LoginPage() {
       history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-     alert(error.message)
+     message.error(error.message)
     });  
   }
   useEffect(() => {

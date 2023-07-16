@@ -31,8 +31,8 @@ let data:any = [
   // },
 ];
 
-const { Search } = Input;
-const onSearch = (value: string) => console.log(value);
+
+
 
 const fun_list = [
   {
@@ -122,7 +122,7 @@ let stream_list = [
 ];
 
 
-export default function IndexPage() {
+export default function StudentCoursePage() {
   // const [isenrollflag, setisenrollflag] = useState(true);
   const token = getToken();
   const { Dragger } = Upload;
@@ -210,6 +210,7 @@ export default function IndexPage() {
     getallcourse();
     window.scrollTo(0, 0);
   },[]);
+
   // get course list -> get all sections
   const getallcourse = () => {
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
@@ -222,7 +223,9 @@ export default function IndexPage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        // throw new Error(res.message)
+        message.error(res.message);
+        return
       }
       // console.log(res.data.courses);
       let courselist = []
@@ -266,7 +269,7 @@ export default function IndexPage() {
         currentcourseid = courseid.toString();
       }
       getcourseinfo(currentcourseid);
-      getallsections(currentcourseid); // get all sections
+      // getallsections(currentcourseid); // get all sections
       getallquizzes(currentcourseid, '0');
       getallassignments(currentcourseid, '0');// get all assignment
       getallstreams(currentcourseid, '0');// get all assignment
@@ -321,24 +324,25 @@ export default function IndexPage() {
     });
   };
   // get video url
-  const getvideourl = (resourceId:string, inneritem:any)=> {
-    fetch(`${HOST_RESOURCE}/video/${resourceId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Bearer ${token}`
-      }
-    })
-    .then(res => res.json())
-    .then(res => {
-      console.log('res');
-      if (res.code !== 20000) {
-        throw new Error(res.message)
-      }
-      console.log('video url:',res.data.auth.playURL);
-      inneritem.url = res.data.auth.playURL
-    });
-  }
+  // const getvideourl = (resourceId:string, inneritem:any)=> {
+  //   fetch(`${HOST_RESOURCE}/video/${resourceId}`, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/x-www-form-urlencoded",
+  //       "Authorization": `Bearer ${token}`
+  //     }
+  //   })
+  //   .then(res => res.json())
+  //   .then(res => {
+  //     if (res.code !== 20000) {
+  //       // throw new Error(res.message)
+  //       message.error(res.message);
+  //       return
+  //     }
+  //     console.log('video url:',res.data.auth.playURL);
+  //     inneritem.url = res.data.auth.playURL
+  //   });
+  // }
   // get all sections of a course
   const getallsections = (courseid:string) => {
     fetch(`${HOST_SECTION}/sections/${courseid}`, {
@@ -352,7 +356,9 @@ export default function IndexPage() {
     .then(res => {
       console.log('get all sections');
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        // throw new Error(res.message)
+        message.error(res.message);
+        return
       }
       console.log(res.data.sections);
       materials_list = []
@@ -373,14 +379,35 @@ export default function IndexPage() {
           item.file_list.map((inneritem:any) => {
             if (inneritem.type == "Video") {
               // let url_link = getvideourl(inneritem.resourceId);
-              let videolink:any
-              getvideourl(inneritem.resourceId, inneritem)
+              // let videolink:any
+              // getvideourl(inneritem.resourceId, inneritem)
+
+              fetch(`${HOST_RESOURCE}/video/${inneritem.resourceId}`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "Authorization": `Bearer ${token}`
+                }
+              })
+              .then(res => res.json())
+              .then(res => {
+                if (res.code !== 20000) {
+                  // throw new Error(res.message)
+                  message.error(res.message);
+                  return
+                }
+                console.log('video url:',res.data.auth.playURL);
+                inneritem.url = res.data.auth.playURL
+                setmaterialLists([...materials_list]);
+                console.log("getallsections+++materials_list:", materials_list);
+              });
             }
           })
+        } else {
+          setmaterialLists([...materials_list]);
         }
       });
-      setmaterialLists([...materials_list]);
-      console.log("materials_list:",materials_list);
+
       
     })
     .catch(error => {
@@ -475,7 +502,7 @@ export default function IndexPage() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log('get all sections');
+      console.log('get all assignments');
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -580,8 +607,9 @@ export default function IndexPage() {
     set_quiz_left_list_show(false);
     set_ass_left_list_show(false);
     set_stream_left_list_show(false);
-    
-    getallsections(id); // get materials
+    // clear materials content
+    setmaterialLists([]);
+    // getallsections(id); // get materials
     getallquizzes(id, '0');
     getallassignments(id, '0'); // update assignment
     getallstreams(id, '0'); // update stream
@@ -590,11 +618,22 @@ export default function IndexPage() {
   const history = useHistory();
   // click left list
   const onclicklist = (e:any) => {
+    console.log(e.target.id);
     funlist.map(item => {
       item.is_selected = false;
     });
     funlist[e.target.id].is_selected = true;
     setfunLists([...funlist]);
+    // get current course id
+    let current_course_id = ''
+    datalist.map((item:any) => {
+      if (item.is_selected){
+        current_course_id = item.id
+      }
+    })
+    if (e.target.id == '1') { // materials
+      getallsections(current_course_id);
+    }
     if(e.target.id == '2'){ // assignment show
       set_quiz_left_list_show(!quiz_left_list_show);
     } else {
@@ -752,9 +791,106 @@ export default function IndexPage() {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    localStorage.removeItem('timeLeft');
+    setStartedQuiz(null);
+    setAnswers({});
+    setTimeLeft(null);
   };
   const gototop = () => {
     window.scrollTo(0, 0);
+  }
+  const { Search } = Input;
+  const onSearch = (value: string) => {
+    // get current course id
+    let current_course_id = ''
+    datalist.map((item:any) => {
+      if (item.is_selected){
+        current_course_id = item.id
+      }
+    })
+    console.log(value, current_course_id);
+    if (value == '') { // if value == '', interface will get 404
+      getallsections(current_course_id);
+      return
+    }
+
+    fetch(`${HOST_COURSE}${COURSE_URL}/${current_course_id}/materials/${value}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        // throw new Error(res.message)
+        message.error(res.message);
+        return
+      }
+      console.log('search:', res.data.sections);
+      // update funlist (left list)
+      fun_list.map(item => {
+        item.is_selected = false;
+      });
+      fun_list[1].is_selected = true;
+      setfunLists([...fun_list]);
+      // update right content of materials
+      materials_list = []
+      if (res.data.sections.length == 0) {
+        setmaterialLists([])
+        return
+      }
+      materials_list = []
+      setmaterialLists([]);
+      let res_sections = res.data.sections;
+      res_sections.map( (item:any, index: string) => {
+
+        materials_list.push({
+          key: index.toString(),
+          title: item.title,
+          time: item.updatedAt,
+          content: item.description,
+          type: item.type,
+          file_list: item.resources, // resources
+          cover: item.cover
+        });
+      });
+      materials_list.map(item => {
+        if (item.type == 'Custom Video Section') {
+          item.file_list.map((inneritem:any) => {
+            if (inneritem.type == "Video") {
+              // let url_link = getvideourl(inneritem.resourceId);
+              // let videolink:any
+              // getvideourl(inneritem.resourceId, inneritem)
+              fetch(`${HOST_RESOURCE}/video/${inneritem.resourceId}`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "Authorization": `Bearer ${token}`
+                }
+              })
+              .then(res => res.json())
+              .then(res => {
+                if (res.code !== 20000) {
+                  // throw new Error(res.message)
+                  message.error(res.message);
+                  return
+                }
+                console.log('video url:',res.data.auth.playURL);
+                inneritem.url = res.data.auth.playURL
+                setmaterialLists([...materials_list]);
+                console.log("search--materials_list:", materials_list);
+              });
+            }
+          })
+        } else {
+          setmaterialLists([...materials_list]);
+        }
+      });
+      // setmaterialLists([...materials_list]);
+      // console.log('materialslist', materialslist);
+    })
   }
   const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
     switch (questionType) {
@@ -866,8 +1002,26 @@ export default function IndexPage() {
     }
     else if (timeLeft === 0) {
       submitQuizAnswers(startedQuiz);
+      localStorage.removeItem('timeLeft');
+        setStartedQuiz(null);
+        setAnswers({});
+        setTimeLeft(null);
+        setIsSubmitted(false)
     }
   }, [startedQuiz, timeLeft]);
+  useEffect(() => {
+    const storedTimeLeft = localStorage.getItem('timeLeft');
+    if (storedTimeLeft !== null) {
+      setTimeLeft(Number(storedTimeLeft));
+    }
+  }, []);
+  useEffect(() => {
+    if (timeLeft !== null) {
+      localStorage.setItem('timeLeft', timeLeft.toString());
+    }
+  }, [timeLeft]);
+  
+
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -881,7 +1035,7 @@ export default function IndexPage() {
           )}
         </div>
         {
-          funlist.length != 0 ? <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }} allowClear/></div> : ''
+          funlist.length != 0 ? <div><Search placeholder="input search text" onSearch={onSearch} style={{ width: 200 }}/></div> : ''
         }
       </div>
       <div className='stu_content'>
@@ -943,7 +1097,7 @@ export default function IndexPage() {
                   materialslist.map(item => <div className='materials_wrap' key={item.key}>
                   <div className='materials_title'>{item.title}</div>
                   <div className='materials_time'>{item.time}</div>
-                  <div className='materials_img'><img src={item.cover}/></div>
+                  <div className={item.cover == '' || item.cover == null ? 'display_non':'materials_img'}><img src={item.cover}/></div>
                   {item.type == 'Text Section' ? <div className='materials_content' dangerouslySetInnerHTML={{__html: item.content}}></div> : ''}
                   { item.file_list.map((itm:any, idx:number) => 
                     <div key={idx.toString()} className="downloadfile_wrap">
@@ -1166,7 +1320,7 @@ export default function IndexPage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? '': 'display_non'}>
+              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
                 }
@@ -1180,7 +1334,7 @@ export default function IndexPage() {
                   )
                 }
               </div>
-            </div> : <div>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
+            </div> : <div className='nocoursewrap'>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }
 
       </div>
