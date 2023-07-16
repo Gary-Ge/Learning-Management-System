@@ -104,6 +104,22 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         return quiz.getQuizId();
     }
 
+    private void isStaffOrStudent(String userId, String courseId) {
+        // Check if this user is a staff or a student of this course
+        // If this user is neither a staff nor a student of this course, this user cannot view the information
+        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Staff::getCourseId, courseId);
+        wrapper.eq(Staff::getUserId, userId);
+        if (!staffMapper.exists(wrapper)) {
+            LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
+            studentWrapper.eq(Student::getCourseId, courseId);
+            studentWrapper.eq(Student::getUserId, userId);
+            if (!studentMapper.exists(studentWrapper)) {
+                throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
+            }
+        }
+    }
+
     @Override
     public Map<String, Object> getQuizById(String quizId, String userId) {
         Quiz quiz = baseMapper.selectById(quizId);
@@ -111,12 +127,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
             throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
         }
 
-        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Staff::getUserId, userId);
-        wrapper.eq(Staff::getCourseId, quiz.getCourseId());
-        if (!staffMapper.exists(wrapper)) {
-            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get quiz information");
-        }
+        isStaffOrStudent(userId, baseMapper.selectById(quizId).getCourseId());
 
         Map<String, Object> result = new HashMap<>();
         Field[] fields = quiz.getClass().getDeclaredFields();
@@ -139,12 +150,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
             throw new BrainException(ResultCode.NOT_FOUND, "Course does not exist");
         }
 
-        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Staff::getUserId, userId);
-        wrapper.eq(Staff::getCourseId, courseId);
-        if (!staffMapper.exists(wrapper)) {
-            throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to get quiz list");
-        }
+        isStaffOrStudent(userId, courseId);
 
         LambdaQueryWrapper<Quiz> quizWrapper = new LambdaQueryWrapper<>();
         quizWrapper.eq(Quiz::getCourseId, courseId);
@@ -167,22 +173,6 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         }
 
         return resultList;
-    }
-
-    private void isStaffOrStudent(String userId, String courseId) {
-        // Check if this user is a staff or a student of this course
-        // If this user is neither a staff nor a student of this course, this user cannot view the information
-        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Staff::getCourseId, courseId);
-        wrapper.eq(Staff::getUserId, userId);
-        if (!staffMapper.exists(wrapper)) {
-            LambdaQueryWrapper<Student> studentWrapper = new LambdaQueryWrapper<>();
-            studentWrapper.eq(Student::getCourseId, courseId);
-            studentWrapper.eq(Student::getUserId, userId);
-            if (!studentMapper.exists(studentWrapper)) {
-                throw new BrainException(ResultCode.NO_AUTHORITY, NO_AUTHORITY_GET);
-            }
-        }
     }
 
     @Override

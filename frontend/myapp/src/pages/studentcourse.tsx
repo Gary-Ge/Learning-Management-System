@@ -85,6 +85,27 @@ interface List {
   assFileId: string,
   title: string
 }
+let quiz_list = [
+  {
+    key: '0',quizid:'',title:'',start: '',end: '',limitation:'',
+    is_selected: false,
+	question_list: [
+  {
+    key: '0',questionid:'',title:'',type:0,cover:'',shortanswer:'',mark:0,
+    options: [
+      { id: 0, value: '' },
+      { id: 1, value: ''},
+      { id: 2, value: ''},
+      { id: 3, value: ''},
+      { id: 4, value: ''},
+      { id: 5, value: ''},
+    ],
+  }
+]
+  }
+]
+
+
 let assign_list = [
   {
     key: '0', assid: '', title: '', start_time: '', end_time: '',
@@ -99,30 +120,7 @@ let stream_list = [
     is_selected: false,
   }
 ];
-/*quiz part*/
-const questions = [
-  {
-    id: 1,
-    type: 'radio',
-    question: 'What is the adk course?',
-    options: ['Comp9900', 'Comp9311', 'Comp9331', 'Comp9024']
-  },
-  {
-    id: 2,
-    type: 'checkbox',
-    question: 'What is the adk course?',
-    options: ['Comp9900', 'Comp9417', 'Comp9517', 'Comp9024']
-  },
-  {
-    id: 3,
-    type: 'text',
-    question: 'Write your favorite course.'
-  },
-];
 
-const handleSubmit = () => {
-  console.log('success')
-};
 
 export default function StudentCoursePage() {
   // const [isenrollflag, setisenrollflag] = useState(true);
@@ -134,10 +132,17 @@ export default function StudentCoursePage() {
   const [courseoutline,setcourseoutline]= useState(course_outline); // function to change course outline
   const [materialslist,setmaterialLists]= useState(materials_list); // function to change materials
   const [assignlist,setassignmentLists]= useState(assign_list);
+  const [quizlist,setquizLists]= useState(quiz_list);
   const [streamlist,setstreamLists]= useState(stream_list);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quiz_left_list_show,set_quiz_left_list_show]= useState(false);
   const [ass_left_list_show,set_ass_left_list_show]= useState(false);
   const [stream_left_list_show,set_stream_left_list_show]= useState(false);
+  const [startedQuiz, setStartedQuiz] = useState<string | null>(null);
+  const [buttonTexts, setButtonTexts] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<{ [key: string]: any }>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<null | number>(null);
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -265,6 +270,7 @@ export default function StudentCoursePage() {
       }
       getcourseinfo(currentcourseid);
       // getallsections(currentcourseid); // get all sections
+      getallquizzes(currentcourseid, '0');
       getallassignments(currentcourseid, '0');// get all assignment
       getallstreams(currentcourseid, '0');// get all assignment
       fun_list.map(item => {
@@ -273,6 +279,7 @@ export default function StudentCoursePage() {
       fun_list[0].is_selected = true;
       setfunLists([...fun_list]);
       setdataLists([...data]);
+      set_quiz_left_list_show(false);
       set_ass_left_list_show(false);
       set_stream_left_list_show(false);
       // console.log('++data',data);
@@ -407,6 +414,83 @@ export default function StudentCoursePage() {
       console.log(error.message);
     }); 
   };
+  // get all quizzes
+  const getallquizzes = (courseid:string, original_key: string) => {
+    fetch(`/service-edu/edu-quiz/quiz/course/${courseid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(async res => {
+      console.log('get all quizzes');
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+
+      let res_quiz = res.data.quizzes;
+      let fetchedQuizList = await Promise.all(res_quiz.map(async (item:any, idx:string)=>{
+        
+        // Fetch the questions for this quiz
+        let response = await fetch(`/service-edu/edu-question/questions/${item.quizId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        let question_list = [];
+
+        if(response.ok) {
+          let questionData = await response.json(); 
+
+          question_list = questionData.data.questions.map((question:any,idx:number) => {
+            let options = [
+              { id: 0, value: question.a },
+              { id: 1, value: question.b },
+              { id: 2, value: question.c},
+              { id: 3, value: question.d },
+              { id: 4, value: question.e},
+              { id: 5, value: question.f},
+            ].filter(option => option.value !== '');
+            return {
+              key: idx,
+              questionid: question.questionId,
+              title: question.content, 
+              type: question.type,
+              cover: question.cover,
+              shortanswer: question.shortAnswer,
+              mark: question.mark,
+              options:options,
+            };
+          });
+        } else {
+          console.error(`Error in fetching questions for quizid: ${item.quizId}`);
+        }
+
+        return {
+          key: idx,
+          quizid: item.quizId,
+          title: item.title,
+          start: item.start,
+          end: item.end,
+          limitation: item.limitation,
+          is_selected: idx == original_key,
+          question_list: question_list  // Add the question_list to the quiz object
+        };
+      }));
+
+      setquizLists(fetchedQuizList);
+      console.log('no',fetchedQuizList)
+    })
+    .catch(error => {
+      console.log(error.message);
+    }); 
+  };
+
   // get all assignments
   const getallassignments = (courseid:string, original_key: string) => {
     fetch(`${HOST_STUDENT}/assignments/${courseid}`, {
@@ -520,11 +604,13 @@ export default function StudentCoursePage() {
     });
     fun_list[0].is_selected = true;
     setfunLists([...fun_list]);
+    set_quiz_left_list_show(false);
     set_ass_left_list_show(false);
     set_stream_left_list_show(false);
     // clear materials content
     setmaterialLists([]);
     // getallsections(id); // get materials
+    getallquizzes(id, '0');
     getallassignments(id, '0'); // update assignment
     getallstreams(id, '0'); // update stream
     getcourseinfo(id); // update course outline
@@ -547,6 +633,11 @@ export default function StudentCoursePage() {
     })
     if (e.target.id == '1') { // materials
       getallsections(current_course_id);
+    }
+    if(e.target.id == '2'){ // assignment show
+      set_quiz_left_list_show(!quiz_left_list_show);
+    } else {
+      set_quiz_left_list_show(false);
     }
     if(e.target.id == '3'){ // assignment show
       set_ass_left_list_show(!ass_left_list_show);
@@ -640,10 +731,22 @@ export default function StudentCoursePage() {
       }
     })
   }
+  const showquizcontent = (e:any) => {
+    console.log('hh',e.target.id);
+    quizlist.map(item => {
+      item.is_selected = false;
+    });
+    quizlist.map(item => {
+      if (item.quizid == e.target.id) {
+        item.is_selected = true
+      }
+    })
+    setquizLists([...quizlist]);
+    window.scrollTo(0, 0);
+  }
   // onclick to show ass content
   const showasscontent = (e:any) => {
     setIsStreamOpen(false);
-    console.log(e.target.id);
     console.log();
     assign_list.map(item => {
       item.is_selected = false;
@@ -688,6 +791,10 @@ export default function StudentCoursePage() {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    localStorage.removeItem('timeLeft');
+    setStartedQuiz(null);
+    setAnswers({});
+    setTimeLeft(null);
   };
   const gototop = () => {
     window.scrollTo(0, 0);
@@ -785,6 +892,136 @@ export default function StudentCoursePage() {
       // console.log('materialslist', materialslist);
     })
   }
+  const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
+    switch (questionType) {
+      case 0: // 对于单选题
+      case 1: // 对于多选题
+        setAnswers(prevAnswers => ({
+          ...prevAnswers,
+          [quizId + '_' + questionId]: { 
+              quizId: quizId, 
+              questionId: questionId, 
+              options: answer,  // answer 是一个数组
+              content: '' 
+            } 
+        }));
+        break;
+      case 2: // 对于问答题
+        setAnswers(prevAnswers => ({
+          ...prevAnswers,
+          [quizId + '_' + questionId]: { 
+              quizId: quizId, 
+              questionId: questionId, 
+              options: [],  
+              content: answer // answer 是用户输入的字符串
+            } 
+        }));
+        break;
+      default:
+        break;
+    }
+  };  
+  const submitQuizAnswers = async (quizId:any) => {
+    // 对于对象中的每个属性（即问题）进行迭代
+    for (const key in answers) {
+        // 如果属性的 key 包含了 quizId
+        if (key.startsWith(quizId + '_')) {
+            const answer = answers[key];
+
+            // 创建请求参数
+            let params = new URLSearchParams();
+            if (answer.options.length > 0) {
+                params.append('optionIds', answer.options);
+            }
+            if (answer.content !== '') {
+                params.append('content', answer.content);
+            }
+            const response = await fetch(`/service-edu/edu-student/submit/question/${answer.questionId}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  "Authorization": `Bearer ${token}`
+              },
+              body: params
+          });
+
+          const data = await response.json();
+          if (data.success) {
+              console.log(`Question ${answer.questionId} submitted successfully.`);
+          } else {
+              console.log(`Failed to submit question ${answer.questionId}. Error: ${data.message}`);
+              return;
+          }
+      }
+  }
+  setIsSubmitted(true);
+  message.success("quiz submit successfully")
+};  
+
+  useEffect(() => {
+    console.log(answers);  // 每次answers更新时都会打印
+  }, [answers]);
+  useEffect(() => {
+    const storedStartedQuiz = localStorage.getItem("startedQuiz");
+    if (storedStartedQuiz) {
+      setStartedQuiz(storedStartedQuiz);
+    }
+  }, []);
+  const handleClick = (_item:any) => {
+    const now = new Date();
+    const start = new Date(_item.start);
+    const end = new Date(_item.end);
+
+    if (now < start) {
+      message.error('Quiz is not started yet,please join in after'+  _item.start);
+      return;
+    }
+
+    if (now > end) {
+      message.error('Quiz is finished.');
+      return;
+    }
+    localStorage.setItem("quizStarted", "true");
+    localStorage.setItem("startedQuiz", _item.quizid);
+    setStartedQuiz(_item.quizid);
+    setTimeLeft(_item.limitation * 60); 
+  };
+  const formatTime = (time:any) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+  useEffect(() => {
+    if (startedQuiz !== null &&  timeLeft !== null&&timeLeft > 0) {
+      const timerId = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+
+      // Cleanup function
+      return () => clearInterval(timerId);
+    }
+    else if (timeLeft === 0) {
+      submitQuizAnswers(startedQuiz);
+      localStorage.removeItem('timeLeft');
+        setStartedQuiz(null);
+        setAnswers({});
+        setTimeLeft(null);
+        setIsSubmitted(false)
+    }
+  }, [startedQuiz, timeLeft]);
+  useEffect(() => {
+    const storedTimeLeft = localStorage.getItem('timeLeft');
+    if (storedTimeLeft !== null) {
+      setTimeLeft(Number(storedTimeLeft));
+    }
+  }, []);
+  useEffect(() => {
+    if (timeLeft !== null) {
+      localStorage.setItem('timeLeft', timeLeft.toString());
+    }
+  }, [timeLeft]);
+  
+
   return (
     <div className='stu_wrap'>
       <Navbar />
@@ -808,6 +1045,11 @@ export default function StudentCoursePage() {
             <div key={item.key}>
               <div className={item.is_selected ? 'stu_active stu_left_list_title': 'stu_left_list_title'} onClick={onclicklist} id={item.key} key={item.key}>
                 <img src={item.img_link} className="stu_icon"/>{item.title}
+              </div>
+              <div className={item.key == '2' && item.is_selected && quiz_left_list_show ? '' : 'display_non'} >
+              {
+                quizlist.map(_itm => <div key={_itm.title} id={_itm.quizid} className={_itm.is_selected ? 'ass_list_wrap ass_left_list_active' : 'ass_list_wrap'} onClick={showquizcontent}>{_itm.title}</div>)
+              }
               </div>
               <div className={item.key == '3' && item.is_selected && ass_left_list_show ? '' : 'display_non'} key={item.title + item.key}>
               {
@@ -872,74 +1114,118 @@ export default function StudentCoursePage() {
                 }
               </div>
               <div className={funlist[2].is_selected ? 'stu_right_content': 'display_non'}>
+               {
+                  quizlist.length == 0 ? <div>There is no quiz now.</div> : ''
+                }
+                {
+                  quizlist.map(_item =>
+                    <div key={_item.key} id={_item.quizid} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
+                  {startedQuiz === _item.quizid ? (
+                  <>
                   <div style={{display: 'flex', justifyContent: 'center',fontSize: '2em'}}>
-                    Quiz 1 
+                    {_item.title} 
                   </div>
                   <div style={{display: 'flex', justifyContent: 'flex-end',fontSize: '1em',marginTop: '20px'}}>
                     <div>
                       <ClockCircleOutlined />
                     </div>
                     <div style={{marginLeft: '20px'}}>
-                      Left Time 12:56
+                    Left Time {timeLeft !== null ? formatTime(timeLeft) : 'Not started'}
                     </div>
                   </div>
-                  {questions.map((question) => {
-                    if (question.type === 'radio') {
+                  {_item.question_list.map((question) => {
+                    if (question.type === 0) {
                       return (
-                        <div style={{marginLeft: '10%'}} key={question.id}>
-                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
-                            {question.question}
+                        <div key={question.key}>
+                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '50px' }}>
+                            <div style={{fontSize: '1.75em'}}>
+                              {question.key+1}.{question.title}
+                            </div>
+                              <div style={{ fontSize: '1em',marginTop:'2%' }}>
+                                ({question.mark} {question.mark === 0 || question.mark === 1 ? 'mark' : 'marks'})
+                              </div>
                           </div>
                           <div>
+                          {question.cover && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                              <img src={question.cover} alt="Question Cover" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                            </div>
+                          )}
                             <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '30px'}}>
                               <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Radio.Group name={`radio-${question.id}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                              <Radio.Group name={`radio-${question.questionid}`} disabled={isSubmitted} style={{marginLeft: '50px',marginTop: '5px'}} onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}>
                                 <Space direction="vertical">
-                                {question.options ? question.options.map((option, index) => (
-                                    <Radio value={index+1} key={index} style={{marginTop: '10px'}}>{option}</Radio>
-                                  )) : null}
+                                {question.options && Object.values(question.options).map((option) => (
+                                  <Radio value={option.id} key={option.id} style={{ marginTop: '10px' }}>
+                                    {option.value}
+                                  </Radio>
+                                ))}
                                 </Space>
                               </Radio.Group>
                             </div>
                           </div>
                         </div>
                       );
-                    } else if (question.type === 'checkbox') {
+                    } else if (question.type === 1) {
                       return (
-                        <div style={{marginLeft: '10%'}} key={question.id}>
-                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
-                            {question.question}
+                        <div key={question.key}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '50px' }}>
+                            <div style={{fontSize: '1.75em'}}>
+                            {question.key+1}.{question.title}
+                            </div>
+                              <div style={{ fontSize: '1em',marginTop:'2%' }}>
+                                ({question.mark} {question.mark === 1||question.mark === 0 ? 'mark' : 'marks'})
+                              </div>
                           </div>
                           <div>
+                          {question.cover && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                              <img src={question.cover} alt="Question Cover" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                            </div>
+                          )}
                             <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '40px'}}>
                             <div style={{marginTop: '10px'}}>
                               Answer:
                               </div>
-                              <Checkbox.Group name={`checkbox-${question.id}`} style={{marginLeft: '50px',marginTop: '5px'}}>
+                              <Checkbox.Group name={`checkbox-${question.questionid}`} disabled={isSubmitted} style={{ marginLeft: '50px', marginTop: '5px' }} onChange={value => handleAnswerChange(_item.quizid,question.questionid, value, question.type)}>
                                 <Space direction="vertical">
-                                  {question.options ? question.options.map((option, index) => (
-                                    <Checkbox value={index+1} key={index} style={{marginTop: '10px'}}>{option}</Checkbox>
-                                  )) : null}
+                                  {question.options && Object.values(question.options).map((option) => (
+                                    <Checkbox value={option.id} key={option.id} style={{ marginTop: '10px' }}>
+                                      {option.value}
+                                    </Checkbox>
+                                  ))}
                                 </Space>
                               </Checkbox.Group>
                             </div>
                           </div>
                         </div>
                       );
-                    } else if (question.type === 'text') {
+                    } else if (question.type === 2) {
                       return (
-                        <div style={{marginLeft: '10%'}} key={question.id}>
-                          <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.75em', marginTop: '50px'}}>
-                            {question.question}
+                        <div  key={question.key}>
+                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '50px' }}>
+                            <div style={{fontSize: '1.75em'}}>
+                            {question.key+1}.{question.title}
+                            </div>
+                              <div style={{ fontSize: '1em',marginTop:'2%' }}>
+                                ({question.mark} {question.mark === 1||question.mark === 0 ? 'mark' : 'marks'})
+                              </div>
                           </div>
+                          {question.cover && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+                              <img src={question.cover} alt="Question Cover" style={{ maxWidth: '300px', maxHeight: '300px' }} />
+                            </div>
+                          )}
                           <div style={{display: 'flex', justifyContent: 'flex-start',fontSize: '1.25em', marginTop: '40px'}}>
                             Answer:
                           </div>
                           <Input.TextArea
+                              disabled={isSubmitted}
+                              onChange={e => handleAnswerChange(_item.quizid,question.questionid, e.target.value,question.type)}
                               placeholder="you can input many words here ..."
-                              style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '80%' }}
+                              style={{ fontFamily: 'Comic Sans MS', marginTop: '20px',height: '200px', width: '100%' }}
                           />
                         </div>
                       );
@@ -947,15 +1233,43 @@ export default function StudentCoursePage() {
                       return null;
                     }
                   })}
+                  <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
+                  {
+                      !isSubmitted && 
+                      <Button type="primary" onClick={() => submitQuizAnswers('quizId')}style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                        Submit
+                      </Button>
+                    }
 
-                  <Form.Item style={{display: 'flex', justifyContent: 'flex-start', marginTop: '60px',marginLeft: '10%'}}>
-                    <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
-                      Save
-                    </Button>
-                    <Button style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }} onClick={handleCancel}>
-                      Cancel
-                    </Button>
+                    {
+                      !isSubmitted &&
+                      <Button onClick={handleCancel} style={{ marginLeft: '30px', fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                        Cancel
+                      </Button>
+                    }
                   </Form.Item>
+                </>
+                ) : (
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    marginTop: '20%'
+                }}>
+                    <div style={{ fontSize: '25px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                        Click below button to start your quiz,you have {_item.limitation} min.
+                    </div>
+                    <Button type="primary" 
+                        key={_item.quizid}
+                        onClick={() => handleClick(_item)}
+                        style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '50px', width: '120px',marginTop:'7%' }}>
+                        {buttonTexts[_item.quizid] || "Begin"}
+                    </Button>
+                </div>
+              )}
+                </div>
+                )} 
                 </div>
               <div className={funlist[3].is_selected ? 'stu_right_content': 'display_non'}>
                 {

@@ -89,6 +89,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         // Update the category
         Category update = new Category();
         update.setName(updateCategoryVo.getName());
+        update.setColor(updateCategoryVo.getColor());
         update.setCategoryId(categoryId);
 
         if (baseMapper.updateById(update) != 1) {

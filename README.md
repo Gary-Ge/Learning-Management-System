@@ -1,5 +1,19 @@
 <center><h1>Development Document</h1></center>
 
+## Update 2023.7.13
+
+- `service-stream/stream-basic/stream/{streamId}/status`接口已弃用，请删除所有的定时器轮询请求
+- 新的直播流程如下
+  - 教师端
+    1. 点击一个stream lesson时，判断该直播是否开始（inProgress是否为true）
+    2. 如果直播已经开始，直接进入直播页面
+    3. 如果直播未开始，调用`service-stream/stream-basic/stream/{streamId}/pushUrl`获取推流链接，将链接在一个弹窗中显示。该弹窗的确认按钮应该是`开始直播`
+    4. 使用OBS推流到指定链接后点击`开始直播`按钮，该按钮点击时调用`service-stream/stream-basic/stream/{streamId}/start`，该接口会判断推流状态，只有在推流已经开始的情况的下才会正确执行，否则报错（现阶段，为了方便调试，该接口暂时不会判断推流状态，一定会执行成功）
+    5. 关闭弹窗，进入直播页面，通过`service-stream/stream-basic/stream/{streamId}/play` 获取播放链接，然后直接创建播放器
+  - 学生端
+    1. 学生点击join class中的一个直播时，首先判断直播是否开始（inProgress是否为true），如果直播已经开始，进入直播页面，获取播放链接，创建播放器
+    2. 如果直播没有开始，报错，提示直播未开始
+
 ## Update 2023.7.11
 
 - 添加接口`/service-stream/stream-quiz/quiz/{streamId}`，用于在直播时快速创建Quiz

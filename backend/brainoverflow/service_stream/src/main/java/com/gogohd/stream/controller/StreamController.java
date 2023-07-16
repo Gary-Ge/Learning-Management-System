@@ -60,12 +60,19 @@ public class StreamController {
                 streamService.getStreamListByCourseId(userId, courseId));
     }
 
+    @GetMapping("stream/{streamId}/pushUrl")
+    public R getPushUrl(HttpServletRequest request, @PathVariable String streamId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get push URL success").data("pushUrl",
+                streamService.getPushUrl(userId, streamId));
+    }
+
     @PutMapping("stream/{streamId}/start")
     @Operation(summary = "Start a stream lesson")
     public R startStream(HttpServletRequest request, @PathVariable String streamId) {
         String userId = (String) request.getAttribute("userId");
-        return R.success().message("Start stream lesson success").data("pushUrl",
-                streamService.startStream(userId, streamId));
+        streamService.startStream(userId, streamId);
+        return R.success().message("Start stream lesson success");
     }
 
     @PutMapping("stream/{streamId}/finish")
@@ -81,11 +88,5 @@ public class StreamController {
         String userId = (String) request.getAttribute("userId");
         return R.success().message("Play stream lesson success").data("playUrl",
                 streamService.playStream(userId, streamId));
-    }
-
-    @GetMapping("stream/{streamId}/status")
-    public R isPushing(@PathVariable String streamId) {
-        return R.success().message("Get stream status success").data("isPushing",
-                streamService.isPushing(streamId));
     }
 }

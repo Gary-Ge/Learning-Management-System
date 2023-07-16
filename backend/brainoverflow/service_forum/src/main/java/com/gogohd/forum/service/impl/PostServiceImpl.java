@@ -349,7 +349,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         finalResult.put("inContent", baseMapper.selectPostsWithKeywordInContent(courseId, keyword).stream()
                 .filter(record -> {
                     String id = (String) record.get("post_id");
-                    return !visited.contains(id);
+                    String textContent = ((String) record.get("content")).replaceAll("<.*?>", "");
+                    return !visited.contains(id) && textContent.toUpperCase().contains(keyword.toUpperCase());
                 })
                 .map(record -> {
                     Map<String, Object> result = new HashMap<>();

@@ -51,6 +51,7 @@ const TimeDisplay: React.FC = () => {
     );
 };
 
+
 export default function Dashboard() {
   const tabs_list = [{
     key: '1',

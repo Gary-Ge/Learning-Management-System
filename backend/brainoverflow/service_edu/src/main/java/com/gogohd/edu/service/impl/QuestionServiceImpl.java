@@ -37,6 +37,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Autowired
     private AnswerMapper answerMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     private final String NO_AUTHORITY_GET = "You have no authority to get question information";
     private final String NO_AUTHORITY_DELETE = "You have no authority to delete this question";
     private final String NO_AUTHORITY_UPDATE = "You have no authority to update this question";
@@ -370,7 +373,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public List<Map<String, Object>> getStudentAnswerByQuizId(String userId, String quizId) {
-        if (quizMapper.selectById(quizId) == null) {
+        Quiz quiz = quizMapper.selectById(quizId);
+        if (quiz == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
         }
 
@@ -385,15 +389,22 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Question question : questionList) {
             LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
-            answerWrapper.eq(Answer::getUserId, userId);
             answerWrapper.eq(Answer::getQuestionId, question.getQuestionId());
-            Answer answer = answerMapper.selectOne(answerWrapper);
+            List<Answer> answerList = answerMapper.selectList(answerWrapper);
 
-            Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put("question", question);
-            resultMap.put("answer", answer);
+            for (Answer answer : answerList) {
+                Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put("question", question);
+                resultMap.put("answer", answer);
 
-            resultList.add(resultMap);
+                User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                        .eq(User::getUserId, answer.getUserId()));
+
+                if (user != null) {
+                    resultMap.put("user", user);
+                }
+                resultList.add(resultMap);
+            }
         }
 
         return resultList;
@@ -427,9 +438,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
         Float mark = markQuestionVo.getMark();
         Quiz quiz = quizMapper.selectById(baseMapper.selectById(answers.get(0).getQuestionId()).getQuizId());
-        if (LocalDateTime.now().isBefore(quiz.getEnd())) {
+        if (LocalDateTime.now().isBefore(quiz.getStart())) {
             throw new BrainException(ResultCode.ERROR,
-                    "You cannot mark the question before the due date of the quiz");
+                    "You cannot mark the question before the start date of the quiz");
         }
         if (mark < 0 || mark > question.getMark()) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS,

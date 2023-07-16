@@ -216,9 +216,28 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editStreamLesson');
     // 执行其他操作
   };
-  const handleSingleStreamLinkSectionChange = (sectionData: any) => {
+  const handleSingleStreamLinkSectionChange = (sectionData: any, courseId: string) => {
     setStreamSection(sectionData);
     setSelectedOption('streamLink');
+    // 当前课程信息
+    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      const fetchedCourse = data.data.course;
+      setSingleCourse(fetchedCourse);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+  };
+  const streamCancel = (streamId: string) => {
+    
   };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
@@ -230,7 +249,9 @@ const StaffDashboardContent: React.FC = () => {
   };
 
   const [assOptions, setAssOptions] = useState<any[]>([]);
+  const [quizes, setQuizes] = useState<any[]>([]);
   const fetchOptions = (courseId: string) => {
+    // 当前课程信息
     fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
       method: 'GET',
       headers: {
@@ -250,6 +271,7 @@ const StaffDashboardContent: React.FC = () => {
     .catch((error) => {
       console.log(error.message);
     });
+    // 当前课程创建的的所有assignments
     // 发起 fetch 请求获取选项数据
     fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${courseId}`, {
       method: 'GET',
@@ -263,6 +285,25 @@ const StaffDashboardContent: React.FC = () => {
       // Assuming the course title is returned in the 'title' field of the response
       const fetchedAssignments = data.data.assignments;
       setAssOptions(fetchedAssignments);
+      // console.log('data', fetchedAssignments);
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+    // 当前课程创建的所有quizzes
+    // 发起 fetch 请求获取选项数据
+    fetch(`http://175.45.180.201:10900/service-edu/edu-quiz/quiz/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedQuizes = data.data.quizzes;
+      setQuizes(fetchedQuizes);
       // console.log('data', fetchedAssignments);
     })
     .catch((error) => {
@@ -552,7 +593,7 @@ const StaffDashboardContent: React.FC = () => {
           <TextLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitText} />
         )}
         {selectedOption === 'video' && (
-          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitQuiz} />
+          <VideoLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitVideo} />
         )}
         {selectedOption === 'stream' && (
           <StreamLesson courseId={selectedCourseId} onCancel={handleCancel} onSubmit={handleSubmitStream} />
@@ -579,13 +620,13 @@ const StaffDashboardContent: React.FC = () => {
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
         )}
         {selectedOption === 'streamLink' && (
-          <LinkBoard stream={singleStreamSection} />
+          <LinkBoard course={singleCourse} stream={singleStreamSection} onClick={streamCancel} />
         )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
         )}
         {selectedOption === 'showMarks' && (
-          <ShowMark assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
+          <ShowMark quizes={quizes} assInfor={assOptions} course={singleCourse} onCancel={handleCancel} onSubmit={handleSubmitMark} />
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />
