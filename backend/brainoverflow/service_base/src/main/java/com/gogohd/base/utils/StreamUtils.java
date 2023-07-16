@@ -60,7 +60,7 @@ public class StreamUtils {
         long timestamp = System.currentTimeMillis() / 1000L + EXPIRE;
         String stringToMd5 = "/" + APP_NAME + "/" + streamId + ".flv-" + timestamp + "-0-0-" + PULL_KEY;
         String authKey = md5(stringToMd5);
-        return "https://" + PULL_DOMAIN + "/" + APP_NAME + "/" + streamId + ".flv" + "?auth_key=" + timestamp + "-0-0-" + authKey;
+        return "http://" + PULL_DOMAIN + "/" + APP_NAME + "/" + streamId + ".flv" + "?auth_key=" + timestamp + "-0-0-" + authKey;
     }
 
     public static Boolean isPushing(String streamId) {
