@@ -90,17 +90,28 @@ const QuizEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; quiz: any
     st: 2,
   };
   const handleQuestionTypeChange = (value: QuestionType, formId: number) => {
-    setForms(forms => {
+    setForms((forms) => {
       const newForms = [...forms];
-      const formIndex = newForms.findIndex(form => form.id === formId);
-      
+      const formIndex = newForms.findIndex((form) => form.id === formId);
+  
       if (formIndex !== -1) {
         newForms[formIndex].questiontype = typeMapping[value];
+  
+        // Reset all options and correct answer for the current form
+        newForms[formIndex].options.forEach((option) => {
+          option.isCorrect = false;
+        });
+  
+        // Set the first option as correct for single choice
+        newForms[formIndex].options[0].isCorrect = true;
+        newForms[formIndex].correctOptionId = newForms[formIndex].options[0].id.toString();
       }
   
       return newForms;
     });
   };
+  
+  
   const removeOption = (formId: any, optionId: any) => {
     const updatedForms = forms.map((form) => {
       if (form.id === formId) {
