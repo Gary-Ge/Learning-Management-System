@@ -9,7 +9,7 @@ import {
 import {getToken} from '../utils/utils'
 import { useHistory } from 'react-router-dom';
 
-const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamData: any) => void; onSingleStreamLinkChange: (StreamData: any) => void; changeFlag: boolean }> = ({ courseId, onSingleStreamChange, onSingleStreamLinkChange, changeFlag }) => {
+const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamData: any) => void; onSingleStreamLinkChange: (StreamData: any, courseId: string) => void; changeFlag: boolean }> = ({ courseId, onSingleStreamChange, onSingleStreamLinkChange, changeFlag }) => {
   const history = useHistory();
   const [streams, setStreams] = useState<any[]>([]);
   const token = getToken();
@@ -115,7 +115,7 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
         throw new Error(res.message)
       }
       const streamData = res.data.stream;
-      onSingleStreamLinkChange(streamData);
+      onSingleStreamLinkChange(streamData, courseId);
       // history.push(`/staffcourse/${streamData.streamId}`);
     })
     .catch(error => {

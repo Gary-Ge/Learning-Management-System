@@ -63,36 +63,61 @@ const barChart = (
   </ResponsiveContainer>
 );
 
-
-const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> = ({ stream, onClick }) => {
+const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string) => void }> = ({ course, stream, onClick }) => {
   const token = getToken();
   
-  // const [showConfirmation, setShowConfirmation] = useState(false);
-  // const handleClick = (event: any) => {
-  //   const componentAElement = document.getElementById("LinkBoard");
-  //   const targetElement = event.target;
-
-  //   if (componentAElement && !componentAElement.contains(targetElement)) {
-  //     setShowConfirmation(true);
-  //   }
-  // };
-  // useEffect(() => {
-  //   document.addEventListener('click', handleClick);
-  //   return () => {
-  //     document.removeEventListener('click', handleClick);
-  //   };
-  // }, [handleClick]);
-  // const handleConfirmation = () => {
-  //   setShowConfirmation(false);
-  //   onClick(stream.streamId);
-  // };
-
   // stream
   const videoRef = useRef(null);
   const [pushStarted, setPushStarted] = useState(false);
   const [showPushUrlModal, setShowPushUrlModal] = useState(false);
   const [pushUrl, setPushUrl] = useState('');
+  const textRef = useRef(null);
+
+  const handleCopyText = () => {
+    textRef.current.select();
+    document.execCommand('copy');
+    // 可以根据需要进行样式和提示的自定义
+    message.success('Copy Successful');
+  };
+  const fetchStreamSections = async () => {
+    try {
+      const response = await fetch(`http://175.45.180.201:10900/service-stream/stream-basic/streams/${course.courseId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      const fetchedSections = data.data.streams;
+      for (const section of fetchedSections || []) {
+        if (section.streamId !== stream.streamId) {
+          fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${section.streamId}/finish`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => response.json())
+          .then((res) => {
+            if (res.code !== 20000) {
+              throw new Error(res.message);
+            }
+          })
+          .catch((error) => {
+            message.error(error.message);
+          });
+        }        
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
+
   useEffect(() => {
+    // fetchStreamSections();
     if (stream.inProgress) {
       setPushStarted(true);
     } else {
@@ -114,7 +139,7 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
           message.error(error.message);
         });
     }
-  }, []);
+  }, [stream]);
   const handleStartPush = () => {
     fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
       method: 'PUT',
@@ -719,16 +744,36 @@ const LinkBoard: React.FC<{ stream: any; onClick: (streamId: string) => void }> 
           <Text style={{ fontFamily: 'Comic Sans MS', fontWeight: 'bold', float: 'right' }}>
             Course Name: {stream.title}
           </Text>
-          <div style={{ marginTop: '15px', marginBottom: '15px', border: 'none', borderRadius: '10px', minHeight: 400, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <Modal
-              visible={showPushUrlModal}
-              onCancel={() => setShowPushUrlModal(false)}
-              onOk={handleStartPush}
-              okText="Start Push"
+          <Modal
+            visible={showPushUrlModal}
+            onCancel={() => setShowPushUrlModal(false)}
+            onOk={handleStartPush}
+            okText="Start Push"
+          >
+            <p>Push URL:</p>
+            <input
+              ref={textRef}
+              type="text"
+              value={pushUrl}
+              readOnly
+              style={{ position: 'absolute', left: '-9999px' }}
+            />
+            <div
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '100%',
+              }}
             >
-              <p>Push URL: {pushUrl}</p>
-            </Modal>
-            <video ref={videoRef} controls width={"100%"} height={"100%"} style={{ borderRadius: '10px' }} />
+              {pushUrl}
+            </div>
+            <Button onClick={handleCopyText}>
+              Copy
+            </Button>
+          </Modal>
+          <div style={{ marginTop: '15px', marginBottom: '15px', border: 'none', borderRadius: '10px', minHeight: 400, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <video ref={videoRef} controls width="100%" height="100%" style={{ borderRadius: '10px' }} />
           </div>
           <div>
             <div style={{ display: 'flex' }}>

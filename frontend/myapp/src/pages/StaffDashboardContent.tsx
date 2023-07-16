@@ -216,27 +216,28 @@ const StaffDashboardContent: React.FC = () => {
     setSelectedOption('editStreamLesson');
     // 执行其他操作
   };
-  const handleSingleStreamLinkSectionChange = (sectionData: any) => {
+  const handleSingleStreamLinkSectionChange = (sectionData: any, courseId: string) => {
     setStreamSection(sectionData);
     setSelectedOption('streamLink');
-  };
-  const streamCancel = (streamId: string) => {
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${streamId}/finish`, {
-      method: 'PUT',
+    // 当前课程信息
+    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${token}`,
       },
     })
     .then((response) => response.json())
-    .then((res) => {
-      if (res.code !== 20000) {
-        throw new Error(res.message);
-      }
+    .then((data) => {
+      const fetchedCourse = data.data.course;
+      setSingleCourse(fetchedCourse);
     })
     .catch((error) => {
-      message.error(error.message);
+      console.log(error.message);
     });
+  };
+  const streamCancel = (streamId: string) => {
+    
   };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
@@ -619,7 +620,7 @@ const StaffDashboardContent: React.FC = () => {
           <StreamLessonEdit stream={singleStreamSection} onCancel={handleCancel} onSubmit={handleSubmitStream} />
         )}
         {selectedOption === 'streamLink' && (
-          <LinkBoard stream={singleStreamSection} onClick={streamCancel} />
+          <LinkBoard course={singleCourse} stream={singleStreamSection} onClick={streamCancel} />
         )}
         {selectedOption === 'editAssignmentLesson' && (
           <AssignmentEdit assignment={singleAssignment} onCancel={handleCancel} onSubmit={handleSubmitAssignment} />
