@@ -13,16 +13,18 @@ import { ShowMarkDTO } from '../utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
-
+const values: any[] = [];
 // Mark当前课程所选的assignment或quiz
-const GradeInput: React.FC<{ mark: number, fetchUrl: string }> = ({ mark, fetchUrl }) => {
+const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value: any, fetchUrl: any) => void }> = ({ mark, fetchUrl, handleValue }) => {
   const token = getToken();
   const [gradeValue, setGradeValue] = useState<number>(mark);
   useEffect(() => {
     setGradeValue(mark); // 在初始渲染时更新标记值
   }, [mark]);
-  const handleGradeChange = (value: number) => {
-    setGradeValue(value);
+  const handleGradeChange = (e: any) => {
+    const newValue = parseFloat(e.target.value);
+    setGradeValue(newValue);
+    handleValue(newValue, fetchUrl);
   };
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -54,7 +56,7 @@ const GradeInput: React.FC<{ mark: number, fetchUrl: string }> = ({ mark, fetchU
     <InputNumber
       min={0}
       value={gradeValue}
-      onChange={handleGradeChange}
+      onBlur={handleGradeChange}
       onPressEnter={handleKeyPress}
     />
     </>
@@ -163,6 +165,12 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     setSelectedMultiOption([]);
     setIsFileVisible(false);
   };
+  const handleValue = (value: any, fetchUrl: any) => {
+    values.push({
+      value: value,
+      url: fetchUrl,
+    })
+  };
   // 当前课程所选assignment的纵坐标信息
   const assignmentColumns = [
     { title: 'Student ID', dataIndex: 'id', key: 'id' },
@@ -194,7 +202,9 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       dataIndex: 'grade',
       key: 'grade',
       render: (record: any) => (
-        <GradeInput mark={record[0]} fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`} />
+        <>
+          <GradeInput mark={record[0]} fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`} handleValue={handleValue} />
+        </>
       ),
     },
   ];
@@ -269,7 +279,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       dataIndex: 'grade', 
       key: 'grade', 
       render: (record: any) => (
-        <GradeInput mark={record[0]} fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`} />
+        <GradeInput mark={record[0]} fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`} handleValue={handleValue} />
       ),
     },
   ];
@@ -495,6 +505,29 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   };
   const handleSubmit = () => {
     // 处理提交逻辑
+    for (const value of values || []) {
+      const dto = new ShowMarkDTO(value.value);
+      const requestData = JSON.stringify(dto);
+      fetch(value.url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: requestData
+      })
+      .then(res => res.json())
+      .then(res => {
+        // console.log('res', res)
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+      })
+      .catch(error => {
+        message.error(error.message);
+      });
+    }
+    message.success('Mark Successfully!');
     onSubmit();
   };
 

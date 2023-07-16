@@ -79,45 +79,8 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
     // 可以根据需要进行样式和提示的自定义
     message.success('Copy Successful');
   };
-  const fetchStreamSections = async () => {
-    try {
-      const response = await fetch(`http://175.45.180.201:10900/service-stream/stream-basic/streams/${course.courseId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      const fetchedSections = data.data.streams;
-      for (const section of fetchedSections || []) {
-        if (section.streamId !== stream.streamId) {
-          fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${section.streamId}/finish`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then((response) => response.json())
-          .then((res) => {
-            if (res.code !== 20000) {
-              throw new Error(res.message);
-            }
-          })
-          .catch((error) => {
-            message.error(error.message);
-          });
-        }        
-      }
-    } catch (error) {
-      alert(error);
-    }
-  };
 
   useEffect(() => {
-    // fetchStreamSections();
     if (stream.inProgress) {
       setPushStarted(true);
     } else {
@@ -198,7 +161,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
           message.error(error.message);
         });
     }
-  }, [pushStarted]);
+  }, [pushStarted, stream.streamId]);
 
   // chat
   const [messages, setMessages] = useState<any[]>([]);
@@ -536,24 +499,6 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
 
   return (
     <>
-    {/* <div id="LinkBoard">
-      {showConfirmation && (
-        <Modal
-          title="Finish Stream"
-          visible={showConfirmation}
-          style={{ fontFamily: "Comic Sans MS" }}
-          footer={[
-            <Button key="submit" type="primary" onClick={handleConfirmation}>
-              Confirm
-            </Button>,
-          ]}
-        >
-          <div>
-            You have already finished the Stream!
-          </div>
-        </Modal>
-      )}
-    </div> */}
     <SockJsClient
       url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
       topics={[`/topic/stream/${stream.streamId}`]}
@@ -773,7 +718,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
             </Button>
           </Modal>
           <div style={{ marginTop: '15px', marginBottom: '15px', border: 'none', borderRadius: '10px', minHeight: 400, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <video ref={videoRef} controls width="100%" height="100%" style={{ borderRadius: '10px' }} />
+            <video ref={videoRef} key={stream.streamId} controls width="100%" height="100%" style={{ borderRadius: '10px' }} />
           </div>
           <div>
             <div style={{ display: 'flex' }}>
