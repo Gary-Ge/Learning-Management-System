@@ -10,6 +10,7 @@ import crown from '../../../images/crown.png';
 import downloadicon from '../../../images/download.png';
 import { getToken } from '../utils/utils'
 import { ShowMarkDTO } from '../utils/entities';
+import { cloneDeep } from 'lodash';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -21,10 +22,8 @@ const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value
   useEffect(() => {
     setGradeValue(mark); // 在初始渲染时更新标记值
   }, [mark]);
-  const handleGradeChange = (e: any) => {
-    const newValue = parseFloat(e.target.value);
-    setGradeValue(newValue);
-    handleValue(newValue, fetchUrl);
+  const handleInputBlur = () => {
+    handleValue(gradeValue, fetchUrl);
   };
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -56,7 +55,8 @@ const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value
     <InputNumber
       min={0}
       value={gradeValue}
-      onBlur={handleGradeChange}
+      onChange={(value:any) => setGradeValue(value)}
+      onBlur={handleInputBlur}
       onPressEnter={handleKeyPress}
     />
     </>
@@ -139,7 +139,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       setDataAssignmentSource(results);
     };
     fetchData();
-  }, [submitAssignments]);
+  }, [submitAssignments, selectedType]);
   // 点击下载学生上传的assignment
   const [isFileVisible, setIsFileVisible] = useState(false);
   const [files, setFiles] = useState([]);
@@ -166,10 +166,15 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     setIsFileVisible(false);
   };
   const handleValue = (value: any, fetchUrl: any) => {
-    values.push({
-      value: value,
-      url: fetchUrl,
-    })
+    const existingValue = values.find(item => item.url === fetchUrl);
+    if (existingValue) {
+      values.find(item => item.url === fetchUrl).value = value
+    } else {
+      values.push({
+        value: value,
+        url: fetchUrl,
+      })
+    }
   };
   // 当前课程所选assignment的纵坐标信息
   const assignmentColumns = [
@@ -201,11 +206,28 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       title: 'Students Grade',
       dataIndex: 'grade',
       key: 'grade',
-      render: (record: any) => (
-        <>
-          <GradeInput mark={record[0]} fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`} handleValue={handleValue} />
-        </>
-      ),
+      render: (record: any) => {
+        const foundValue = (values || []).find((value: any) => {
+          return value.url === `http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`;
+        });
+        if (foundValue) {
+          return (
+            <GradeInput
+              mark={foundValue.value}
+              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`}
+              handleValue={handleValue}
+            />
+          );
+        } else {
+          return (
+            <GradeInput
+              mark={record[0]}
+              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`}
+              handleValue={handleValue}
+            />
+          );
+        }
+      },
     },
   ];
 
@@ -278,9 +300,28 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       'Student Grade', 
       dataIndex: 'grade', 
       key: 'grade', 
-      render: (record: any) => (
-        <GradeInput mark={record[0]} fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`} handleValue={handleValue} />
-      ),
+      render: (record: any) => {
+        const foundValue = (values || []).find((value: any) => {
+          return value.url === `http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`;
+        });
+        if (foundValue) {
+          return (
+            <GradeInput
+              mark={foundValue.value}
+              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`}
+              handleValue={handleValue}
+            />
+          );
+        } else {
+          return (
+            <GradeInput
+              mark={record[0]}
+              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`}
+              handleValue={handleValue}
+            />
+          );
+        }
+      },
     },
   ];
   // 添加学生, 答案, 成绩等数据信息
@@ -527,6 +568,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         message.error(error.message);
       });
     }
+    values.length = 0;
     message.success('Mark Successfully!');
     onSubmit();
   };
