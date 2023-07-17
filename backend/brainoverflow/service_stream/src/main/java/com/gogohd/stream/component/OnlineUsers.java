@@ -16,6 +16,8 @@ public class OnlineUsers {
     @Value("${queues.users}")
     private String usersQueue;
 
+    private final ConcurrentHashMap<String, String> sessionStreamMapping = new ConcurrentHashMap<>();
+
     private final Map<String, ConcurrentHashMap<String, String>> onlineUsers = new ConcurrentHashMap<>();
 
     @Autowired
@@ -25,6 +27,13 @@ public class OnlineUsers {
     private StreamMapper streamMapper;
 
     public void userJoin(String sessionId, String userId, String streamId) {
+        String prevStreamId = sessionStreamMapping.get(sessionId);
+        if (prevStreamId != null) {
+            userLeave(sessionId);
+        }
+
+        sessionStreamMapping.put(sessionId, streamId);
+
         // Update online users hashmap
         if (!onlineUsers.containsKey(streamId)) {
             onlineUsers.put(streamId, new ConcurrentHashMap<>());
@@ -46,7 +55,14 @@ public class OnlineUsers {
         amqpTemplate.convertAndSend(usersQueue, userList);
     }
 
-    public void userLeave(String sessionId, String streamId) {
+    public void userLeave(String sessionId) {
+
+        String streamId = sessionStreamMapping.get(sessionId);
+        if (streamId == null) {
+            return;
+        }
+        sessionStreamMapping.remove(sessionId);
+
         if (onlineUsers.get(streamId).containsKey(sessionId)) {
             onlineUsers.get(streamId).remove(sessionId);
 

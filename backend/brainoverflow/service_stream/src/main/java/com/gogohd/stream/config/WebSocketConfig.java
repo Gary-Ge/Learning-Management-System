@@ -54,10 +54,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 String streamId = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("streamId");
                 String userId = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("userId");
 
-                if(StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
-                    onlineUsers.userJoin(sessionId, userId, streamId);
-                } else if(StompCommand.DISCONNECT.equals(accessor.getCommand())){
-                    onlineUsers.userLeave(sessionId, streamId);
+                if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
+                    System.out.println(accessor.getDestination());
+                    String destination = accessor.getDestination();
+                    assert destination != null;
+                    onlineUsers.userJoin(sessionId, userId, destination.substring(destination.lastIndexOf("/") + 1));
+                } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())){
+                    onlineUsers.userLeave(sessionId);
                 }
                 return message;
             }

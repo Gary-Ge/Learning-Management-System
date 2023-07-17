@@ -898,6 +898,16 @@ export default function StudentCoursePage() {
   const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
     switch (questionType) {
       case 0: // 对于单选题
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [quizId + '_' + questionId]: { 
+        quizId: quizId, 
+        questionId: questionId, 
+        options: [answer], // Wrap the single option in an array
+        content: '' 
+      } 
+    }));
+    break;
       case 1: // 对于多选题
         setAnswers(prevAnswers => ({
           ...prevAnswers,
@@ -934,7 +944,7 @@ export default function StudentCoursePage() {
             // 创建请求参数
             let params = new URLSearchParams();
             if (answer.options.length > 0) {
-                params.append('optionIds', answer.options);
+              params.append('optionIds', answer.options.join(','));
             }
             if (answer.content !== '') {
                 params.append('content', answer.content);
@@ -945,7 +955,7 @@ export default function StudentCoursePage() {
                   'Content-Type': 'application/x-www-form-urlencoded',
                   "Authorization": `Bearer ${token}`
               },
-              body: params
+              body: params.toString()
           });
 
           const data = await response.json();
@@ -1239,7 +1249,7 @@ export default function StudentCoursePage() {
                   <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
                   {
                       !isSubmitted && 
-                      <Button type="primary" onClick={() => submitQuizAnswers('quizId')}style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                      <Button type="primary" onClick={() => submitQuizAnswers(_item.quizid)}style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
                         Submit
                       </Button>
                     }

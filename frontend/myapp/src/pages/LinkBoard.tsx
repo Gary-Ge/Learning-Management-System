@@ -505,9 +505,10 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
       onMessage={(msg: any) => {
         if (msg.type === 0) {
           setMessages(prevMessages => [...prevMessages, msg]);
+          console.log(msg)
         }
         else if (msg.type === 1) {
-          // console.log('msg', msg.userList); // 处理收到的消息
+          console.log('msg', msg.userList); // 处理收到的消息
           setUsers(msg.userList);
         }
         else if (msg.type === 2) {

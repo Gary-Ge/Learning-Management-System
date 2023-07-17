@@ -37,6 +37,12 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
                     "You have no authority to create stream lesson for this course");
         }
 
+        LambdaQueryWrapper<Stream> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Stream::getCourseId, courseId);
+        if (baseMapper.exists(wrapper)) {
+            throw new BrainException(ResultCode.ERROR, "You can only have 1 stream lesson for each course");
+        }
+
         // Check if the not null values are null
         String title = createStreamVo.getTitle();
         String description = createStreamVo.getDescription();
