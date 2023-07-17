@@ -111,8 +111,10 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
         flvPlayer.unload();
         flvPlayer.detachMediaElement();
         flvPlayer.destroy();
-        videoRef.current.src = '';
-        videoRef.current.removeAttribute('src');
+        if (videoRef.current) {
+          videoRef.current.src = '';
+          videoRef.current.removeAttribute('src');
+        }
       };
     }
   }, [playbackUrl]);
