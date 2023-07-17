@@ -1238,7 +1238,7 @@ export default function StudentCoursePage() {
                   <Form.Item style={{display: 'flex', justifyContent: 'flex-end', marginTop: '60px',marginRight: '2%'}}>
                   {
                       !isSubmitted && 
-                      <Button type="primary" onClick={() => submitQuizAnswers('quizId')}style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
+                      <Button type="primary" onClick={() => submitQuizAnswers(_item.quizid)}style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
                         Submit
                       </Button>
                     }
