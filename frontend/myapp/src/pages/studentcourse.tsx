@@ -594,6 +594,7 @@ export default function StudentCoursePage() {
 
   // click tabs title
   const onclickcourse = (idx:string, id:string) => {
+    setIsStreamOpen(false);
     data.map((item:any) => {
       item.is_selected = false;
     });
@@ -732,6 +733,7 @@ export default function StudentCoursePage() {
     })
   }
   const showquizcontent = (e:any) => {
+    setIsStreamOpen(false);
     console.log('hh',e.target.id);
     quizlist.map(item => {
       item.is_selected = false;

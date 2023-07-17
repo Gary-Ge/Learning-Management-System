@@ -541,6 +541,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   ];
 
   const handleCancel = () => {
+    values.length = 0;
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
