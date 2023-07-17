@@ -734,7 +734,6 @@ export default function StudentCoursePage() {
     })
   }
   const showquizcontent = (e:any) => {
-    setIsStreamOpen(false);
     console.log('hh',e.target.id);
     quizlist.map(item => {
       item.is_selected = false;
@@ -749,7 +748,6 @@ export default function StudentCoursePage() {
   }
   // onclick to show ass content
   const showasscontent = (e:any) => {
-    setIsStreamOpen(false);
     console.log();
     assign_list.map(item => {
       item.is_selected = false;
@@ -766,6 +764,13 @@ export default function StudentCoursePage() {
   const [isStreamOpen, setIsStreamOpen] = useState(false);
   const showstreamcontent = (e:any) => {
     setIsStreamOpen(true);
+    let current_course_id = ''
+    datalist.map((item:any) => {
+      if (item.is_selected){
+        current_course_id = item.id
+      }
+    })
+    getallstreams(current_course_id, '0'); // update stream
     console.log(e.target.id);
     console.log();
     stream_list.map(item => {
