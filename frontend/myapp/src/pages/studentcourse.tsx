@@ -900,45 +900,51 @@ export default function StudentCoursePage() {
       // console.log('materialslist', materialslist);
     })
   }
-  const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
+  const handleAnswerChange = (quizId, questionId, answer, questionType = 0) => {
+    // 定义选项字母映射
+    const optionLetters = ['a', 'b', 'c', 'd'];
+  
     switch (questionType) {
       case 0: // 对于单选题
-    setAnswers(prevAnswers => ({
-      ...prevAnswers,
-      [quizId + '_' + questionId]: { 
-        quizId: quizId, 
-        questionId: questionId, 
-        options: [answer], // Wrap the single option in an array
-        content: '' 
-      } 
-    }));
-    break;
-      case 1: // 对于多选题
         setAnswers(prevAnswers => ({
           ...prevAnswers,
-          [quizId + '_' + questionId]: { 
-              quizId: quizId, 
-              questionId: questionId, 
-              options: answer,  // answer 是一个数组
-              content: '' 
-            } 
+          [quizId + '_' + questionId]: {
+            quizId: quizId,
+            questionId: questionId,
+            options: [optionLetters[answer]], // 使用选项字母代替索引
+            content: ''
+          }
+        }));
+        break;
+      case 1: // 对于多选题
+        const selectedOptions = answer.map(index => optionLetters[index]); // 使用选项字母代替索引
+        setAnswers(prevAnswers => ({
+          ...prevAnswers,
+          [quizId + '_' + questionId]: {
+            quizId: quizId,
+            questionId: questionId,
+            options: selectedOptions,
+            content: ''
+          }
         }));
         break;
       case 2: // 对于问答题
         setAnswers(prevAnswers => ({
           ...prevAnswers,
-          [quizId + '_' + questionId]: { 
-              quizId: quizId, 
-              questionId: questionId, 
-              options: [],  
-              content: answer // answer 是用户输入的字符串
-            } 
+          [quizId + '_' + questionId]: {
+            quizId: quizId,
+            questionId: questionId,
+            options: [],
+            content: answer // answer 是用户输入的字符串
+          }
         }));
         break;
       default:
         break;
     }
-  };  
+  };
+  
+    
   const submitQuizAnswers = async (quizId:any) => {
     // 对于对象中的每个属性（即问题）进行迭代
     for (const key in answers) {
