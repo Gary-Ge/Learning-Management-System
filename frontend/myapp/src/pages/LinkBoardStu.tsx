@@ -499,7 +499,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
             </div>
           </div>
         </Content>
-        <Footer
+        {/* <Footer
           style={{
             textAlign: 'center',
             backgroundColor: '#EFF1F6',
@@ -508,7 +508,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
         >
           Copyright ©2023 All rights reserved  
           <HeartFilled style={{ color: 'red', marginLeft: '5px' }} />
-        </Footer>
+        </Footer> */}
       </Layout>
       <Sider width={250} style={{ background: '#f0f2f5' }}>
         <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px', minHeight: '87vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>

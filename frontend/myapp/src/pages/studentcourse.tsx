@@ -619,6 +619,7 @@ export default function StudentCoursePage() {
   const history = useHistory();
   // click left list
   const onclicklist = (e:any) => {
+    setIsStreamOpen(false);
     console.log(e.target.id);
     funlist.map(item => {
       item.is_selected = false;
@@ -1322,14 +1323,14 @@ export default function StudentCoursePage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
+              <div className={funlist[4].is_selected ? '': 'display_non'}>
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
                 }
                 {isStreamOpen && 
                   streamlist.map(_item =>
                     <>
-                    <div key={_item.key} id={_item.streamId} className={_item.is_selected ? 'ass_wrap' : 'display_non'}>
+                    <div key={_item.key} id={_item.streamId} className={_item.is_selected ? '' : 'display_non'}>
                       <LinkBoardStu stream={_item}/>
                     </div>
                     </>
