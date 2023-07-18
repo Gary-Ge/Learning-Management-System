@@ -189,6 +189,9 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
       send(inputValue);
     }
   };
+  useEffect(() => {
+    setMessages([]);
+  }, [course.courseId]);
 
   // question
   const [isModalVisible, setIsModalVisible] = useState(false);
