@@ -1147,7 +1147,7 @@ export default function teacherforums() {
                                         </div>
                                         <div className='forum_comment' dangerouslySetInnerHTML={{__html: item.content}}></div>
                                         <div className='replytopost'>
-                                            <span className='mrt pointer' onClick={() => {showReplayModal(item.replyId, '')}}>replay</span>
+                                            <span className='mrt pointer' onClick={() => {showReplayModal(item.replyId, '')}}>reply</span>
                                             {/* |
                                             <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(item.replyId, item.content)}}>edit</span>|
                                             <span className='mlt10 pointer' onClick={()=> {DelReply(item.replyId)}}>remove</span> */}
@@ -1166,7 +1166,7 @@ export default function teacherforums() {
                                                         </div>
                                                         <div className='forum_second_comment' dangerouslySetInnerHTML={{__html: _item.content}}></div>
                                                         <div className='reply_btn'>
-                                                            <span className='mrt pointer' onClick={() => {showReplayModal(_item.replyId, '')}}>replay</span>
+                                                            <span className='mrt pointer' onClick={() => {showReplayModal(_item.replyId, '')}}>reply</span>
                                                             {/* |
                                                             <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(_item.replyId, _item.content)}}>edit</span>|
                                                             <span className='mlt10 pointer'  onClick={()=> {DelReply(_item.replyId)}}>remove</span> */}
