@@ -205,7 +205,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
   const handleSecondsChange = (e:any) => {
     setSeconds(e.target.value);
   };
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState('');
   const handleQuestionChange = (e: any) => {
     setQuestion(e.target.value);
   };
