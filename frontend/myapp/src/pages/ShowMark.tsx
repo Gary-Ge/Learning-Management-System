@@ -19,7 +19,12 @@ const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value
   const token = getToken();
   const [gradeValue, setGradeValue] = useState<number>(mark);
   useEffect(() => {
-    setGradeValue(mark); // 在初始渲染时更新标记值
+    if (mark === -1) {
+      setGradeValue(0);
+    }
+    else {
+      setGradeValue(mark); // 在初始渲染时更新标记值
+    }
   }, [mark]);
   const handleInputBlur = () => {
     handleValue(gradeValue, fetchUrl);
