@@ -1130,9 +1130,11 @@ export default function teacherforums() {
                         </div>
                         <div className='gray6 mt'>
                             <span className='mrt pointer' onClick={replytoapost}>comment</span>
-                            {/* |
-                            <span className='mrt mlt10 pointer' onClick={toShowEditPostModal}>edit</span>|
-                            <span className='mlt10 pointer' onClick={toShowRemovePostModal}>remove</span> */}
+                            {
+                                   JSON.parse(localStorage.getItem('userData') || '{}').userId == currentpost.postBy.user_id ? 
+                                   <>|<span className='mrt mlt10 pointer' onClick={toShowEditPostModal}>edit</span>|<span className='mlt10 pointer' onClick={toShowRemovePostModal}>remove</span></>: ''
+                            }
+
                         </div>
                         {
                             currentpost.replies.map((item:any, index:number)=> {
@@ -1148,6 +1150,12 @@ export default function teacherforums() {
                                         <div className='forum_comment' dangerouslySetInnerHTML={{__html: item.content}}></div>
                                         <div className='replytopost'>
                                             <span className='mrt pointer' onClick={() => {showReplayModal(item.replyId, '')}}>reply</span>
+                                            {
+                                                JSON.parse(localStorage.getItem('userData') || '{}').userId == item.replyBy.userId ? <>|
+                                                <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(item.replyId, item.content)}}>edit</span>|
+                                                <span className='mlt10 pointer' onClick={()=> {DelReply(item.replyId)}}>remove</span>
+                                                </> :''
+                                            }
                                             {/* |
                                             <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(item.replyId, item.content)}}>edit</span>|
                                             <span className='mlt10 pointer' onClick={()=> {DelReply(item.replyId)}}>remove</span> */}
@@ -1167,6 +1175,12 @@ export default function teacherforums() {
                                                         <div className='forum_second_comment' dangerouslySetInnerHTML={{__html: _item.content}}></div>
                                                         <div className='reply_btn'>
                                                             <span className='mrt pointer' onClick={() => {showReplayModal(_item.replyId, '')}}>reply</span>
+                                                            {
+                                                                JSON.parse(localStorage.getItem('userData') || '{}').userId == _item.replyBy.userId ? <>|
+                                                                <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(_item.replyId, _item.content)}}>edit</span>|
+                                                                <span className='mlt10 pointer'  onClick={()=> {DelReply(_item.replyId)}}>remove</span>
+                                                                </> :''
+                                                            }
                                                             {/* |
                                                             <span className='mrt mlt10 pointer' onClick={() => {showReplayModal(_item.replyId, _item.content)}}>edit</span>|
                                                             <span className='mlt10 pointer'  onClick={()=> {DelReply(_item.replyId)}}>remove</span> */}
