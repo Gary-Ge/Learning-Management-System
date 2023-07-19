@@ -568,13 +568,14 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         if (res.code !== 20000) {
           throw new Error(res.message)
         }
+        message.success('Mark Successfully!');
       })
       .catch(error => {
         message.error(error.message);
       });
     }
     values.length = 0;
-    message.success('Mark Successfully!');
+    // message.success('Mark Successfully!');
     onSubmit();
   };
 
