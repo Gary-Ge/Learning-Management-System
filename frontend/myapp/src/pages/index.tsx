@@ -249,7 +249,10 @@ export default function IndexPage() {
       }
       setAllCourseDetails(res.data.courses)
       // console.log('+++',res.data.courses[0]);
-      setFirstCourseDetails([res.data.courses[0]])
+      if (res.data.courses.length > 0){
+        setFirstCourseDetails([res.data.courses[0]])
+      }
+      
     })
     .catch(error => {
       console.log(error.message);
