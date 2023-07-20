@@ -7,9 +7,9 @@ import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button,Pagination,messag
 import { SmileOutlined} from '@ant-design/icons';
 import {  HOST,CHANGEFILE_URL,getToken, HOST_STUDENT,COURSE_URL,HOST_COURSE} from '../utils/utils';
 import moment from 'moment';
+import intro from '../../../images/online_course.png';
 
 import type { Dayjs } from 'dayjs';
-import type { CellRenderInfo } from 'rc-picker/lib/interface';
 function checkToken() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -335,9 +335,9 @@ useEffect(() => {
       <div className='timeline'>
         <div className='container_intro' style={{cursor:'pointer'}} onClick={() => gotoviewstudent(firstcourseDetails[0].courseId,firstcourseDetails[0].title)}>
         <Meta className='intro-card'
-          avatar={<Avatar src={firstcourseDetails[0].cover ? firstcourseDetails[0].cover :'' } className="square-avatar"
+          avatar={<Avatar src={ firstcourseDetails.length >0&&firstcourseDetails[0].cover ? firstcourseDetails[0].cover :intro } className="square-avatar"
           style={{  width: '100%', height: '100%', objectFit: 'cover'  }} />}
-          title={<span id="" className='card-title' style={{ fontSize: '1.5em' }} >{firstcourseDetails[0].title}</span>}
+          title={<span id="" className='card-title' style={{ fontSize: '1.5em' }} >{firstcourseDetails.length&&firstcourseDetails[0].title?firstcourseDetails[0].title: 'No Classes'}</span>}
           description={<span className='card-description' style={{ fontSize: '1em' }}>{firstcourseDetails[0].createdAt}<br />{firstcourseDetails[0].description}</span>
             }
             />

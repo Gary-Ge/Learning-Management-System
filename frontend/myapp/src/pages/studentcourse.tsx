@@ -900,7 +900,7 @@ export default function StudentCoursePage() {
       // console.log('materialslist', materialslist);
     })
   }
-  const handleAnswerChange = (quizId, questionId, answer, questionType = 0) => {
+  const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
     // 定义选项字母映射
     const optionLetters = ['a', 'b', 'c', 'd'];
   
