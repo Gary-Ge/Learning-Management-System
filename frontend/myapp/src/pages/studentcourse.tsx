@@ -1,5 +1,6 @@
 import'./studentcourse.less';
 import LinkBoardStu from "./LinkBoardStu";
+import StudentRank from "./studentrank";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
@@ -143,6 +144,7 @@ export default function StudentCoursePage() {
   const [answers, setAnswers] = useState<{ [key: string]: any }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<null | number>(null);
+  const [showStudentRank, setShowStudentRank] = useState(false);
 
   const props = (key:number, id:string) => {
     // console.log('++key', key);
@@ -631,6 +633,7 @@ export default function StudentCoursePage() {
     });
     funlist[e.target.id].is_selected = true;
     setfunLists([...funlist]);
+    setShowStudentRank(false)
     // get current course id
     let current_course_id = ''
     datalist.map((item:any) => {
@@ -1048,7 +1051,14 @@ export default function StudentCoursePage() {
       localStorage.setItem('timeLeft', timeLeft.toString());
     }
   }, [timeLeft]);
+  const handleShowStudentRank = () => {
+    const updatedFunList = fun_list.map((item) => {
+      return { ...item, is_selected: false };
+    });
   
+    setfunLists(updatedFunList);
+    setShowStudentRank(true);
+  };
 
   return (
     <div className='stu_wrap'>
@@ -1096,11 +1106,12 @@ export default function StudentCoursePage() {
             funlist.length != 0 ?             
             <div className='stu_icon_last_list'>
             <img src={stu_icon_7} className="stu_icon_list"/>
-            <img src={stu_icon_8} className="stu_icon_list"/>
+            <img src={stu_icon_8} className="stu_icon_list" onClick={handleShowStudentRank}/>
             <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
             </div> : ''
           }
         </div>
+        
 
         <div className={funlist.length != 0 && funlist[0].is_selected ? 'stu_right_content': 'display_non'}>
           <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
@@ -1362,8 +1373,16 @@ export default function StudentCoursePage() {
                   )
                 }
               </div>
+              <div className={showStudentRank ? 'stu_right_content': 'display_non'}>
+              {showStudentRank && (
+                  <div className="student_rank_content">
+                    <StudentRank />
+                  </div>
+                )}
+              </div>
             </div> : <div className='nocoursewrap'>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }
+
 
       </div>
       <div><img src={gototopicon} className="gotopicon" onClick={gototop}/></div>
