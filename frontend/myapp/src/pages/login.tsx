@@ -46,7 +46,8 @@ export default function LoginPage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       saveToken(res.data.token)
       history.push('/'); // redirect to login page, adjust as needed

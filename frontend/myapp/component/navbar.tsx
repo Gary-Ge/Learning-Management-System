@@ -200,7 +200,8 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          throw new Error(res.message);
+          message.error(res.message);
+          return
         }
         message.success("User information updated successfully");
         handleModalClose();
@@ -222,7 +223,8 @@ export default function Dashboard() {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          throw new Error(res.message);
+          message.error(res.message);
+          return
         }
         const newAvatar = res.data.avatar;
         setImageUrl(newAvatar);
@@ -243,7 +245,8 @@ export default function Dashboard() {
         .then(res => res.json())
         .then(res => {
           if (res.code !== 20000) {
-            throw new Error(res.message);
+            message.error(res.message);
+            return
           }
           message.success("User information updated successfully");
           handleModalClose();

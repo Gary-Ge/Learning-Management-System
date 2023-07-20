@@ -203,7 +203,8 @@ export default function IndexPage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       setUserData(res.data.user)
       localStorage.setItem('userData', JSON.stringify(res.data.user));
@@ -221,7 +222,8 @@ export default function IndexPage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       setCurriculum(res.data.courses);
       let courseIds = [];
@@ -245,7 +247,8 @@ export default function IndexPage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       setAllCourseDetails(res.data.courses)
       // console.log('+++',res.data.courses[0]);
@@ -276,7 +279,8 @@ useEffect(() => {
     if (data.success) {
       return data.data;
     } else {
-      throw new Error(data.message);
+       message.error(data.message);
+       return
     }
   };
 
@@ -302,7 +306,8 @@ const onSearch = (value: string) => {
   .then(res => res.json())
   .then(res => {
     if (res.code !== 20000) {
-      throw new Error(res.message)
+      message.error(res.message)
+      return
     }
     console.log('search', res);
     setAllCourseDetails(res.data.courses);
@@ -429,7 +434,8 @@ useEffect(() => {
         .then(res => res.json()) 
         .then(res => {
           if (res.code !== 20000) {
-            throw new Error(res.message)
+            message.error(res.message)
+            return
           }
           message.success('Join the Class successfully' );
           gotostudent(course.id, course.title);

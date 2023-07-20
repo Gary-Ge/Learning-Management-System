@@ -29,7 +29,8 @@ export default function ForgetPassword() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-              throw new Error(res.message)
+              message.error(res.message)
+              return
             }
             message.success('Verification code sent successfully');
           })
@@ -51,7 +52,8 @@ export default function ForgetPassword() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-              throw new Error(res.message)
+              message.error(res.message)
+              return
             }
             localStorage.setItem("email", email);
             history.push('/confirmpassword');

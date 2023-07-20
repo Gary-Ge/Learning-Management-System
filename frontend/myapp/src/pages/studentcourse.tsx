@@ -300,7 +300,8 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       console.log(res.data.course);
       let res_data = res.data.course;
@@ -427,7 +428,8 @@ export default function StudentCoursePage() {
     .then(async res => {
       console.log('get all quizzes');
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
 
       let res_quiz = res.data.quizzes;
@@ -504,7 +506,8 @@ export default function StudentCoursePage() {
     .then(res => {
       console.log('get all assignments');
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       // if (res.data.assignments.length == 0) {
       //   setassignmentLists([]);
@@ -548,7 +551,8 @@ export default function StudentCoursePage() {
     .then(res => {
       console.log('get all streams');
       if (res.code !== 20000) {
-        throw new Error(res.message)
+          message.error(res.message)
+          return
       }
       // if (res.data.assignments.length == 0) {
       //   setassignmentLists([]);
@@ -584,7 +588,8 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       console.log('assurl',res.data.fileUrl);
       const w:any = window.open("about:blank");  
@@ -668,7 +673,8 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       console.log('getsourcelink', res.data.fileUrl);
       const w:any = window.open("about:blank");  
@@ -701,7 +707,8 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       console.log('submiturl',res.data.fileUrl);
       const w:any = window.open("about:blank");  
@@ -725,7 +732,8 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (!res.success) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       } else {
         getallcourse();
         // getcourseinfo(courseid.toString(), true);
@@ -832,7 +840,6 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        // throw new Error(res.message)
         message.error(res.message);
         return
       }
@@ -973,7 +980,7 @@ export default function StudentCoursePage() {
           if (data.success) {
               console.log(`Question ${answer.questionId} submitted successfully.`);
           } else {
-              console.log(`Failed to submit question ${answer.questionId}. Error: ${data.message}`);
+              message.error(`Failed to submit question. Error: ${data.message}`);
               return;
           }
       }
@@ -982,9 +989,6 @@ export default function StudentCoursePage() {
   message.success("quiz submit successfully")
 };  
 
-  useEffect(() => {
-    console.log(answers);  // 每次answers更新时都会打印
-  }, [answers]);
   useEffect(() => {
     const storedStartedQuiz = localStorage.getItem("startedQuiz");
     if (storedStartedQuiz) {

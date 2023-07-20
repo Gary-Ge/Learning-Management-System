@@ -236,7 +236,8 @@ const createNewQuiz = () => {
   .then(res => res.json())
   .then(res => {
     if (res.code !== 20000) {
-      throw new Error(res.message)
+      message.error(res.message)
+      return
     }
     setQuizId(res.data.quizId)
     setQuizCreated(true);
@@ -278,7 +279,8 @@ const createQuiz = () => {
   .then(res => res.json())
   .then(res => {
     if (res.code !== 20000) {
-      throw new Error(res.message)
+      message.error(res.message)
+      return
     }
     setQuizId(res.data.quizId)
     setQuizCreated(true);
@@ -364,7 +366,7 @@ const createQuiz = () => {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+       message.error(res.message)
       }
       setForms(forms => {
         const newForms = [...forms];
@@ -412,7 +414,8 @@ const removeForm = (formId: number) => {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       // Continue to remove the form from the state if API call is successful
       const updatedForms = forms.filter((form) => form.id !== formId);
@@ -546,7 +549,8 @@ const handleButtonClick = () => {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          throw new Error(res.message)
+          message.error(res.message)
+          return
         }
         setForms(forms => {
           const newForms = [...forms];
@@ -590,7 +594,8 @@ const handleButtonClick = () => {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          throw new Error(res.message)
+          message.error(res.message)
+          return
         }
       })
       .catch(error => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button } from 'antd';
+import { Layout, Button,message  } from 'antd';
 import './StaffDashboardContent.less';
 import {getToken} from '../utils/utils'
 import {
@@ -45,7 +45,8 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
     .then(res => {
       // console.log('res', res)
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       const sectionData = res.data.quiz;
       onSingleQuizSectionChange(sectionData);
@@ -69,7 +70,8 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
     .then(res => {
       // console.log('res', res)
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       fetchTextSections();
     })

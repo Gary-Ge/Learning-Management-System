@@ -47,7 +47,8 @@ export default function LoginPage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+         message.error(res.message)
+         return
       }
       console.log(res.data.token)
       saveToken(res.data.token)

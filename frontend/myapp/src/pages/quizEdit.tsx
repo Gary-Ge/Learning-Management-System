@@ -323,7 +323,8 @@ const removeForm = (formId: number) => {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       // Continue to remove the form from the state if API call is successful
       const updatedForms = forms.filter((form) => form.id !== formId);
@@ -387,7 +388,8 @@ const removeForm = (formId: number) => {
     .then(res => {
       // console.log('res', res);
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       else {
         const newFormsData = res.data.questions.map(transformQuestionData);
@@ -438,7 +440,8 @@ const removeForm = (formId: number) => {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          throw new Error(res.message)
+          message.error(res.message)
+          return
         }
       })
       .catch(error => {
@@ -457,7 +460,8 @@ const removeForm = (formId: number) => {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          throw new Error(res.message)
+          message.error(res.message)
+          return
         }
         setForms(forms => {
           const newForms = [...forms];
@@ -484,7 +488,8 @@ const removeForm = (formId: number) => {
     .then(res => {
       // console.log('res', res);
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       else {
         message.success('Quiz updated successfully');
