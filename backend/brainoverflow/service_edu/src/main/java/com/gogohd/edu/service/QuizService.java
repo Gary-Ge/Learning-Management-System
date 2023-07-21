@@ -21,4 +21,6 @@ public interface QuizService extends IService<Quiz> {
     void deleteQuiz(String userId, String quizId);
 
     void updateQuiz(String userId, String quizId, UpdateQuizVo updateQuizVo);
+
+    List<Map<String, Object>> getMarkByQuizId(String userId, String quizId);
 }

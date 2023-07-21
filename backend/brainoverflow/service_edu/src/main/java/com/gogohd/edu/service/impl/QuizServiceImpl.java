@@ -38,6 +38,12 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
     @Autowired
     private StudentMapper studentMapper;
 
+    @Autowired
+    private AnswerMapper answerMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
     private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
 
     @Override
@@ -264,5 +270,55 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         if (result == 0) {
             throw new BrainException(ResultCode.ERROR, "Failed to update the quiz");
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> getMarkByQuizId(String userId, String quizId) {
+        Quiz quiz = baseMapper.selectById(quizId);
+        if (quiz == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
+        }
+
+        isStaffOrStudent(userId, quiz.getCourseId());
+
+        LambdaQueryWrapper<Question> questionWrapper = new LambdaQueryWrapper<>();
+        questionWrapper.eq(Question::getQuizId, quizId);
+        List<Question> questions = questionMapper.selectList(questionWrapper);
+
+        LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
+        answerWrapper.in(Answer::getQuestionId, questions.stream().map(Question::getQuestionId).collect(Collectors.toList()));
+        List<Answer> answers = answerMapper.selectList(answerWrapper);
+
+        Map<String, Float> studentScores = new HashMap<>();
+        for (Answer answer : answers) {
+            String studentId = answer.getUserId();
+            float questionScore = (float) questions.stream()
+                    .filter(question -> question.getQuestionId().equals(answer.getQuestionId()))
+                    .mapToDouble(Question::getMark)
+                    .findFirst()
+                    .orElse(0f);
+            float studentScore = studentScores.getOrDefault(studentId, 0f);
+            studentScores.put(studentId, studentScore + questionScore);
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : studentScores.entrySet()) {
+            String studentId = entry.getKey();
+            float totalScore = entry.getValue();
+
+            User user = userMapper.selectById(studentId);
+            if (user == null) {
+                throw new BrainException(ResultCode.NOT_FOUND, "Student does not exist");
+            }
+
+            Map<String, Object> studentResult = new HashMap<>();
+            studentResult.put("userId", user.getUserId());
+            studentResult.put("userName", user.getUsername());
+            studentResult.put("totalScore", totalScore);
+
+            result.add(studentResult);
+        }
+
+        return result;
     }
 }
