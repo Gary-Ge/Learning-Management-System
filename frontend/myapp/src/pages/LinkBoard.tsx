@@ -474,7 +474,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
       }
       message.success('online quiz create successfully');
       setSeconds(0);
-      setQuestion('');
+      setQuestion(' ');
       setMark(0);
       setSingleOptions([]);
       SetSelectedSingleOption(null);
