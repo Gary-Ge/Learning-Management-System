@@ -69,4 +69,12 @@ public class QuizController {
         quizService.updateQuiz(userId, quizId, updateQuizVo);
         return R.success().message("Update quiz success");
     }
+
+    @Operation(summary = "Get all marks by quizId")
+    @GetMapping("quiz/{quizId}/marks")
+    public R getMarkByQuizId(HttpServletRequest request, @PathVariable String quizId) {
+        String userId = (String) request.getAttribute("userId");
+        List<Map<String, Object>> quizMarks = quizService.getMarkByQuizId(userId, quizId);
+        return R.success().message("Get all marks of a quiz success").data("quizMarks", quizMarks);
+    }
 }

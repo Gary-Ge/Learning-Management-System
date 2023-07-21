@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
@@ -375,6 +374,45 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 //        }
 //    }
 
+    private float calculateMark(Question question, char[] selectedOptions) {
+        float mark = 0;
+        boolean allCorrect = true;
+
+        int[] correctOptionIds = {question.getACorrect(), question.getBCorrect(), question.getCCorrect(),
+                question.getDCorrect(), question.getECorrect(), question.getFCorrect()};
+        List<String> correctOptions = new ArrayList<>();
+
+        for (int i = 0; i < correctOptionIds.length; i++) {
+            if (correctOptionIds[i] == 1) {
+                char option = (char) ('A' + i);
+                correctOptions.add(String.valueOf(option));
+            }
+        }
+
+        for (char selectedOption : selectedOptions) {
+            String selectedOptionLowerCase = String.valueOf(selectedOption).trim().toLowerCase();
+            boolean isCorrect = false;
+
+            for (String correctOption : correctOptions) {
+                if (correctOption != null && correctOption.equalsIgnoreCase(selectedOptionLowerCase)) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            if (!isCorrect) {
+                allCorrect = false;
+                break;
+            }
+        }
+
+        if (allCorrect) {
+            mark = question.getMark();
+        }
+
+        return mark;
+    }
+
     @Override
     @Transactional
     public void submitQuestion(String userId, String questionId, String optionIds, String content) {
@@ -425,6 +463,13 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             }
         } else {
             throw new BrainException(ResultCode.ERROR, "Invalid question type");
+        }
+
+        // Calculate the mark for the answer if the question type is multiple-choice
+        if (question.getType() == 0 || question.getType() == 1) {
+            char[] selectedOptions = optionIds.toCharArray();
+            float mark = calculateMark(question, selectedOptions);
+            answer.setMark(mark);
         }
 
         // Insert the answer record

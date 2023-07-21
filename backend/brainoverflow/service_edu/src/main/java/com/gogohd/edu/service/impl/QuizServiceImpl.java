@@ -10,9 +10,9 @@ import com.gogohd.edu.entity.vo.CreateQuizVo;
 import com.gogohd.edu.entity.vo.UpdateQuizVo;
 import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.QuizService;
-import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
@@ -37,6 +37,12 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
     @Autowired
     private StudentMapper studentMapper;
+
+    @Autowired
+    private AnswerMapper answerMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     private final String NO_AUTHORITY_GET = "You have no authority to get sections information";
 
@@ -204,6 +210,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
 
     @Override
+    @Transactional
     public void deleteQuiz(String userId, String quizId) {
         Quiz quiz = baseMapper.selectById(quizId);
         if (quiz == null) {
@@ -229,6 +236,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
     }
 
     @Override
+    @Transactional
     public void updateQuiz(String userId, String quizId, UpdateQuizVo updateQuizVo) {
         Quiz quiz = baseMapper.selectById(quizId);
         if (quiz == null) {
@@ -265,4 +273,55 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
             throw new BrainException(ResultCode.ERROR, "Failed to update the quiz");
         }
     }
+
+    @Override
+    public List<Map<String, Object>> getMarkByQuizId(String userId, String quizId) {
+        Quiz quiz = baseMapper.selectById(quizId);
+        if (quiz == null) {
+            throw new BrainException(ResultCode.NOT_FOUND, "Quiz does not exist");
+        }
+
+        isStaffOrStudent(userId, quiz.getCourseId());
+
+        LambdaQueryWrapper<Question> questionWrapper = new LambdaQueryWrapper<>();
+        questionWrapper.eq(Question::getQuizId, quizId);
+        List<Question> questions = questionMapper.selectList(questionWrapper);
+
+        LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
+        answerWrapper.in(Answer::getQuestionId, questions.stream().map(Question::getQuestionId).collect(Collectors.toList()));
+        List<Answer> answers = answerMapper.selectList(answerWrapper);
+
+        Map<String, Float> studentScores = new HashMap<>();
+        for (Answer answer : answers) {
+            String studentId = answer.getUserId();
+            float questionScore = (float) questions.stream()
+                    .filter(question -> question.getQuestionId().equals(answer.getQuestionId()))
+                    .mapToDouble(Question::getMark)
+                    .findFirst()
+                    .orElse(0f);
+            float studentScore = studentScores.getOrDefault(studentId, 0f);
+            studentScores.put(studentId, studentScore + questionScore);
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : studentScores.entrySet()) {
+            String studentId = entry.getKey();
+            float totalScore = entry.getValue();
+
+            User user = userMapper.selectById(studentId);
+            if (user == null) {
+                throw new BrainException(ResultCode.NOT_FOUND, "Student does not exist");
+            }
+
+            Map<String, Object> studentResult = new HashMap<>();
+            studentResult.put("userId", user.getUserId());
+            studentResult.put("userName", user.getUsername());
+            studentResult.put("totalScore", totalScore);
+
+            result.add(studentResult);
+        }
+
+        return result;
+    }
+
 }
