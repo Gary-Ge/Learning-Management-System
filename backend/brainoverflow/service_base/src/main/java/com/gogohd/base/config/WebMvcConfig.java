@@ -46,7 +46,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/stream-quiz/**")
                 .addPathPatterns("/forum-category/**")
                 .addPathPatterns("/forum-post/**")
-                .addPathPatterns("/forum-reply/**");
+                .addPathPatterns("/forum-reply/**")
+                .addPathPatterns("/chat-bot/**");
     }
 
     @Override
