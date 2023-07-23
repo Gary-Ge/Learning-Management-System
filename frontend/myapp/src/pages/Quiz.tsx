@@ -206,19 +206,19 @@ const handleOptionMCSelection = (formId: any, optionId: any) => {
 };
 const createNewQuiz = () => {
   if (!validNotNull(title)) {
-    alert('Please input a valid quiz title')
+    message.error('Please input a valid quiz title')
     return
   }
   if (!validNotNull(limitation)) {
-    alert('Please input a valid quiz li')
+    message.error('Please input a valid quiz li')
     return
   }
   if (!validNotNull(start)) {
-    alert('Please input a valid quiz start')
+    message.error('Please input a valid quiz start')
     return
   }
   if (!validNotNull(end) || (new Date(end)< new Date(start))) {
-    alert('Please input a valid quiz end')
+    message.error('Please input a valid quiz end')
     return
   }
   console.log(token)
@@ -249,19 +249,19 @@ const createNewQuiz = () => {
 }
 const createQuiz = () => {
   if (!validNotNull(title)) {
-    alert('Please input a valid quiz title')
+    message.error('Please input a valid quiz title')
     return
   }
   if (!validNotNull(limitation)) {
-    alert('Please input a valid quiz li')
+    message.error('Please input a valid quiz li')
     return
   }
   if (!validNotNull(start)) {
-    alert('Please input a valid quiz start')
+    message.error('Please input a valid quiz start')
     return
   }
   if (!validNotNull(end) || (new Date(end)< new Date(start))) {
-    alert('Please input a valid quiz end')
+    message.error('Please input a valid quiz end')
     return
   }
   console.log(token)

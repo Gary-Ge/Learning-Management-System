@@ -18,7 +18,7 @@ export default function ConfirmPassword() {
     };
     const handleSubmit = () => {
         if (password !== newpassword) {
-            alert('Password is not equal to new password')
+            message.error('Password is not equal to new password')
             return;
         }
         const storedEmail = localStorage.getItem("email");

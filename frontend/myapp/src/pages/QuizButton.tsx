@@ -24,7 +24,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
       const fetchedSections = data.data.quizzes;
       setSections(fetchedSections);
     } catch (error) {
-      alert(error);
+      //message.error(error.message);
     }
   };
   useEffect(() => {
@@ -52,7 +52,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
       onSingleQuizSectionChange(sectionData);
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
   };
 
@@ -76,7 +76,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
       fetchTextSections();
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
   };
 

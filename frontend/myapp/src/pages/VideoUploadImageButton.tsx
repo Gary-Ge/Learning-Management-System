@@ -53,7 +53,7 @@ const VideoUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUploa
       setFromoutside(false)
     })
     .catch(error => {
-       alert(error.message)
+      message.error(error.message)
      });
   };
 

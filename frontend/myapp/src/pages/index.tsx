@@ -441,7 +441,7 @@ useEffect(() => {
           gotostudent(course.id, course.title);
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });} 
         }>Join</Button>
           <Button type="primary" size="large" onClick={() => gotoviewstudent(course.id,course.title)}>View</Button>
