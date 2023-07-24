@@ -424,13 +424,8 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentMapper, Assignm
         if (assignment == null) {
             throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exist");
         }
-        LambdaQueryWrapper<Staff> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Staff::getCourseId, assignment.getCourseId());
-        wrapper.eq(Staff::getUserId, userId);
-        if (!staffMapper.exists(wrapper)) {
-            throw new BrainException(ResultCode.NO_AUTHORITY,
-                    "You have no authority to get the submits of this assignment");
-        }
+
+        isStaffOrStudent(userId, assignment.getCourseId());
 
         List<Map<String, Object>> maps = baseMapper.selectSubmitsByAssignmentId(assignmentId);
         List<Map<String, Object>> result = new ArrayList<>();
