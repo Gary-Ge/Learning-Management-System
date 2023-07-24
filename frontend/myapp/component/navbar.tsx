@@ -174,15 +174,15 @@ export default function Dashboard() {
   const handleSubmit = () => {
     const token = getToken();
     if (!validNotNull(username)) {
-      alert('Please input a username');
+      message.error('Please input a username');
       return;
     }
     if (!validEmail(email)) {
-      alert('Please input a valid email');
+      message.error('Please input a valid email');
       return;
     }
     if (password !== "" && password !== null && !ValidPassword(password)) {
-      alert('Please input a valid password');
+      message.error('Please input a valid password');
       return;
     }
 
@@ -207,7 +207,7 @@ export default function Dashboard() {
         handleModalClose();
       })
       .catch(error => {
-        alert(error.message);
+        message.error(error.message);
       });
     } else {
       // If the user upload a new avatar, first upload the avatar, then update the user info

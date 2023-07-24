@@ -53,7 +53,7 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
       setFromoutside(false)
     })
     .catch(error => {
-       alert(error.message)
+      message.error(error.message)
      });
   };
 

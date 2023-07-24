@@ -94,7 +94,6 @@ export default function IndexPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDate, setSelectedDate] = useState<string>(moment().format('YYYY-MM-DD'));
   const [allDue,setAllDue] = useState([])
-  const [nodueflag, setnodueflag] = useState(true)
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,
@@ -441,7 +440,7 @@ useEffect(() => {
           gotostudent(course.id, course.title);
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });} 
         }>Join</Button>
           <Button type="primary" size="large" onClick={() => gotoviewstudent(course.id,course.title)}>View</Button>

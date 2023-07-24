@@ -1359,7 +1359,7 @@ export default function StudentCoursePage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? '': 'display_non'}>
+              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
                 }

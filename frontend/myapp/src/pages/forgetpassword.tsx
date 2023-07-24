@@ -19,7 +19,7 @@ export default function ForgetPassword() {
     };
     const SendSubmit = () => {
         if (!validEmail(email)) {
-            alert('Please input a valid email')
+            message.error('Please input a valid email')
             return
         }
         fetch(`${HOST}${EMAIL_URL}/${email}`, {
@@ -41,7 +41,7 @@ export default function ForgetPassword() {
     const handleSubmit = () => {
         const dto = new CaptachaDTO(email,captcha);
         if (!validNotNull(captcha)) {
-            alert('Please input a captcha')
+            message.error('Please input a captcha')
             return
         }
         fetch(`${HOST}${CODE_URL}`, {
@@ -59,7 +59,7 @@ export default function ForgetPassword() {
             history.push('/confirmpassword');
           })
           .catch(error => {
-            alert(error.message);
+            message.error(error.message);
           });         
     }
     return (

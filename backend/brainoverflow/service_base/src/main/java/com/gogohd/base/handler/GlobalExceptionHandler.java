@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.net.SocketTimeoutException;
+
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -33,5 +35,12 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         e.printStackTrace();
         return R.error().code(ResultCode.ERROR).message("Invalid format");
+    }
+
+    @ExceptionHandler(SocketTimeoutException.class)
+    @ResponseBody
+    public R error(SocketTimeoutException e) {
+        e.printStackTrace();
+        return R.error().code(ResultCode.ERROR).message("Response took too long");
     }
 }

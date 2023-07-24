@@ -113,4 +113,12 @@ public class StudentController {
         return R.success().message("Get enrolled courses due date success").data("courses",
                 studentService.getDueDateListByUserId(userId));
     }
+
+    @Operation(summary = "Get medals of a course")
+    @GetMapping("medals/{courseId}")
+    public R getMedals(HttpServletRequest request, @PathVariable String courseId) {
+        String userId = (String) request.getAttribute("userId");
+        return R.success().message("Get medals success").data("medals",
+                studentService.getMedalsByCourseId(userId, courseId));
+    }
 }

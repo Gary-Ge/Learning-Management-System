@@ -302,7 +302,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           </Text>
           <Button 
             onClick={handleQuestionClick} 
-            icon={<PlusCircleOutlined />} 
             type="primary" 
             ghost
             style={{ fontFamily: 'Comic Sans MS', marginLeft: '10px', borderRadius: '5px', color: 'black', borderColor: 'black' }} 

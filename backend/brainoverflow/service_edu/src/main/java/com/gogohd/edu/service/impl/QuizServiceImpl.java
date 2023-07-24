@@ -10,9 +10,9 @@ import com.gogohd.edu.entity.vo.CreateQuizVo;
 import com.gogohd.edu.entity.vo.UpdateQuizVo;
 import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.QuizService;
+import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
@@ -210,7 +210,6 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
 
     @Override
-    @Transactional
     public void deleteQuiz(String userId, String quizId) {
         Quiz quiz = baseMapper.selectById(quizId);
         if (quiz == null) {
@@ -236,7 +235,6 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
     }
 
     @Override
-    @Transactional
     public void updateQuiz(String userId, String quizId, UpdateQuizVo updateQuizVo) {
         Quiz quiz = baseMapper.selectById(quizId);
         if (quiz == null) {
@@ -323,5 +321,4 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
 
         return result;
     }
-
 }
