@@ -16,13 +16,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.net.SocketTimeoutException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements ChatService {
@@ -31,6 +31,16 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
 
     private final String STUDENT_CHAT_PREFIX = "student-chat://";
     private final String STAFF_CHAT_PREFIX = "staff-chat://";
+
+    private final String INFO = "MYINFO";
+    private final String DEADLINE = "DEADLINE";
+    private final String DEADLINES = "DEADLINES";
+    private final String DUE = "DUE";
+    private final String UPDATE = "UPDATE";
+    private final String SEARCH = "SEARCH";
+
+    private final String HOST = "localhost:8000";
+    private final String COURSE_URL = "/studentcourse?courseid=";
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -42,6 +52,22 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "The message is empty");
         }
 
+        String messageUniform = message.toUpperCase();
+
+        if (messageUniform.equals(INFO)) {
+            deleteContext(true, userId);
+            return getMyInfo(userId);
+        } else if (messageUniform.equals(DEADLINE) || messageUniform.equals(DEADLINES) || messageUniform.equals(DUE)) {
+            deleteContext(true, userId);
+            return getDeadlines(userId);
+        } else if (messageUniform.equals(UPDATE)) {
+            deleteContext(true, userId);
+            return getUpdate(userId);
+        } else if (messageUniform.startsWith(SEARCH)) {
+            deleteContext(true, userId);
+            return searchCourses(userId, messageUniform.substring(6).trim());
+        }
+
         return sendMessageToChatGPT(STUDENT_CHAT_PREFIX + userId, message);
     }
 
@@ -50,6 +76,22 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
         String message = sendMessageVo.getMessage();
         if (ObjectUtils.isEmpty(message)) {
             throw new BrainException(ResultCode.ILLEGAL_ARGS, "The message is empty");
+        }
+
+        String messageUniform = message.toUpperCase();
+
+        if (messageUniform.equals(INFO)) {
+            deleteContext(true, userId);
+            return getMyInfo(userId);
+        } else if (messageUniform.equals(DEADLINE) || messageUniform.equals(DEADLINES) || messageUniform.equals(DUE)) {
+            deleteContext(true, userId);
+            return getDeadlinesForStaff(userId);
+        } else if (messageUniform.equals(UPDATE)) {
+            deleteContext(true, userId);
+            return getUpdateForStaff(userId);
+        } else if (messageUniform.startsWith(SEARCH)) {
+            deleteContext(true, userId);
+            return searchCourses(userId, messageUniform.substring(6).trim());
         }
 
         return sendMessageToChatGPT(STAFF_CHAT_PREFIX + userId, message);
@@ -116,5 +158,172 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
         redisTemplate.expire(contextKey, 3600, TimeUnit.SECONDS);
 
         return response.getContent();
+    }
+
+    private String getMyInfo(String userId) {
+        Map<String, Object> userInfo = baseMapper.selectUserById(userId);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        return "Your user information is:\nUsername: " + userInfo.get("username") +
+                "\nEmail Address: " + userInfo.get("email") + "\nYou created this account on: " +
+                simpleDateFormat.format(userInfo.get("created_at"));
+    }
+
+    private String getDeadlines(String userId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("The deadlines for each course you have enrolled in are:\n\n");
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        List<Map<String, Object>> assignments = baseMapper.selectAssignmentsByUserId(userId);
+        List<Map<String, Object>> quizzes = baseMapper.selectQuizzesByUserId(userId);
+
+        List<Map<String, Object>> total = new ArrayList<>();
+
+        Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
+        assignments.forEach(assignment -> {
+            assignment.put("type", "Assignment");
+            if (((Timestamp) assignment.get("end")).after(now)) {
+                total.add(assignment);
+            }
+        });
+        quizzes.forEach(quiz -> {
+            quiz.put("type", "Quiz");
+            if (((Timestamp) quiz.get("end")).after(now)) {
+                total.add(quiz);
+            }
+        });
+
+        if (total.size() == 0) {
+            return "There is no deadline for all the course you are enrolled in";
+        }
+
+        total.sort(Comparator.comparing((Map<String, Object> m) -> simpleDateFormat.format(m.get("end"))));
+        total.forEach(item -> {
+            sb.append("Type: ").append(item.get("type")).append("\n");
+            sb.append("Course Name: ").append(item.get("course_title")).append("\n");
+            sb.append("Event Name: ").append(item.get("event_title")).append("\n");
+            sb.append("Deadline: ").append(simpleDateFormat.format(item.get("end"))).append("\n\n");
+        });
+
+        return sb.toString();
+    }
+
+    private String getDeadlinesForStaff(String userId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("The deadlines for each course you are teaching are:\n\n");
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        List<Map<String, Object>> assignments = baseMapper.selectAssignmentsByUserIdForStaff(userId);
+        List<Map<String, Object>> quizzes = baseMapper.selectQuizzesByUserIdForStaff(userId);
+
+        List<Map<String, Object>> total = new ArrayList<>();
+
+        Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
+        assignments.forEach(assignment -> {
+            assignment.put("type", "Assignment");
+            if (((Timestamp) assignment.get("end")).after(now)) {
+                total.add(assignment);
+            }
+        });
+        quizzes.forEach(quiz -> {
+            quiz.put("type", "Quiz");
+            if (((Timestamp) quiz.get("end")).after(now)) {
+                total.add(quiz);
+            }
+        });
+
+        if (total.size() == 0) {
+            return "There is no deadline for all the course you are teaching";
+        }
+
+        total.sort(Comparator.comparing((Map<String, Object> m) -> simpleDateFormat.format(m.get("end"))));
+        total.forEach(item -> {
+            sb.append("Type: ").append(item.get("type")).append("\n");
+            sb.append("Course Name: ").append(item.get("course_title")).append("\n");
+            sb.append("Event Name: ").append(item.get("event_title")).append("\n");
+            sb.append("Deadline: ").append(simpleDateFormat.format(item.get("end"))).append("\n\n");
+        });
+
+        return sb.toString();
+    }
+
+    private String getUpdate(String userId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("The most recent updating for each course you have enrolled in are:\n\n");
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        AtomicReference<Boolean> hasUpdate = new AtomicReference<>(false);
+        baseMapper.selectEnrolledCoursesByUserId(userId)
+                .forEach(course -> {
+                    Map<String, Object> section =
+                            baseMapper.selectMostRecentSectionByCourseId((String) course.get("cid"));
+                    if (section != null) {
+                        sb.append("Course Name: ").append(course.get("title")).append("\n");
+                        sb.append("Recently Updated Section: ").append(section.get("title")).append("\n");
+                        sb.append("Updated At: ").append(simpleDateFormat.format(section.get("updated_at")))
+                                .append("\n");
+                        sb.append("Link: ").append(HOST).append(COURSE_URL).append(course.get("cid")).append("\n\n");
+                        hasUpdate.set(true);
+                    }
+                });
+
+        if (!hasUpdate.get()) {
+            return "There is no recent update for all the courses you are enrolled in";
+        }
+
+        return sb.toString();
+    }
+    private String getUpdateForStaff(String userId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("The most recent updating for each course you are teaching are:\n\n");
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        AtomicReference<Boolean> hasUpdate = new AtomicReference<>(false);
+        baseMapper.selectStaffedCoursesByUserId(userId)
+                .forEach(course -> {
+                    Map<String, Object> section =
+                            baseMapper.selectMostRecentSectionByCourseId((String) course.get("cid"));
+                    if (section != null) {
+                        sb.append("Course Name: ").append(course.get("title")).append("\n");
+                        sb.append("Recently Updated Section: ").append(section.get("title")).append("\n");
+                        sb.append("Updated At: ").append(simpleDateFormat.format(section.get("updated_at")))
+                                .append("\n");
+                        sb.append("Link: ").append(HOST).append(COURSE_URL).append(course.get("cid")).append("\n\n");
+                        hasUpdate.set(true);
+                    }
+                });
+
+        if (!hasUpdate.get()) {
+            return "There is no recent update for all the courses you are teaching";
+        }
+
+        return sb.toString();
+    }
+
+
+    private String searchCourses(String userId, String keyword) {
+        List<Map<String, Object>> courses = baseMapper.searchCoursesByKeyword(userId, keyword);
+        if (courses.size() == 0) {
+            return "There is no course related to \"" + keyword + "\"";
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("The courses related to \"").append(keyword).append("\" are:\n\n");
+
+        courses.forEach(course -> {
+                    sb.append("Course Name: ").append(course.get("title")).append("\n");
+                    sb.append("Course Category: ").append(course.get("category_name")).append("\n");
+                    sb.append("Course Description: ").append(course.get("description")).append("\n");
+                    sb.append("Course Creator: ").append(course.get("username")).append("\n\n");
+                });
+
+        return sb.toString();
     }
 }
