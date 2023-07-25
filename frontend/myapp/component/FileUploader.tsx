@@ -22,20 +22,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileListChange }) => {
 
     if (isFileExist) {
       message.error('File already exists!');
-      return false; // 阻止文件上传
+      return false; // Block file upload
     }
 
-    // // 添加新文件到文件列表
-    // const updatedFileList = [...fileList, file];
-    // setFileList(updatedFileList);
+    // Adds a new file to the file list
     fileList.push(file);
     let copyfilelist = fileList.slice();
-    // console.log('copyfilelist', copyfilelist);
-    // setFileList([...fileList, file]);
     setFileList([...copyfilelist]);
-    // console.log('fileList', fileList);
     onFileListChange(fileList);
-    return false; // 阻止文件上传
+    return false; // Block file upload
   };
 
   return (

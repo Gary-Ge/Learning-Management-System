@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message,Select,Radio, Tag, Checkbox  } from 'antd';
 import './StaffDashboardContent.less';
-import './TextLesson.css';
 import {
   HeartFilled,
   DeleteOutlined,
@@ -10,7 +9,6 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {getToken} from '../utils/utils'
-import { validNotNull } from '../utils/utilsStaff';
 import { QuizDTO } from '../utils/entities';
 import Quiz from './Quiz';
 import UploadImageButton from './UploadImageButton';

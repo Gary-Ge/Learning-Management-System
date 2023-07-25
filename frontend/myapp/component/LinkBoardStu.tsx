@@ -1,23 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Layout, Typography, Button, Form, Input, Avatar, message, Modal, DatePicker, Select, Radio, Tag, Checkbox, Row, Col, Progress, Space, Statistic } from 'antd';
+import { Layout, Typography, Button, Input, message, Modal, Radio, Checkbox, Progress, Space } from 'antd';
 import {
-  DeleteOutlined,
   UsergroupAddOutlined,
-  PlusCircleOutlined,
   SendOutlined,
-  HeartFilled,
   ClockCircleOutlined
 } from '@ant-design/icons';
-import {getToken} from '../utils/utils'
+import { PieChart, Pie, BarChart, Bar, Cell, XAxis, CartesianGrid, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
+import crown from '../../images/crown.png';
+import fail from '../../images/fail.png';
 import FlvJs from 'flv.js';
 import SockJsClient from 'react-stomp';
-import crown from '../../../images/crown.png';
-import fail from '../../../images/fail.png';
-import { PieChart, Pie, BarChart, Bar, Cell, XAxis, CartesianGrid, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
+import { getToken, HOST_STREAM, HOST_STREAM_CHAT, HOST_STREAM_QUIZ } from '../src/utils/utils'
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
-
 const dataDist = [
   { name: 'A', value: 0 },
   { name: 'B', value: 0 },
@@ -45,7 +41,6 @@ const pieChart = (
     </PieChart>
   </ResponsiveContainer>
 );
-
 const dataCount = [
   { name: 'A', value: 0 },
   { name: 'B', value: 0 },
@@ -71,22 +66,22 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
   const [playbackUrl, setPlaybackUrl] = useState('');
   useEffect(() => {
     if (stream.inProgress) {
-      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/play`, {
+      fetch(`${HOST_STREAM}/stream/${stream.streamId}/play`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then(res => res.json())
-        .then(res => {
-          if (res.code !== 20000) {
-            throw new Error(res.message);
-          }
-          setPlaybackUrl(res.data.playUrl);
-        })
-        .catch(error => {
-          message.error(error.message);
-        });
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message);
+        }
+        setPlaybackUrl(res.data.playUrl);
+      })
+      .catch(error => {
+        message.error(error.message);
+      });
     } else {
       message.error('The live stream has not started yet.');
     }
@@ -124,13 +119,17 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
   const [users, setUsers] = useState<any[]>([]);
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
-  const send = (message: any) => { // 发送信息
-    fetch(`http://175.45.180.201:10900/service-stream/stream-chat/message/${stream.streamId}/${message}`, {
+  const send = (message: any) => { // send message
+    fetch(`${HOST_STREAM_CHAT}/message/${stream.streamId}/${message}`, {
       method: 'POST',
       headers: headers
     })
     .then(res => res.json())
-    .then(res => console.log(res.data))
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message);
+      }
+    })
     .catch(error => {
       message.error(error.message);
     });
@@ -173,7 +172,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
   const formatTime = (time: any) => {
     return time < 10 ? `0${time}` : time;
   };
-  const [selectedOption, setSelectedOption] = useState(""); // 存储选项结果的状态
+  const [selectedOption, setSelectedOption] = useState(""); // Store the status of option results
   const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
   const [fasterThan, setFasterThan] = useState(Number);
   const [quizId, setQuizId] = useState('');
@@ -181,8 +180,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
     answers: []
   };
   const handleSubmit = () => {
-    // console.log('selectedOption', selectedOption);
-    // console.log('selectedOptions', selectedOptions);
     if (seconds !== 0 && type === 2) {
       if (showQuestion.questions[0].type === 0) {
         answer.answers.push(selectedOption);
@@ -194,7 +191,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
         }
       }
       else {
-        // answer = [selectedOption];
         const selectedOptionsString = selectedOptions.join('');
         answer.answers.push(selectedOptionsString);
         if (correctAnswer === selectedOptionsString) {
@@ -204,9 +200,8 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           setCorrectOrNot(false);
         }
       }
-      // console.log(answer);
       const requestData = JSON.stringify(answer);
-      fetch(`http://175.45.180.201:10900/service-stream/stream-quiz/quiz/answer/${quizId}`, {
+      fetch(`${HOST_STREAM_QUIZ}/quiz/answer/${quizId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -216,13 +211,11 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
       })
       .then(res => res.json())
       .then(res => {
-        // console.log('ass_res', res);
         if (res.code !== 20000) {
           throw new Error(res.message)
         }
         message.success('online quiz submit successfully');
         setFasterThan(res.data.fasterThan);
-        // console.log('fasterThan', res.data.fasterThan);
         setSelectedOptions([]);
         setSelectedOption('');
       })
@@ -243,7 +236,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           setMessages(prevMessages => [...prevMessages, msg]);
         }
         else if (msg.type === 1) {
-          // console.log('msg1', msg); // 处理收到的消息
           setUsers(msg.userList);
         }
         else if (msg.type === 2) {
@@ -253,13 +245,10 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           setType(msg.type);
           setCorrectAnswer(msg.questions[0].answer);
           setIsModalVisible(true);
-          // console.log('msg2', msg); // 处理收到的消息
         }
         else if (msg.type === 3) {
           setType(msg.type);
-          console.log('msg3', msg); // 处理收到的消息
           dataDist.map((item:any)=>{
-            // console.log(item)
             if (item.name === 'A') {
               item.value = msg.questions[0].distA;
             }
@@ -274,7 +263,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
             }
           })
           dataCount.map((item:any)=>{
-            // console.log(item)
             if (item.name === 'A') {
               item.value = msg.questions[0].countA;
             }
@@ -291,7 +279,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
           setIsModalVisible(true);
         }
       }}
-      // ref={handleStompClientRef} // 如果需要引用Stomp客户端实例，可以使用ref
     />
     <Layout style={{ minHeight: '100vh' }}>
       <Layout style={{  }}>        
@@ -500,16 +487,6 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
             </div>
           </div>
         </Content>
-        {/* <Footer
-          style={{
-            textAlign: 'center',
-            backgroundColor: '#EFF1F6',
-            fontFamily: 'Comic Sans MS',
-          }}
-        >
-          Copyright ©2023 All rights reserved  
-          <HeartFilled style={{ color: 'red', marginLeft: '5px' }} />
-        </Footer> */}
       </Layout>
       <Sider width={250} style={{ background: '#f0f2f5' }}>
         <Content style={{ margin: '24px 16px 0', background: '#fff', padding: '15px', minHeight: '87vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>

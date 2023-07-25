@@ -1,16 +1,15 @@
 import'./studentcourse.less';
-import LinkBoardStu from "./LinkBoardStu";
+import LinkBoardStu from "../../component/LinkBoardStu";
 import StudentRank from "../../component/studentrank";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
 import { Input, Button, Modal, message, Upload,Radio,Space,Checkbox,Form } from 'antd';
-import type { UploadProps } from 'antd';
 import { useLocation, useHistory } from 'umi';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
-  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
+  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT, HOST_STREAM, HOST_QUIZ } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_2 from '../../../images/stu_icon_2.png';
 import stu_icon_3 from '../../../images/stu_icon_3.png';
@@ -542,7 +541,7 @@ export default function StudentCoursePage() {
 
   // get all streams
   const getallstreams = (courseid:string, original_key: string) => {
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/streams/${courseid}`, {
+    fetch(`${HOST_STREAM}/streams/${courseid}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -551,14 +550,10 @@ export default function StudentCoursePage() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log('get all streams');
       if (res.code !== 20000) {
-          message.error(res.message)
-          return
+        message.error(res.message)
+        return
       }
-      // if (res.data.assignments.length == 0) {
-      //   setassignmentLists([]);
-      // } else {
       stream_list = []
       let res_stream = res.data.streams;
       res_stream.map((item:any, idx:string)=>{
@@ -571,10 +566,9 @@ export default function StudentCoursePage() {
         });
       });
       setstreamLists([...stream_list]);
-      // console.log('stream_list', stream_list);
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     }); 
   };
 
@@ -1051,6 +1045,72 @@ export default function StudentCoursePage() {
       localStorage.setItem('timeLeft', timeLeft.toString());
     }
   }, [timeLeft]);
+
+  const [singleCourse, setSingleCourse] = useState<Array<any>>([{cover: '',title:'',category:'',description:'',hasForum:false}]);
+  const [assOptions, setAssOptions] = useState<any[]>([]);
+  const [quizes, setQuizes] = useState<any[]>([]);
+  const fetchOptions = (courseId: string) => {
+    // Current course information
+    fetch(`${HOST_COURSE}/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedCourse = data.data.course;
+      setSingleCourse(fetchedCourse);
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+    // All assignments created by the current course
+    fetch(`${HOST_ASSIGNMENT}/assignments/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedAssignments = data.data.assignments;
+      setAssOptions(fetchedAssignments);
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+    // All quizzes created for the current course
+    fetch(`${HOST_QUIZ}/quiz/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedQuizes = data.data.quizzes;
+      setQuizes(fetchedQuizes);
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+  };
   const handleShowStudentRank = () => {
     const updatedFunList = fun_list.map((item) => {
       return { ...item, is_selected: false };
@@ -1058,6 +1118,14 @@ export default function StudentCoursePage() {
   
     setfunLists(updatedFunList);
     setShowStudentRank(true);
+
+    let current_course_id = ''
+    datalist.map((item:any) => {
+      if (item.is_selected){
+        current_course_id = item.id
+      }
+    })
+    fetchOptions(current_course_id);   
   };
 
   return (
@@ -1359,7 +1427,7 @@ export default function StudentCoursePage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
+              <div className={funlist[4].is_selected ? '': 'display_non'}>
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
                 }
@@ -1376,7 +1444,7 @@ export default function StudentCoursePage() {
               <div className={showStudentRank ? 'stu_right_content': 'display_non'}>
               {showStudentRank && (
                   <div className="student_rank_content">
-                    <StudentRank />
+                    <StudentRank quizes={quizes} assInfor={assOptions} course={singleCourse} />
                   </div>
                 )}
               </div>

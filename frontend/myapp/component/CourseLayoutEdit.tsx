@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, Typography, Button, Form, Input, Radio, message  } from 'antd';
-import './StaffDashboardContent.less';
-import './CourseLayout.css';
-import {getToken} from '../utils/utils'
-const { Content, Footer } = Layout;
-const { Title, Text } = Typography;
 import {
   HeartFilled,
 } from '@ant-design/icons';
+import './CourseLayout.less';
 import CourseUploadImageButton from './CourseUploadImageButton';
-import { CourseLayoutDTO } from '../utils/entities';
-import { useHistory } from 'umi';
+import { CourseLayoutDTO } from '../src/utils/entities';
+import { getToken, HOST_COURSE, COURSE_DETAIL_URL } from '../src/utils/utils'
+
+const { Content, Footer } = Layout;
+const { Title, Text } = Typography;
 
 const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: string) => void; course: any }> = ({ onCancel, onSubmit, course }) => {
-
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -42,27 +40,17 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
   const [cover, setImageUrl] = useState("");
   const handleImageUpload = (url: any) => {
     setImageUrl(url);
-    console.log(cover)
   };
-  console.log(course.url)
-  const history = useHistory();
+
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
   // const [courseId, setCourseId] = useState(null);
   const handleSubmit = () => {
-    // 处理提交逻辑
-    // setImageUrl(course.cover);
-    // console.log(course.cover)
+    // Process commit logic
     const dto = new CourseLayoutDTO(title, category, description, cover, hasForum);
     const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // console.log(dto.hasForum); 
-    // console.log(typeof dto.hasForum); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${course.courseId}`, {
+    fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}/${course.courseId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -72,16 +60,14 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res)
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
       message.success('Update Course Successfully!');
       onSubmit(course.courseId);
-      // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     });
   };
   return (

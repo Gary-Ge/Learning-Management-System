@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { Layout, Typography, Button, Form, Input, Radio, message  } from 'antd';
-import './StaffDashboardContent.less';
-import './CourseLayout.css';
-import {getToken} from '../utils/utils'
-const { Content, Footer } = Layout;
-const { Title, Text } = Typography;
 import {
   HeartFilled,
 } from '@ant-design/icons';
+import './CourseLayout.less';
 import CourseUploadImageButton from './CourseUploadImageButton';
-import { validNotNull} from '../utils/utilsStaff';
-import { CourseLayoutDTO } from '../utils/entities';
-import { useHistory } from 'umi';
+import { getToken, validNotNull, HOST_COURSE, COURSE_DETAIL_URL } from '../src/utils/utils'
+import { CourseLayoutDTO } from '../src/utils/entities';
+
+const { Content, Footer } = Layout;
+const { Title, Text } = Typography;
 
 const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string) => void }> = ({ onCancel, onSubmit }) => {
   const token = getToken();
@@ -34,40 +32,32 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
     setImageUrl(url);
   };
 
-  const history = useHistory();
-
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
-  // const [courseId, setCourseId] = useState(null);
+
   const handleSubmit = () => {
-    // 处理提交逻辑
+    // Process commit logic
     if (!validNotNull(title)) {
-      alert('Please input a valid course title')
+      message.error('Please input a valid course title')
       return
     }
     if (!validNotNull(category)) {
-      alert('Please input a valid course category')
+      message.error('Please input a valid course category')
       return
     }
     if (!validNotNull(description)) {
-      alert('Please input a valid course description')
+      message.error('Please input a valid course description')
       return
     }
     if (!validNotNull(hasForum)) {
-      alert('Please choose a valid course forum')
+      message.error('Please choose a valid course forum')
       return
     }
       
     const dto = new CourseLayoutDTO(title, category, description, cover, hasForum);
     const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // console.log(dto.hasForum); 
-    // console.log(typeof dto.hasForum); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course`, {
+    fetch(`${HOST_COURSE}${COURSE_DETAIL_URL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,16 +67,12 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res)
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      // console.log('courseId', res.data.courseId);
-      // setCourseId(res.data.courseId);
       const courseId = res.data.courseId;
       message.success('Create Course Successfully!');
       onSubmit(courseId);
-      // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
       message.error(error.message);

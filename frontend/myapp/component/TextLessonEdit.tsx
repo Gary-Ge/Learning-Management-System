@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, message  } from 'antd';
-import './StaffDashboardContent.less';
-import './TextLesson.css';
-import {getToken} from '../utils/utils'
+import React, { useState, useEffect } from 'react';
+import { Layout, Typography, Button, Form, Input, Collapse, message } from 'antd';
 import {
+  DeleteOutlined,
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import './TextLesson.less';
 import FileUploader from './FileUploader';
-import { validNotNull } from '../utils/utilsStaff';
-import { TextLessonDTO } from '../utils/entities';
+import { getToken, HOST_RESOURCE, HOST_SECTION } from '../src/utils/utils'
+import { TextLessonDTO } from '../src/utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -41,9 +40,24 @@ const quillFormats = [
   'color',
   'background',
 ];
-const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string) => void; section: any }> = ({ onCancel, onSubmit, section }) => { 
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    setTitle(section.title);
+    setDescription(section.description);
+
+    setSectionInfor(section);
+
+    form.setFieldsValue({
+      "text title": section.title
+    })
+  }, [section])
+
   const token = getToken();
   const [title, setTitle] = useState("");
+  const [sectionInfor, setSectionInfor] = useState(section);
   const handleTextTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
@@ -51,34 +65,42 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
   const handleTextDescriptionChange = (value: string) => {
     setDescription(value);
   };
+  const handleCancel = () => {
+    onCancel(); // Call the onCancel function received from props
+  };
   // upload resource
   const [fileList, setFileList] = useState<any[]>([]);
 
   const handleFileListChange = (newFileList: any[]) => {
     setFileList(newFileList);
   };
-  const handleCancel = () => {
-    onCancel(); // Call the onCancel function received from props
-  };
+
+  const openFile = (resourceId: string) => {
+    fetch(`${HOST_RESOURCE}/resource/${resourceId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      window.open(res.data.fileUrl);
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
+  }
+
   const handleSubmit = () => {
-    // 处理提交逻辑
-    if (!validNotNull(title)) {
-      alert('Please input a valid text title')
-      return
-    }
-    if (!validNotNull(description)) {
-      alert('Please input a valid text description')
-      return
-    }
+    // Process commit logic
     const dto = new TextLessonDTO(title, description);
     const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    // console.log(courseId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-section/textSection/${courseId}`, {
-      method: 'POST',
+    fetch(`${HOST_SECTION}/textSection/${section.sectionId}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -87,22 +109,18 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log('sectionId', res.data.sectionId);
-      const sectionID = res.data.sectionId;
-      
-      // Upload File, if any
+      // Upload file, if any
       if (fileList.length > 0) {
         const formData = new FormData();
 
         fileList.forEach((file) => {
           formData.append("files", file);
         });
-        
-        fetch(`http://175.45.180.201:10900/service-edu/edu-resource/resources/${sectionID}`, {
+  
+        fetch(`${HOST_RESOURCE}/resources/${section.sectionId}`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -114,22 +132,57 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
-          message.success('Create text lesson successfully');
-          onSubmit(sectionID);
+          message.success('Successfully updated text lesson!');
+          onSubmit(section.sectionId);
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });
       } else {
-        message.success('Create text lesson successfully');
-        onSubmit(sectionID);
+        message.success('Successfully updated text lesson!');
+        onSubmit(section.sectionId);
       }
-      // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
       message.error(error.message);
     });
-    
+  };
+  const handleDeleteClick = (resourceId: string) => {
+    // Handle delete icon click event
+    fetch(`${HOST_RESOURCE}/resource/${resourceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      fetch(`${HOST_SECTION}/section/${section.sectionId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message)
+        }
+        const sectionData = res.data.section;
+        setSectionInfor(sectionData);
+      })
+      .catch(error => {
+        message.error(error.message);
+      });
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
   };
   return (
     <>
@@ -147,11 +200,10 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
           width: '100%',
           margin: '30px auto',
           height: 'auto',
-          // border: '1px solid red'
         }}
       >
-        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Create Text Lesson</Title>
-        <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
+        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Text Lesson</Title>
+        <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
@@ -160,12 +212,11 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
             } 
             name="text title"
             rules={[
-              { required: true, message: 'Please input the text title!' },
               { max: 50, message: 'The text title must be less than 50 characters!' },
             ]}
           >
             <Input 
-              placeholder="Input Title" 
+              placeholder={section.title} 
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
               value={title}
               onChange={handleTextTitleChange}
@@ -178,9 +229,6 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
               </Text>
             }
             name="description"
-            rules={[
-              { required: true, message: 'Please input the text description!' },
-            ]}
           >
           </Form.Item>
           <Form.Item>
@@ -188,9 +236,8 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
               <ReactQuill
                 modules={quillModules}
                 formats={quillFormats}
-                placeholder="You can input many words here..."
-                value={description}
                 onChange={handleTextDescriptionChange}
+                value={description}
               />
             </div>
           </Form.Item>
@@ -204,7 +251,36 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
           >
           </Form.Item>
           <Form.Item>
-            <FileUploader onFileListChange={handleFileListChange}/>
+            {sectionInfor.resources.map((resources: any) => (
+              <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                <Button
+                  style={{ 
+                    border: 'none', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    width: '300px',
+                    fontFamily: 'Comic Sans MS'
+                  }}
+                  onClick={() => {
+                    openFile(resources.resourceId);
+                  }}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                    {resources.title}
+                  </span>
+                </Button>
+                <DeleteOutlined 
+                  style={{ color: 'red', cursor: 'pointer', width: '30px' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(resources.resourceId);
+                  }} 
+                />
+              </div>
+              </>
+            ))}
+            <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
@@ -231,4 +307,4 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
   );
 };
 
-export default TextLesson;
+export default TextLessonEdit;

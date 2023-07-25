@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
-import './StaffDashboardContent.less';
-import './TextLesson.css';
+import { Layout, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import {getToken} from '../utils/utils'
-import { validNotNull } from '../utils/utilsStaff';
-import { StreamLessonDTO } from '../utils/entities';
+import { getToken, HOST_STREAM } from '../src/utils/utils'
+import { StreamLessonDTO } from '../src/utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -91,10 +88,10 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
   }, [stream])
 
   const handleSubmit = () => {
-    // 处理提交逻辑
+    // Process commit logic
     const dto = new StreamLessonDTO(title, description, start, end);
     const requestData = JSON.stringify(dto);
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}`, {
+    fetch(`${HOST_STREAM}/stream/${stream.streamId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -104,7 +101,6 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -133,7 +129,6 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
           width: '100%',
           margin: '30px auto',
           height: 'auto',
-          // border: '1px solid red'
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Stream Lesson</Title>

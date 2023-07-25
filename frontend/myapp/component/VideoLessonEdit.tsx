@@ -1,19 +1,14 @@
-import React, { useDebugValue, useEffect, useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, Select, message  } from 'antd';
-import './StaffDashboardContent.less';
-import './TextLesson.css';
+import React, { useEffect, useState } from 'react';
+import { Layout, Typography, Button, Form, Input, message  } from 'antd';
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import VideoUploadButton from '../pages/videoUploadButton';
 import FileUploader from './FileUploader';
 import VideoUploadImageButton from './VideoUploadImageButton';
-import { validNotNull} from '../utils/utilsStaff';
-import { VideoLessonDTO } from '../utils/entities';
-import {getToken} from '../utils/utils'
-import { format } from 'prettier';
+import { VideoLessonDTO } from '../src/utils/entities';
+import { getToken, HOST_SECTION, HOST_RESOURCE } from '../src/utils/utils'
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -88,10 +83,10 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
-    // 处理提交逻辑
+    // Process commit logic
     const dto = new VideoLessonDTO(title, description, cover, youtubeLink, 2);
     const requestData = JSON.stringify(dto);
-    fetch(`service-edu/edu-section/videoSection/${video.sectionId}`, {
+    fetch(`${HOST_SECTION}/videoSection/${video.sectionId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +96,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
     })
     .then(res => res.json())
     .then(res => {
-      console.log('success');
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -113,13 +107,14 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
         const formData = new FormData();
         formData.append('file', fileList[0]);
 
-        fetch(`/service-edu/edu-resource/video/${video.sectionId}`, {
+        fetch(`${HOST_RESOURCE}/video/${video.sectionId}`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`
           },
           body: formData
-        }).then(res => res.json())
+        })
+        .then(res => res.json())
         .then(res => {
           if (res.code !== 20000) {
             throw new Error(res.message)
@@ -127,7 +122,11 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           message.success('Video lesson created successfully!')
           onSubmit();
         })
+        .catch(error => {
+          message.error(error.message);
+        });
       } else {
+        message.success('Video lesson created successfully!')
         onSubmit();
       }
     })
@@ -137,7 +136,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
   };
 
   const openFile = (resourceId: string) => {
-    fetch(`service-edu/edu-resource/video/${resourceId}`, {
+    fetch(`${HOST_RESOURCE}/video/${resourceId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -151,6 +150,9 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
       }
       window.open(res.data.auth.playURL);
     })
+    .catch(error => {
+      message.error(error.message);
+    });
   }
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
@@ -167,7 +169,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           width: '100%',
           margin: '30px auto',
           height: 'auto',
-          // border: '1px solid red'
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Video Lesson</Title>
@@ -207,17 +208,11 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
               <>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                 <Button
-                  // key={section.sectionId}
-                  // onClick={() => handleButtonClick(section.sectionId)}
-                  // onMouseEnter={() => handleButtonMouseEnter(section.sectionId)}
-                  // onMouseLeave={handleButtonMouseLeave}
                   style={{ 
                     border: 'none', 
                     display: 'flex', 
                     alignItems: 'center', 
                     width: '300px',
-                    // backgroundColor: activeButton === section.sectionId ? '#DAE8FC' : 'transparent',
-                    // color: activeButton === section.sectionId ? 'red' : 'black',
                     fontFamily: 'Comic Sans MS'
                   }}
                   onClick={() => {

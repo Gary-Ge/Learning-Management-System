@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, theme, Typography, Button, Form, Modal, Select, Table, message, InputNumber, Badge, Checkbox } from 'antd';
+import { Layout, Typography, Button, Form, Modal, Select, Table, message, InputNumber, Badge, Checkbox } from 'antd';
 import {
   CheckCircleOutlined,
   HeartFilled
 } from '@ant-design/icons';
-import './StaffDashboardContent.less';
-import './TextLesson.css';
-import crown from '../../../images/crown.png';
-import downloadicon from '../../../images/download.png';
-import { getToken } from '../utils/utils'
-import { ShowMarkDTO } from '../utils/entities';
+import crown from '../../images/crown.png';
+import downloadicon from '../../images/download.png';
+import { getToken, HOST_ASSIGNMENT, HOST_QUESTION } from '../src/utils/utils'
+import { ShowMarkDTO } from '../src/utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 const values: any[] = [];
-// Mark当前课程所选的assignment或quiz
+// The assignment or quiz that Mark has chosen for his current course
 const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value: any, fetchUrl: any) => void }> = ({ mark, fetchUrl, handleValue }) => {
   const token = getToken();
   const [gradeValue, setGradeValue] = useState<number>(mark);
@@ -23,7 +21,7 @@ const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value
       setGradeValue(0);
     }
     else {
-      setGradeValue(mark); // 在初始渲染时更新标记值
+      setGradeValue(mark); // Update tag values during initial rendering
     }
   }, [mark]);
   const handleInputBlur = () => {
@@ -43,7 +41,6 @@ const GradeInput: React.FC<{ mark: number, fetchUrl: string, handleValue: (value
       })
       .then(res => res.json())
       .then(res => {
-        // console.log('res', res)
         if (res.code !== 20000) {
           throw new Error(res.message)
         }
@@ -72,8 +69,8 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
 
   const [selectedType, setSelectedType] = useState('');
 
-  // 当selectedType为assignment时
-  // 选择一个课程的任意assignment
+  // When selectedType is assignment
+  // Choose a course for any assignment
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const handleAssignmentIdChange = (value: string) => {
     const selectedSingleAssignment = assInfor.find((singleAssignment: any) => singleAssignment.assignmentId === value);
@@ -81,58 +78,62 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       setSelectedAssignmentId(selectedSingleAssignment.assignmentId);
     }
   };
-  // 获取当前课程所选的assignment中上交的所有user的信息和submitId
+  // Gets the information and submitId for all users submitted in the assignment selected for the current course
   const [submitAssignments, setSubmitAssignments] = useState<any[]>([]);
-  const fetchSubmitAssignments = async () => {
-    try {
-      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/submits`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      const fetchedAssignments = data.data.assignment.submits;
+  const fetchSubmitAssignments = () => {
+    return fetch(`${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/submits`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message)
+      }
+      const fetchedAssignments = res.data.assignment.submits;
       setSubmitAssignments(fetchedAssignments);
-    } catch (error:any) {
-      console.log(error.message);
-    }
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
   };
   useEffect(() => {
-    fetchSubmitAssignments(); // 初始加载章节数据
+    if (selectedAssignmentId !== '') {
+      fetchSubmitAssignments(); // Initially load chapter data
+    }
   }, [selectedAssignmentId]);
-  // 添加学生以及其上传assignment的数据信息
+  // Add data about the student and their uploaded assignment
   const [dataAssignmentSource, setDataAssignmentSource] = useState<any[]>([]);
   const [dataAssignmentRank, setDataAssignmentRank] = useState<any[]>([]);
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
       const results: any[] = [];
       const rankResults: any[] = [];
       for (const student of submitAssignments || []) {
-        // console.log('student.files.submitId', student.files[0].submitId)
         const files: any[] = [];
         for (const file of student.files || []) {
-          try {
-            const response = await fetch(
-              `http://175.45.180.201:10900/service-edu/edu-assignment/submit/${file.submitId}`,
-              {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-            const data = await response.json();
-            const assignmentSubmitFileUrl = data.data.fileUrl;
-            files.push({
-              submitId: file.submitId,
-              file: assignmentSubmitFileUrl,
-              filename: file.name,
+          if (file.submitId !== '') {
+            fetch(`http://175.45.180.201:10900${HOST_ASSIGNMENT}/submit/${file.submitId}`, {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+            .then((response) => response.json())
+            .then((data) => {
+              const assignmentSubmitFileUrl = data.data.fileUrl;
+              files.push({
+                submitId: file.submitId,
+                file: assignmentSubmitFileUrl,
+                filename: file.name,
+              });
+            })
+            .catch((error) => {
+              message.error(error.message);
             });
-          } catch (error: any) {
-            console.log(error.message);
           }
         }
         results.push({
@@ -152,7 +153,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     };
     fetchData();
   }, [submitAssignments, selectedType]);
-  // 点击下载学生上传的assignment
+  // Click to download the assignment uploaded by the student
   const [isFileVisible, setIsFileVisible] = useState(false);
   const [files, setFiles] = useState([]);
   const handleOpenFiles = (files: any) => {
@@ -188,7 +189,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       })
     }
   };
-  // 当前课程所选assignment的纵坐标信息
+  // The ordinate information of the selected assignment for the current course
   const assignmentColumns = [
     { title: 'Student ID', dataIndex: 'id', key: 'id' },
     { title: 'Student Name', dataIndex: 'name', key: 'name' },
@@ -220,13 +221,13 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       key: 'grade',
       render: (record: any) => {
         const foundValue = (values || []).find((value: any) => {
-          return value.url === `http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`;
+          return value.url === `http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`;
         });
         if (foundValue) {
           return (
             <GradeInput
               mark={foundValue.value}
-              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`}
+              fetchUrl={`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -234,7 +235,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           return (
             <GradeInput
               mark={record[0]}
-              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${selectedAssignmentId}/mark/${record[1]}`}
+              fetchUrl={`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -243,8 +244,8 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     },
   ];
 
-  // 当selectedType为quiz时
-  // 选择一个课程的任意quiz
+  // When selectedType is quiz
+  // Choose any quiz for a course
   const [selectedQuizId, setSelectedQuizId] = useState<string>("");
   const handleQuizIdChange = (value: string) => {
     const selectedSingleQuiz = quizes.find((singleQuiz: any) => singleQuiz.quizId === value);
@@ -252,11 +253,11 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       setSelectedQuizId(selectedSingleQuiz.quizId);
     }
   };
-  // 获取当前课程所选的quiz中所有上交的user, question和answer的信息
+  // Get information on all the users, questions and answers submitted in the quiz selected for the current course
   const [submitQuizes, setSubmitQuizes] = useState<any[]>([]);
   const fetchSubmitQuizzes = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-question/quiz/${selectedQuizId}/answers`, {
+      const response = await fetch(`http://175.45.180.201:10900${HOST_QUESTION}/quiz/${selectedQuizId}/answers`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -268,14 +269,14 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       const fetchedQuizes = data.data.answers;
       setSubmitQuizes(fetchedQuizes);
     } catch (error:any) {
-      console.log(error.message);
+      message.error(error.message);
     }
   };
-  // 当前课程所选quiz的所有questions
+  // All questions for the quiz selected in the current course
   const [allQuestions, setAllQuestions] = useState<any[]>([]);
   const fetchAllQuestions = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-question/questions/${selectedQuizId}`, {
+      const response = await fetch(`http://175.45.180.201:10900${HOST_QUESTION}/questions/${selectedQuizId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -286,14 +287,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       const fetchedQuestions = data.data.questions;
       setAllQuestions(fetchedQuestions);
     } catch (error:any) {
-      console.log(error.message);
+      message.error(error.message);
     }
   };
   useEffect(() => {
-    fetchSubmitQuizzes(); // 初始加载章节数据
-    fetchAllQuestions();
+    if (selectedQuizId !== '') {
+      fetchSubmitQuizzes(); // Initially load chapter data
+      fetchAllQuestions();
+    }
   }, [selectedQuizId]);
-  // 选择一个课程的一个quiz的任意一个question
+  // Choose any question in a quiz of a course
   const [selectedQuestionId, setSelectedQuestionId] = useState<string>("");
   const handleQuestionIdChange = (value: string) => {
     const selectedQuestion = allQuestions.find((question: any) => question.questionId === value);
@@ -303,7 +306,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       setSelectedQuestionId(value);
     }
   };
-  // 当前课程quiz所选question的纵坐标信息
+  // The longitudinal information for the selected question in the current course quiz
   const quizColumns = [
     { title: 'Student ID', dataIndex: 'id', key: 'id' },
     { title: 'Student Name', dataIndex: 'name', key: 'name' },
@@ -314,13 +317,13 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       key: 'grade', 
       render: (record: any) => {
         const foundValue = (values || []).find((value: any) => {
-          return value.url === `http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`;
+          return value.url === `http://175.45.180.201:10900${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`;
         });
         if (foundValue) {
           return (
             <GradeInput
               mark={foundValue.value}
-              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`}
+              fetchUrl={`http://175.45.180.201:10900${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -328,7 +331,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           return (
             <GradeInput
               mark={record[0]}
-              fetchUrl={`http://175.45.180.201:10900/service-edu/edu-question/question/${selectedQuestionId}/mark/${record[1]}`}
+              fetchUrl={`http://175.45.180.201:10900${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -336,11 +339,9 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       },
     },
   ];
-  // 添加学生, 答案, 成绩等数据信息
+  // Add data such as students, answers, grades, etc
   const [dataQuestionSource, setDataQuestionSource] = useState<any[]>([]);
   useEffect(() => {
-    // setSelectedQuestionId(selectedQuestionId);
-    fetchSubmitQuizzes(); // 初始加载章节数据
     const fetchData = async () => {
       const results: any[] = [];
       for (const infor of submitQuizes || []) {
@@ -364,24 +365,26 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         }
       }
       setDataQuestionSource(results);
-    };  
-    fetchData();
-    // setSelectedQuestionId(selectedQuestionId);
+    };
+    if (selectedQuestionId !== '') {
+      fetchSubmitQuizzes(); // Initially load chapter data
+      fetchData();
+    }
   }, [selectedQuestionId]);
-  // 当前课程quiz或所有成绩的total grade的纵坐标信息
+  // The longitudinal information of the current course quiz or total grade of all grades
   const totalGradeColumns = [
     { title: 'Student ID', dataIndex: 'id', key: 'id' },
     { title: 'Student Name', dataIndex: 'name', key: 'name' },
     { title: 'Student Grade', dataIndex: 'grade', key: 'grade' },
   ];
-  // 添加学生和成绩等数据信息
+  // Add data such as students and grades
   const [dataQuizSource, setDataQuizSource] = useState<any[]>([]);
   const [dataQuizRank, setDataQuizRank] = useState<any[]>([]);
   const fetchData = async () => {
     const results: any[] = [];
     const rankResults: any[] = [];
     const users: any[] = [];
-    // 一个quiz中有多少个user进行答题
+    // How many users answer questions in a quiz
     for (const infor of submitQuizes || []) {
       const existingUser = users.find((user) => user.userId === infor.user.userId);
       if (!existingUser) {
@@ -415,31 +418,33 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     setDataQuizRank(rankResults.sort((a, b) => b.grade - a.grade));
   }; 
   useEffect(() => {
-    // setSelectedQuestionId(selectedQuestionId);
-    fetchSubmitQuizzes(); // 初始加载章节数据 
-    fetchData();
-    // setSelectedQuestionId(selectedQuestionId);
+    if (selectedQuestionId !== '') {
+      fetchSubmitQuizzes(); // Initially load chapter data
+      fetchData();
+    }
   }, [selectedQuestionId]);
   
-  // 当selectedType为all时
-  // 添加学生, 排名和成绩等数据信息
+  // When selectedType is all
+  // Add data such as students, rankings and grades
   const fetchGradeData = async () => {
     const users: any[] = [];
     const quizAnswerInfor: any[] = [];
     for (const quiz of quizes || []) {
-      try {
-        const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-question/quiz/${quiz.quizId}/answers`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        const fetchedQuizes = data.data.answers;
-        quizAnswerInfor.push(fetchedQuizes);
-      } catch (error:any) {
-        console.log(error.message);
+      if (quiz.quizId !== '') {
+        try {
+          const response = await fetch(`http://175.45.180.201:10900${HOST_QUESTION}/quiz/${quiz.quizId}/answers`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          const fetchedQuizes = data.data.answers;
+          quizAnswerInfor.push(fetchedQuizes);
+        } catch (error:any) {
+          message.error(error.message);
+        }
       }
     }
     for (const quiz of quizAnswerInfor || []) {
@@ -472,20 +477,22 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     }
     const assSubmitsInfor: any[] = [];
     for (const ass of assInfor || []) {
-      try {
-        const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${ass.assignmentId}/submits`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        const data = await response.json();
-        const fetchedAssignments = data.data.assignment.submits;
-        assSubmitsInfor.push(fetchedAssignments);
-      } catch (error:any) {
-        console.log(error.message);
+      if (ass.assignmentId !== '') {
+        try {
+          const response = await fetch(`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${ass.assignmentId}/submits`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          const data = await response.json();
+          const fetchedAssignments = data.data.assignment.submits;
+          assSubmitsInfor.push(fetchedAssignments);
+        } catch (error:any) {
+          message.error(error.message);
+        }
       }
     }
     for (const assSubmits of assSubmitsInfor || []) {
@@ -567,7 +574,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     onCancel(); // Call the onCancel function received from props
   };
   const handleSubmit = () => {
-    // 处理提交逻辑
+    // Process commit logic
     for (const value of values || []) {
       const dto = new ShowMarkDTO(value.value);
       const requestData = JSON.stringify(dto);
@@ -581,18 +588,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       })
       .then(res => res.json())
       .then(res => {
-        // console.log('res', res)
         if (res.code !== 20000) {
           throw new Error(res.message)
         }
-        message.success('Mark Successfully!');
       })
       .catch(error => {
         message.error(error.message);
       });
     }
     values.length = 0;
-    // message.success('Mark Successfully!');
+    message.success('Mark Successfully!');
     onSubmit();
   };
 

@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Upload, message  } from 'antd';
-import './StaffDashboardContent.less';
-import {getToken} from '../utils/utils'
 import {
-  CameraOutlined,
   InstagramOutlined,
   LoadingOutlined,
-  CheckOutlined,
 } from '@ant-design/icons';
-import { utils } from 'umi';
+import { getToken, HOST_COURSE, COURSE_DETAIL_URL } from '../src/utils/utils'
 
 interface UploadImageButtonProps {
   onImageUpload: (url: string) => void;
   url: string;
-  courseId: string;
 }
-const VideoUploadButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url, courseId }) => {
+const CourseUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url }) => {
   const token = getToken();
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -31,12 +26,11 @@ const VideoUploadButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
       setUploadStatus('success');
   }, [url]);
   
-
   const handleUpload = async (file: any) => {
     setTempFile(file);
     const formData = new FormData();
     formData.append("file",  file);
-    fetch (`/service-edu/edu-section/videoCover/${courseId}`,{
+    fetch (`${HOST_COURSE}${COURSE_DETAIL_URL}/cover`,{
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${token}`
@@ -48,16 +42,15 @@ const VideoUploadButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
       if (res.code !== 20000) {
         throw new Error(res.message);
       }
-      setImageUrl(res.data.videoCover);
-      onImageUpload(res.data.videoCover);
+      setImageUrl(res.data.cover);
+      onImageUpload(res.data.cover);
       setUploadStatus('success')
       setFromoutside(false)
     })
     .catch(error => {
-       alert(error.message)
-     });
+      message.error(error.message);
+    });
   };
-
 
   const renderButtonContent = () => {
     if (uploading) {
@@ -141,4 +134,4 @@ const VideoUploadButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
   );
 };
           
-export default VideoUploadButton;
+export default CourseUploadImageButton;

@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Upload, message  } from 'antd';
-import './StaffDashboardContent.less';
-import {getToken} from '../utils/utils'
 import {
-  CameraOutlined,
   InstagramOutlined,
   LoadingOutlined,
-  CheckOutlined,
 } from '@ant-design/icons';
-import { utils } from 'umi';
+import { getToken, HOST_SECTION } from '../src/utils/utils'
 
 interface UploadImageButtonProps {
   onImageUpload: (url: string) => void;
   url: string;
 }
-const CourseUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url }) => {
+const VideoUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, url }) => {
   const token = getToken();
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -35,7 +31,7 @@ const CourseUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUplo
     setTempFile(file);
     const formData = new FormData();
     formData.append("file",  file);
-    fetch (`/service-edu/edu-course/course/cover`,{
+    fetch (`${HOST_SECTION}/videoCover`,{
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${token}`
@@ -47,14 +43,14 @@ const CourseUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUplo
       if (res.code !== 20000) {
         throw new Error(res.message);
       }
-      setImageUrl(res.data.cover);
-      onImageUpload(res.data.cover);
+      setImageUrl(res.data.videoCover);
+      onImageUpload(res.data.videoCover);
       setUploadStatus('success')
       setFromoutside(false)
     })
     .catch(error => {
-       alert(error.message)
-     });
+      message.error(error.message)
+    });
   };
 
 
@@ -140,4 +136,4 @@ const CourseUploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUplo
   );
 };
           
-export default CourseUploadImageButton;
+export default VideoUploadImageButton;

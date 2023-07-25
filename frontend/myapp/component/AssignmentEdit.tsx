@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
-import './StaffDashboardContent.less';
-import {getToken} from '../utils/utils'
-import './TextLesson.css';
+import { Layout, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
 import {
   HeartFilled,
   DeleteOutlined,
@@ -10,9 +7,8 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import FileUploader from './FileUploader';
-import { validNotNull} from '../utils/utilsStaff';
-import { AssignmentLessonDTO } from '../utils/entities';
-import moment, { Moment } from 'moment';
+import { AssignmentLessonDTO } from '../src/utils/entities';
+import { getToken, HOST_ASSIGNMENT } from '../src/utils/utils'
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -86,7 +82,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
   const [form] = Form.useForm();
 
   useEffect(() => {
-    console.log('assignment', assignment);
     setTitle(assignment.title);
     setMark(assignment.mark);
     setStart(assignment.start);
@@ -102,7 +97,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
   }, [assignment])
 
   const openFile = (assFileId: string) => {
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assFileId}`, {
+    fetch(`${HOST_ASSIGNMENT}/assignment/assFile/${assFileId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -116,20 +111,16 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
       }
       window.open(res.data.fileUrl);
     })
+    .catch(error => {
+      message.error(error.message);
+    });
   }
 
   const handleSubmit = () => {
-    console.log(start);
-    console.log(end);
-    // 处理提交逻辑
+    // Process commit logic
     const dto = new AssignmentLessonDTO(title, description, start, end, mark);
     const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    // console.log(courseId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${assignment.assignmentId}`, {
+    fetch(`${HOST_ASSIGNMENT}/assignment/${assignment.assignmentId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -139,20 +130,17 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-
       // Upload file, if any
       if (fileList.length > 0) {
         const formData = new FormData();
-
         fileList.forEach((file) => {
           formData.append("files", file);
         });
   
-        fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assignment.assignmentId}`, {
+        fetch(`${HOST_ASSIGNMENT}/assignment/assFile/${assignment.assignmentId}`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -161,7 +149,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
         })
         .then(res => res.json())
         .then(res => {
-          console.log('res', res);
           if (res.code !== 20000) {
             throw new Error(res.message);
           }
@@ -181,9 +168,8 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
     });
   };
   const handleDeleteClick = (assFileId: string) => {
-    // 处理删除图标点击事件
-    // console.log('click delete:', sectionId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${assFileId}`, {
+    // Handle delete icon click event
+    fetch(`${HOST_ASSIGNMENT}/assignment/assFile/${assFileId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -192,11 +178,10 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res)
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${assignment.assignmentId}`, {
+      fetch(`${HOST_ASSIGNMENT}/assignment/${assignment.assignmentId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -205,7 +190,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
       })
       .then(res => res.json())
       .then(res => {
-        // console.log('res', res)
         if (res.code !== 20000) {
           throw new Error(res.message)
         }
@@ -213,11 +197,11 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
         setAssignmentInfor(assignmentData);
       })
       .catch(error => {
-        alert(error.message);
+        message.error(error.message);
       });
     })
     .catch(error => {
-      alert(error.message);
+      message.error(error.message);
     });
   };
   return (
@@ -235,7 +219,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
           width: '100%',
           margin: '30px auto',
           height: 'auto',
-          // border: '1px solid red'
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Assignment</Title>
@@ -316,17 +299,11 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
               <>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                 <Button
-                  // key={section.sectionId}
-                  // onClick={() => handleButtonClick(section.sectionId)}
-                  // onMouseEnter={() => handleButtonMouseEnter(section.sectionId)}
-                  // onMouseLeave={handleButtonMouseLeave}
                   style={{ 
                     border: 'none', 
                     display: 'flex', 
                     alignItems: 'center', 
                     width: '300px',
-                    // backgroundColor: activeButton === section.sectionId ? '#DAE8FC' : 'transparent',
-                    // color: activeButton === section.sectionId ? 'red' : 'black',
                     fontFamily: 'Comic Sans MS'
                   }}
                   onClick={() => {

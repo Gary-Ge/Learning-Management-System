@@ -14,7 +14,7 @@ export function ValidPassword (password:any) {
   }
   
   export function validNotNull (value:any) {
-    if (value == null || value === '') {
+    if (value == null || value === '' || value == -1) {
       return false
     }
     return true
@@ -49,3 +49,8 @@ export const HOST_ASSIGNMENT = '/service-edu/edu-assignment'
 export const HOST_FORUM_CATEGORY = '/service-forum/forum-category'
 export const HOST_FORUM_POST = '/service-forum/forum-post'
 export const HOST_FORUM_REPLY = '/service-forum/forum-reply'
+export const HOST_QUIZ = '/service-edu/edu-quiz'
+export const HOST_STREAM_QUIZ = '/service-stream/stream-quiz'
+export const HOST_STREAM_CHAT = '/service-stream/stream-chat'
+export const HOST_STREAM = '/service-stream/stream-basic'
+export const HOST_QUESTION = '/service-edu/edu-question'

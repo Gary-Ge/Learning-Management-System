@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Layout, Typography, Button, Form, Input, Avatar, message, Modal, DatePicker, Select, Radio, Tag, Checkbox, Row, Col, Progress, Space, Statistic } from 'antd';
+import { Layout, Typography, Button, Form, Input,  message, Modal, Select, Radio, Tag, Checkbox } from 'antd';
 import {
   DeleteOutlined,
   UsergroupAddOutlined,
@@ -7,16 +7,13 @@ import {
   SendOutlined,
   HeartFilled,
 } from '@ant-design/icons';
-import {getToken} from '../utils/utils'
+import { PieChart, Pie, BarChart, Bar, Cell, XAxis, CartesianGrid, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
+import { getToken, validNotNull, HOST_STREAM, HOST_STREAM_CHAT, HOST_STREAM_QUIZ } from '../src/utils/utils'
 import FlvJs from 'flv.js';
 import SockJsClient from 'react-stomp';
-import { validNotNull } from '../utils/utilsStaff';
-import fail from '../../../images/fail.png';
-import { PieChart, Pie, BarChart, Bar, Cell, XAxis, CartesianGrid, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 const { Title, Text } = Typography;
-
 const dataDist = [
   { name: 'A', value: 0 },
   { name: 'B', value: 0 },
@@ -44,7 +41,6 @@ const pieChart = (
     </PieChart>
   </ResponsiveContainer>
 );
-
 const dataCount = [
   { name: 'A', value: 0 },
   { name: 'B', value: 0 },
@@ -65,7 +61,6 @@ const barChart = (
 
 const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string) => void }> = ({ course, stream, onClick }) => {
   const token = getToken();
-  
   // stream
   const videoRef = useRef(null);
   const [pushStarted, setPushStarted] = useState(false);
@@ -76,7 +71,6 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
   const handleCopyText = () => {
     textRef.current.select();
     document.execCommand('copy');
-    // 可以根据需要进行样式和提示的自定义
     message.success('Copy Successful');
   };
 
@@ -84,82 +78,82 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
     if (stream.inProgress) {
       setPushStarted(true);
     } else {
-      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/pushUrl`, {
+      fetch(`${HOST_STREAM}/stream/${stream.streamId}/pushUrl`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then(res => res.json())
-        .then(res => {
-          if (res.code !== 20000) {
-            throw new Error(res.message);
-          }
-          setPushUrl(res.data.pushUrl);
-          setShowPushUrlModal(true);
-        })
-        .catch(error => {
-          message.error(error.message);
-        });
-    }
-  }, [stream]);
-  const handleStartPush = () => {
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/start`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
           throw new Error(res.message);
         }
-        setShowPushUrlModal(false);
-        setPushStarted(true);
+        setPushUrl(res.data.pushUrl);
+        setShowPushUrlModal(true);
       })
       .catch(error => {
         message.error(error.message);
       });
+    }
+  }, [stream]);
+  const handleStartPush = () => {
+    fetch(`${HOST_STREAM}/stream/${stream.streamId}/start`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message);
+      }
+      setShowPushUrlModal(false);
+      setPushStarted(true);
+    })
+    .catch(error => {
+      message.error(error.message);
+    });
   };
   useEffect(() => {
     if (pushStarted && FlvJs.isSupported()) {
       const videoElement = videoRef.current;
       videoElement.muted = true;
   
-      fetch(`http://175.45.180.201:10900/service-stream/stream-basic/stream/${stream.streamId}/play`, {
+      fetch(`${HOST_STREAM}/stream/${stream.streamId}/play`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then(res => res.json())
-        .then(res => {
-          if (res.code !== 20000) {
-            throw new Error(res.message);
-          }
-          const flvPlayer = FlvJs.createPlayer({
-            type: 'flv',
-            isLive: true,
-            url: res.data.playUrl,
-          });
-          flvPlayer.attachMediaElement(videoRef.current);
-          flvPlayer.load();
-          flvPlayer.play();
-          flvPlayer.on('error', err => {
-            console.log('FLVJS: ', err);
-          });
-          return () => {
-            flvPlayer.unload();
-            flvPlayer.detachMediaElement();
-            flvPlayer.destroy();
-            videoRef.current.src = '';
-            videoRef.current.removeAttribute('src');
-          };
-        })
-        .catch(error => {
-          message.error(error.message);
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+          throw new Error(res.message);
+        }
+        const flvPlayer = FlvJs.createPlayer({
+          type: 'flv',
+          isLive: true,
+          url: res.data.playUrl,
         });
+        flvPlayer.attachMediaElement(videoRef.current);
+        flvPlayer.load();
+        flvPlayer.play();
+        flvPlayer.on('error', err => {
+          console.log('FLVJS: ', err);
+        });
+        return () => {
+          flvPlayer.unload();
+          flvPlayer.detachMediaElement();
+          flvPlayer.destroy();
+          videoRef.current.src = '';
+          videoRef.current.removeAttribute('src');
+        };
+      })
+      .catch(error => {
+        message.error(error.message);
+      });
     }
   }, [pushStarted, stream.streamId]);
 
@@ -169,12 +163,16 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
   const send = (message: any) => { // 发送信息
-    fetch(`http://175.45.180.201:10900/service-stream/stream-chat/message/${stream.streamId}/${message}`, {
+    fetch(`${HOST_STREAM_CHAT}/message/${stream.streamId}/${message}`, {
       method: 'POST',
       headers: headers
     })
     .then(res => res.json())
-    .then(res => console.log(res.data))
+    .then(res => {
+      if (res.code !== 20000) {
+        throw new Error(res.message);
+      }
+    })
     .catch(error => {
       message.error(error.message);
     });
@@ -217,7 +215,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
   const [singleOptions, setSingleOptions] = useState<any[]>([]);
   const addSingleOption = () => {
     const newOption = {
-      id: Date.now(), // 生成独特的 ID
+      id: Date.now(), // Generate unique ids
       value: ''
     };
     setSingleOptions([...singleOptions, newOption]);
@@ -246,7 +244,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
   const [multiOptions, setMultiOptions] = useState<any[]>([]);
   const addMultiOption = () => {
     const newOption = {
-      id: Date.now(), // 生成独特的 ID
+      id: Date.now(), // Generate unique ids
       value: '',
       isCorrect: false
     };
@@ -293,8 +291,8 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
             <Input 
               placeholder="Option content" 
               style={{ fontFamily: 'Comic Sans MS' }} 
-              value={singleOption.value} // 将输入框的值与对应的 value 关联起来
-              onChange={(e) => handleOptionChange(singleOption.id, e.target.value)} // 更新对应的 value 值
+              value={singleOption.value} // Associate the value of the input box with the corresponding value
+              onChange={(e) => handleOptionChange(singleOption.id, e.target.value)} // Update the corresponding value
             />
           </div>
           <Button
@@ -339,7 +337,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
             <Input 
               placeholder="Option content" 
               style={{ fontFamily: 'Comic Sans MS' }} 
-              value={multiOption.value} // 将输入框的值与对应的 value 关联起来
+              value={multiOption.value}
               onChange={(e) => handleMultiOptionChange(multiOption.id, e.target.value)}
             />
           </div>
@@ -387,16 +385,17 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
     }],
   }
   const handleSubmit = () => {
+    // Process commit logic
     if (!validNotNull(seconds)) {
-      alert('Please input a valid question seconds')
+      message.error('Please input a valid question seconds')
       return
     }
     if (!validNotNull(question)) {
-      alert('Please input a valid question')
+      message.error('Please input a valid question')
       return
     }
     if (!validNotNull(mark)) {
-      alert('Please input a valid question mark')
+      message.error('Please input a valid question mark')
       return
     }
     online_quiz.limitation = seconds;
@@ -451,14 +450,13 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
           online_quiz.questions[0].optionD = item.value;
         }
         if (selectedMultiOption.includes(item.id)) {
-          answer += String.fromCharCode(65 + index); // 将索引值转换为对应的大写字母
+          answer += String.fromCharCode(65 + index); // Converts the index value to the corresponding uppercase letter
         }
       })
       online_quiz.questions[0].answer = answer;
     }
-    // console.log('online_quiz', online_quiz);
     const requestData = JSON.stringify(online_quiz);
-    fetch(`http://175.45.180.201:10900/service-stream/stream-quiz/quiz/${stream.streamId}`, {
+    fetch(`${HOST_STREAM_QUIZ}/quiz/${stream.streamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -468,7 +466,6 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('ass_res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
@@ -508,22 +505,17 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
       onMessage={(msg: any) => {
         if (msg.type === 0) {
           setMessages(prevMessages => [...prevMessages, msg]);
-          console.log(msg)
         }
         else if (msg.type === 1) {
-          console.log('msg', msg.userList); // 处理收到的消息
           setUsers(msg.userList);
         }
         else if (msg.type === 2) {
           setShowQuestion(msg);
           setType(msg.type);
-          // console.log('msg2', msg); // 处理收到的消息
         }
         else if (msg.type === 3) {
           setType(msg.type);
-          console.log('msg3', msg); // 处理收到的消息
           dataDist.map((item:any)=>{
-            // console.log(item)
             if (item.name === 'A') {
               item.value = msg.questions[0].distA;
             }
@@ -538,7 +530,6 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
             }
           })
           dataCount.map((item:any)=>{
-            // console.log(item)
             if (item.name === 'A') {
               item.value = msg.questions[0].countA;
             }

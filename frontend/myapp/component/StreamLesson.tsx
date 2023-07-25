@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message  } from 'antd';
-import './StaffDashboardContent.less';
-import './TextLesson.css';
-import {getToken} from '../utils/utils'
+import { Layout, Typography, Button, Form, Input, DatePicker, TimePicker, message } from 'antd';
 import {
   HeartFilled,
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import FileUploader from './FileUploader';
-import { validNotNull } from '../utils/utilsStaff';
-import { AssignmentLessonDTO } from '../utils/entities';
+import { getToken, validNotNull, HOST_STREAM } from '../src/utils/utils'
+import { StreamLessonDTO } from '../src/utils/entities';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -41,75 +37,55 @@ const quillFormats = [
   'color',
   'background',
 ];
-const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
+const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; courseId: string }> = ({ onCancel, onSubmit, courseId }) => {
   const token = getToken();
   const [title, setTitle] = useState("");
-  const handleAssignmentTitleChange = (e:any) => {
+  const handleStreamTitleChange = (e:any) => {
     setTitle(e.target.value);
   };
-  const [mark, setMark] = useState(-1);
-  const handleAssignmentMarkChange = (e:any) => {
-    setMark(e.target.value);
+  const [description, setDescription] = useState("");
+  const handleStreamDescriptionChange = (value: string) => {
+    setDescription(value);
   };
   const [start, setStart] = useState("");
-  const handleAssignmentStartChange = (date: any) => {
+  const handleStreamStartChange = (date: any) => {
     if (date) {
       const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
       setStart(formattedDate);
     }
   };
   const [end, setEnd] = useState("");
-  const handleAssignmentEndChange = (date: any) => {
+  const handleStreamEndChange = (date: any) => {
     if (date) {
       const formattedDate = date.format('YYYY-MM-DD HH:mm:ss');
       setEnd(formattedDate);
     }
   };
-  const [description, setDescription] = useState("");
-  const handleAssignmentDescriptionChange = (value: string) => {
-    setDescription(value);
-  };
+
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
-  // upload resource
-  const [fileList, setFileList] = useState<any[]>([]);
-
-  const handleFileListChange = (newFileList: any[]) => {
-    setFileList(newFileList);
-  };
   const handleSubmit = () => {
-    console.log(start);
-    console.log(end);
-    // 处理提交逻辑
+    // Process commit logic
     if (!validNotNull(title)) {
-      alert('Please input a valid assignment title')
-      return
-    }
-    if (!validNotNull(mark)) {
-      alert('Please input a valid assignment mark')
+      message.error('Please input a valid stream title')
       return
     }
     if (!validNotNull(start)) {
-      alert('Please input a valid assignment start')
+      message.error('Please input a valid stream start time')
       return
     }
     if (!validNotNull(end)) {
-      alert('Please input a valid assignment end')
+      message.error('Please input a valid stream end time')
       return
     }
     if (!validNotNull(description)) {
-      alert('Please input a valid assignment description')
+      message.error('Please input a valid stream description')
       return
     }
-    const dto = new AssignmentLessonDTO(title, description, start, end, mark);
+    const dto = new StreamLessonDTO(title, description, start, end);
     const requestData = JSON.stringify(dto);
-    // console.log('dto', dto); 
-    // const token = getToken(); // 获取令牌(token)
-    // const token = localStorage.getItem('token');
-    // console.log(token);
-    // console.log(courseId);
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/${courseId}`, {
+    fetch(`${HOST_STREAM}/stream/${courseId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -119,41 +95,13 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('ass_res', res);
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-
-      // Upload file, if any
-      if (fileList.length > 0) {
-        const formData = new FormData();
-        fileList.forEach((file) => {
-          formData.append("files", file);
-        });
-          fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignment/assFile/${res.data.assignmentId}`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData
-        })
-        .then(res => res.json())
-        .then(res => {
-          console.log('res', res);
-          if (res.code !== 20000) {
-            throw new Error(res.message);
-          }
-          message.success("Create assignment success")
-          onSubmit();
-        })
-        .catch(error => {
-          message.error(error.message);
-        });
-      } else {
-        message.success("Create assignment success")
+      else {
+        message.success("Create stream success")
         onSubmit();
       }
-      // history.push('/'); // redirect to login page, adjust as needed
     })
     .catch(error => {
       message.error(error.message);
@@ -178,44 +126,25 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
           // border: '1px solid red'
         }}
       >
-        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Create Assignment</Title>
+        <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Create Stream Lesson</Title>
         <Form style={{ margin: '0 auto', maxWidth: '400px' }}>
           <Form.Item 
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Assignment Title
+                Stream Title
               </Text>
             } 
-            name="assignment title" 
+            name="stream title" 
             rules={[
-              { required: true, message: 'Please input the assignment title!' },
-              { max: 100, message: 'The assignment title must be less than 100 characters!' },
+              { required: true, message: 'Please input the stream title!' },
+              { max: 100, message: 'The stream title must be less than 100 characters!' },
             ]}
           >
             <Input 
               placeholder="Input Title" 
               style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
               value={title}
-              onChange={handleAssignmentTitleChange}
-            />
-          </Form.Item>
-          <Form.Item 
-            label={
-              <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
-                Assignment Mark
-              </Text>
-            } 
-            name="assignment mark" 
-            rules={[
-              { required: true, message: 'Please input the assignment mark!' },
-            ]}
-          >
-            <Input 
-              type="number"
-              placeholder="Input Number" 
-              style={{ fontSize: '15px', fontFamily: 'Comic Sans MS' }}
-              value={mark}
-              onChange={handleAssignmentMarkChange}
+              onChange={handleStreamTitleChange}
             />
           </Form.Item>
           <Form.Item
@@ -226,10 +155,10 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
             }
             name="startDateTime"
             rules={[
-              { required: true, message: 'Please input the assignment start time!' },
+              { required: true, message: 'Please input the stream start time!' },
             ]}
           >
-            <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleAssignmentStartChange} />
+            <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleStreamStartChange} />
           </Form.Item>
           <Form.Item
             label={
@@ -239,10 +168,10 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
             }
             name="endDateTime"
             rules={[
-              { required: true, message: 'Please input the assignment end time!' },
+              { required: true, message: 'Please input the stream end time!' },
             ]}
           >
-            <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleAssignmentEndChange} />
+            <DatePicker placeholder="Select Start Date and Time" showTime onOk={handleStreamEndChange} />
           </Form.Item>
           <Form.Item
             label={
@@ -252,7 +181,7 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
             }
             name="description"
             rules={[
-              { required: true, message: 'Please input the assignment description!' },
+              { required: true, message: 'Please input the stream description!' },
             ]}
           >
           </Form.Item>
@@ -263,12 +192,9 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
                 formats={quillFormats}
                 placeholder="You can input many words here..."
                 value={description}
-                onChange={handleAssignmentDescriptionChange}
+                onChange={handleStreamDescriptionChange}
               />
             </div>
-          </Form.Item>
-          <Form.Item>
-            <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={handleSubmit} style={{ fontSize: '18px', fontFamily: 'Comic Sans MS', height: '100%' }}>
@@ -294,4 +220,4 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
   );
 };
 
-export default Assignment;
+export default StreamLesson;
