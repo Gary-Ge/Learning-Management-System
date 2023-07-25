@@ -1,6 +1,6 @@
 import'./studentcourse.less';
 import LinkBoardStu from "./LinkBoardStu";
-import StudentRank from "./studentrank";
+import StudentRank from "../../component/studentrank";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"

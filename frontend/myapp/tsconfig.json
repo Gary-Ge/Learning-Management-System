@@ -22,7 +22,7 @@
     "config/**/*",
     ".umirc.ts",
     "typings.d.ts"
-  ],
+, "component/studentrank.tsx"  ],
   "exclude": [
     "node_modules",
     "lib",
