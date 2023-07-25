@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Button,message  } from 'antd';
 import './StaffDashboardContent.less';
-import {getToken} from '../utils/utils'
+import {getToken,HOST_Quiz} from '../utils/utils'
 import {
   FileTextOutlined,
   DeleteOutlined
@@ -12,14 +12,13 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
   const token = getToken();
   const fetchTextSections = async () => {
     try {
-      const response = await fetch(`/service-edu/edu-quiz/quiz/course/${courseId}`, {
+      const response = await fetch(`${HOST_Quiz}/quiz/course/${courseId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await response.json();
       const fetchedSections = data.data.quizzes;
       setSections(fetchedSections);
@@ -28,13 +27,11 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
     }
   };
   useEffect(() => {
-    fetchTextSections(); // 初始加载章节数据
+    fetchTextSections();
   }, [changeFlag]);
 
   const handleSectionClick = (quizId: string) => {
-    // 处理菜单项点击事件
-    console.log('click event:', quizId);
-    fetch(`/service-edu/edu-quiz/quiz/${quizId}`, {
+    fetch(`${HOST_Quiz}/quiz/${quizId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -43,7 +40,6 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res)
       if (res.code !== 20000) {
         message.error(res.message)
         return
@@ -57,9 +53,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
   };
 
   const handleDeleteClick = (quizId: string) => {
-    // 处理删除图标点击事件
-    console.log('click delete:', quizId);
-    fetch(`/service-edu/edu-quiz/quiz/${quizId}`, {
+    fetch(`${HOST_Quiz}/quiz/${quizId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -68,7 +62,6 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res)
       if (res.code !== 20000) {
         message.error(res.message)
         return
