@@ -6,7 +6,7 @@ import silver from '../../images/2.gif';
 import copper from '../../images/3.gif';
 import crown from '../../images/crown.png';
 import downloadicon from '../../images/download.png';
-import { getToken, HOST_ASSIGNMENT, HOST_QUESTION, HOST } from '../src/utils/utils'
+import { getToken, HOST_ASSIGNMENT, HOST_QUESTION, HOST,HOST_STUDENT } from '../src/utils/utils'
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -29,9 +29,43 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
         description: ['Assignment1', 'Assignment2','Assignment3']
       },
     ];
-  
+    interface MedalItem {
+      title: string;
+      medals: string[];
+      description?: string[];
+  }
+  type MedalType = 'gold' | 'silver' | 'copper';
+
+  const medalImages: Record<MedalType, string> = {
+      gold: gold,
+      silver: silver,
+      copper: copper
+  };
+  const query = new URLSearchParams(location.search);
+  let courseid: any = query.get('courseid');
+  const [medal, setMedal] = useState<MedalItem[]>([]);
   const token = getToken();
   const [selectedType, setSelectedType] = useState('');
+  useEffect(() => {
+    fetch(`${HOST_STUDENT}/medals/${courseid}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            "Authorization": `Bearer ${token}`
+          },
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+           message.error(res.message)
+           return
+        }
+        setMedal(res.data.medals)
+      })
+      .catch(error => {
+        message.error(error.message)
+      }); 
+  }, [courseid, token]);
   // When selectedType is assignment
   // Choose a course for any assignment
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
@@ -478,7 +512,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
     <Modal
         title="My Medal"
         centered
-        visible={open}
+        open={open}
         footer={null}
         onOk={() => setOpen(false)}
         onCancel={() => setOpen(false)}
@@ -487,7 +521,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
       >
         <List
           itemLayout="horizontal"
-          dataSource={data}
+          dataSource={medal}
           renderItem={item => (
             <List.Item >
               <List.Item.Meta
@@ -497,7 +531,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
                     <div style={{ display: 'flex',alignItems: 'center',justifyContent:'flex-start' }}>
                       {item.medals.map((medal, index) => (
                         <div key={index} style={{ marginRight: '20px' }}>
-                          <img src={medal} alt="medal" style={{ width: '100px' }} />
+                          <img src={medalImages[medal as MedalType]} alt="medal" style={{ width: '100px' }} />
                           {item.description && <p style={{marginLeft: item.title === 'Quiz' ? '32px' : '10px'}}>{item.description[index]}</p>}
                         </div>
                       ))}
