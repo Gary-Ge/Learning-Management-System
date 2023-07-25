@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, Select, Radio, Tag, Checkbox,message } from 'antd';
 import './StaffDashboardContent.less';
 import './TextLesson.css';
-import './Quiz.css';
 import {
   HeartFilled,
   DeleteOutlined,
