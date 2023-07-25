@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Button,message  } from 'antd';
-import './StaffDashboardContent.less';
-import {getToken,HOST_Quiz} from '../utils/utils'
+import '../src/pages/StaffDashboardContent.less';
+import {getToken,HOST_Quiz} from '../src/utils/utils'
 import {
   FileTextOutlined,
   DeleteOutlined

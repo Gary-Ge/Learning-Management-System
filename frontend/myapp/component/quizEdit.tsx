@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message,Select,Radio, Tag, Checkbox  } from 'antd';
-import './StaffDashboardContent.less';
+import '../src/pages/StaffDashboardContent.less';
 import {
   HeartFilled,
   DeleteOutlined,
@@ -8,8 +8,8 @@ import {
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import {getToken} from '../utils/utils'
-import { QuizDTO } from '../utils/entities';
+import {getToken} from '../src/utils/utils'
+import { QuizDTO } from '../src/utils/entities';
 import Quiz from './Quiz';
 import UploadImageButton from './UploadImageButton';
 
