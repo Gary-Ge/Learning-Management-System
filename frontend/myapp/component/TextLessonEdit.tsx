@@ -252,6 +252,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
           </Form.Item>
           <Form.Item>
             {sectionInfor.resources.map((resources: any) => (
+              <div key={resources.resourceId}>
               <>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                 <Button
@@ -279,6 +280,7 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
                 />
               </div>
               </>
+              </div>
             ))}
             <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>

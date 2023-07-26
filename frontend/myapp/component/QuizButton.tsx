@@ -3,7 +3,7 @@ import { Layout, Button,message  } from 'antd';
 import '../src/pages/StaffDashboardContent.less';
 import {getToken,HOST_Quiz} from '../src/utils/utils'
 import {
-  FileTextOutlined,
+  QuestionCircleOutlined,
   DeleteOutlined
 } from '@ant-design/icons';
 
@@ -108,7 +108,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
               fontFamily: 'Comic Sans MS'
             }}
           >
-            <FileTextOutlined style={{ color: 'green', margin: '0' }} />
+            <QuestionCircleOutlined style={{ color: 'purple', margin: '0' }} />
             {/* {section.title} */}
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
               {section.title.length > 12 ? section.title.substring(0, 7) + '...' : section.title}

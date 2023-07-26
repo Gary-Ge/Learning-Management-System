@@ -205,6 +205,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           </Form.Item>
           <Form.Item>
             {videoResourse.map((resources: any) => (
+              <div key={resources.resourceId}>
               <>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                 <Button
@@ -225,6 +226,7 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
                 </Button>
               </div>
               </>
+              </div>
             ))}
             <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>
