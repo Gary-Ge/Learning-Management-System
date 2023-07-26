@@ -113,7 +113,8 @@ export default function Dashboard() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       setImageUrl(res.data.user.avatar);
       setEmail(res.data.user.email);
