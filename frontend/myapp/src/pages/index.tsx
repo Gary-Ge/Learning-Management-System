@@ -6,7 +6,7 @@ import Footer from "../../component/footer"
 import { List,ConfigProvider,Avatar,Input,Card,Calendar,Button,Pagination,message } from 'antd';
 import { SmileOutlined} from '@ant-design/icons';
 import {  HOST,CHANGEFILE_URL,getToken, HOST_STUDENT,COURSE_URL,HOST_COURSE} from '../utils/utils';
-import moment from 'moment';
+import moment,{ Moment } from 'moment';
 import intro from '../../../images/online_course.png';
 
 import type { Dayjs } from 'dayjs';
@@ -23,29 +23,6 @@ const customizeRenderEmpty = () => (
     <p>Data Not Found</p>
   </div>
 );
-const StudentDashboardContent: React.FC = () => {
-
-  const userDataString = localStorage.getItem('userData');
-  const userDataName = userDataString ? JSON.parse(userDataString) : null;
-
-  return (
-    <div style={{ marginLeft: '110px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
-      <div>
-      {/*{userDataName ? (
-                <>
-                    Hi,
-                    <br />
-                    Welcome to our website ~~
-                </>
-            ) : (*/}
-                <>Hi,
-                <br />
-                Welcome to our website ~~</>
-            {/* )} */}
-      </div>
-    </div>
-  );
-};
 const data = [
   {
     title: 'Comp9900',
@@ -81,6 +58,29 @@ export default function IndexPage() {
   const gotoviewstudent = (id: string,title: string) => {
     history.push(`/viewstudentcourse?courseid=${id}&title=${title}`);
   }
+  
+  const StudentDashboardContent: React.FC = () => {
+
+    const userDataString = localStorage.getItem('userData');
+    const userDataName = userDataString ? JSON.parse(userDataString) : null;
+    return (
+      <div style={{ marginLeft: '110px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
+        <div>
+        {userDataName ? (
+                  <>
+                      Hi,{/*{userDataName.username}*/}
+                      <br />
+                      Welcome to our website ~~
+                  </>
+              ) : (
+                  <>Hi,
+                  <br />
+                  Welcome to our website ~~</>
+              )}
+        </div>
+      </div>
+    );
+  };
 
   const [customize, setCustomize] = useState(true);
   const [userData, setUserData] = useState({});
@@ -94,7 +94,7 @@ export default function IndexPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDate, setSelectedDate] = useState<string>(moment().format('YYYY-MM-DD'));
   const [allDue,setAllDue] = useState([])
-  const [nodueflag, setnodueflag] = useState(true)
+  
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,
@@ -161,7 +161,6 @@ export default function IndexPage() {
         message.error(res.message);
         return
       }
-      console.log('calendar',res.data.courses);
       let get_all_due = res.data.courses
       let all_due:any = []
       get_all_due.AssignmentList.map((item:any)=> {
@@ -173,7 +172,6 @@ export default function IndexPage() {
       get_all_due.StreamList.map((item:any)=> {
         all_due = all_due.concat(item)
       })
-      console.log('calendar all_due',all_due);
       all_due.map((item: any)=>{
         if(item.assignment_id){
           item.title = `${item.course_title}, Assignment: ${item.assignment_title}, Time: ${item.assignment_end.substring(11)}`
@@ -210,7 +208,7 @@ export default function IndexPage() {
       localStorage.setItem('userData', JSON.stringify(res.data.user));
     })
     .catch(error => {
-      // alert(error.message);
+      message.error(error.message);
     });  
     fetch(`${HOST_STUDENT}${COURSE_URL}`, {
       method: "GET",
@@ -235,7 +233,7 @@ export default function IndexPage() {
       }
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     });  
     fetch(`${HOST_COURSE}${COURSE_URL}`, {
       method: "GET",
@@ -258,7 +256,7 @@ export default function IndexPage() {
       
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     }); 
     
   },[]);
@@ -268,7 +266,7 @@ export default function IndexPage() {
 
 useEffect(() => {
   const fetchCourseDetails = async (id: string) => {
-    const response = await fetch(`/service-edu/edu-course/course/${id}`, {
+    const response = await fetch(`${HOST_COURSE}/course/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -290,12 +288,8 @@ useEffect(() => {
     .catch(error => console.error(error));
 }, [courseId, token]);
 
-useEffect(() => {
-  console.log(firstcourseDetails);
-}, [firstcourseDetails]);
 
 const onSearch = (value: string) => {
-  console.log('search', value);
   fetch(`${HOST_COURSE}${COURSE_URL}/${value}`, {
     method: "GET",
     headers: {
@@ -309,12 +303,11 @@ const onSearch = (value: string) => {
       message.error(res.message)
       return
     }
-    console.log('search', res);
     setAllCourseDetails(res.data.courses);
     setCurrentPage(1); // todo
   })
   .catch(error => {
-    console.log(error.message);
+    message.error(error.message);
   });
 }
 useEffect(() => {
@@ -441,7 +434,7 @@ useEffect(() => {
           gotostudent(course.id, course.title);
         })
         .catch(error => {
-          alert(error.message);
+          message.error(error.message);
         });} 
         }>Join</Button>
           <Button type="primary" size="large" onClick={() => gotoviewstudent(course.id,course.title)}>View</Button>
@@ -460,7 +453,7 @@ useEffect(() => {
     </div>
     <div className='calendar_and_exp'>
         <div className='calendar'>
-        <Calendar fullscreen={false} onSelect={date => setSelectedDate(date.format('YYYY-MM-DD'))} dateCellRender={dateCellRender}/>  
+        <Calendar fullscreen={false} onSelect={date => setSelectedDate(date.format('YYYY-MM-DD'))} dateCellRender={(date: Moment) => dateCellRender(date)}/>  
         {/* dateCellRender={dateCellRender} */}
         </div>
         <div className='exp'>

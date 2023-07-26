@@ -1,17 +1,16 @@
 import'./studentcourse.less';
-import LinkBoardStu from "./LinkBoardStu";
-import StudentRank from "./studentrank";
+import LinkBoardStu from "../../component/LinkBoardStu";
+import StudentRank from "../../component/studentrank";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
 import Chatbot from "../../component/chatbot"
 import { Input, Button, Modal, message, Upload,Radio,Space,Checkbox,Form } from 'antd';
-import type { UploadProps } from 'antd';
 import { useLocation, useHistory } from 'umi';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
-  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT, HOST_STREAM_BASIC } from '../utils/utils';
+  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT, HOST_STREAM, HOST_QUIZ,HOST_Question} from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_2 from '../../../images/stu_icon_2.png';
 import stu_icon_3 from '../../../images/stu_icon_3.png';
@@ -138,13 +137,10 @@ export default function StudentCoursePage() {
         setFileList([...fileList]);
       },
       beforeUpload: (file:any) => {
-        console.log('++file', file);
         fileList[key].push(file);
         let copyfilelist = fileList.slice();
-        console.log('copyfilelist', copyfilelist);
         // setFileList([...fileList, file]);
         setFileList([...copyfilelist]);
-        console.log('fileList', fileList);
         return false;
       },
       fileList: fileList[key],
@@ -155,8 +151,6 @@ export default function StudentCoursePage() {
   headers.append('Authorization',`Bearer ${token}`);
   const upload = (assid:string, key:string) => {
     const formData = new FormData(); 
-    console.log('fileList', fileList);
-    console.log('fileList upload',fileList);
     fileList[Number(key)].forEach((file:any) => {
       formData.append('files', file); 
     });
@@ -175,7 +169,6 @@ export default function StudentCoursePage() {
         // getallassginment submits
         datalist.map((item:any)=>{
           if (item.is_selected) {
-            console.log(item.id);
             getallassignments(item.id, key);
           }
         })
@@ -224,7 +217,6 @@ export default function StudentCoursePage() {
       }
       let currentcourseid = '';
       if (courseidlist.indexOf(courseid) == -1) { // no enroll 
-        console.log('wrong jump');
         courselist.map((item: any, index: number) => {
           // console.log(item.title, item.courseId);
           data.push({
@@ -267,7 +259,7 @@ export default function StudentCoursePage() {
       // console.log('++data',data);
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     });  
   }
   // get course outline
@@ -285,7 +277,6 @@ export default function StudentCoursePage() {
         message.error(res.message)
         return
       }
-      console.log(res.data.course);
       let res_data = res.data.course;
       let outline = course_outline;
       outline[0].outline_title = res_data.title;
@@ -303,7 +294,7 @@ export default function StudentCoursePage() {
       
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     });
   };
 
@@ -318,13 +309,11 @@ export default function StudentCoursePage() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log('get all sections');
       if (res.code !== 20000) {
         // throw new Error(res.message)
         message.error(res.message);
         return
       }
-      console.log(res.data.sections);
       materials_list = []
       let res_sections = res.data.sections;
       res_sections.map( (item:any, index: string) => {
@@ -360,10 +349,8 @@ export default function StudentCoursePage() {
                   message.error(res.message);
                   return
                 }
-                console.log('video url:',res.data.auth.playURL);
                 inneritem.url = res.data.auth.playURL
                 setmaterialLists([...materials_list]);
-                console.log("getallsections+++materials_list:", materials_list);
               });
             }
           })
@@ -375,12 +362,12 @@ export default function StudentCoursePage() {
       
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     }); 
   };
   // get all quizzes
   const getallquizzes = (courseid:string, original_key: string) => {
-    fetch(`/service-edu/edu-quiz/quiz/course/${courseid}`, {
+    fetch(`${HOST_QUIZ}/quiz/course/${courseid}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -389,17 +376,15 @@ export default function StudentCoursePage() {
     })
     .then(res => res.json())
     .then(async res => {
-      console.log('get all quizzes');
       if (res.code !== 20000) {
         message.error(res.message)
         return
       }
-
       let res_quiz = res.data.quizzes;
       let fetchedQuizList = await Promise.all(res_quiz.map(async (item:any, idx:string)=>{
         
         // Fetch the questions for this quiz
-        let response = await fetch(`/service-edu/edu-question/questions/${item.quizId}`, {
+        let response = await fetch(`${HOST_Question}/questions/${item.quizId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -411,7 +396,6 @@ export default function StudentCoursePage() {
 
         if(response.ok) {
           let questionData = await response.json(); 
-
           question_list = questionData.data.questions.map((question:any,idx:number) => {
             let options = [
               { id: 0, value: question.a },
@@ -433,7 +417,7 @@ export default function StudentCoursePage() {
             };
           });
         } else {
-          console.error(`Error in fetching questions for quizid: ${item.quizId}`);
+          message.error(`Error in fetching questions for quizid: ${item.quizId}`);
         }
 
         return {
@@ -449,10 +433,9 @@ export default function StudentCoursePage() {
       }));
 
       setquizLists(fetchedQuizList);
-      console.log('no',fetchedQuizList)
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     }); 
   };
 
@@ -467,7 +450,6 @@ export default function StudentCoursePage() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log('get all assignments');
       if (res.code !== 20000) {
         message.error(res.message)
         return
@@ -497,13 +479,13 @@ export default function StudentCoursePage() {
       // console.log('assign_list', assign_list);
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     }); 
   };
 
   // get all streams
   const getallstreams = (courseid:string, original_key: string) => {
-    fetch(`${HOST_STREAM_BASIC}/streams/${courseid}`, {
+    fetch(`${HOST_STREAM}/streams/${courseid}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -512,14 +494,10 @@ export default function StudentCoursePage() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log('get all streams');
       if (res.code !== 20000) {
-          message.error(res.message)
-          return
+        message.error(res.message)
+        return
       }
-      // if (res.data.assignments.length == 0) {
-      //   setassignmentLists([]);
-      // } else {
       stream_list = []
       let res_stream = res.data.streams;
       res_stream.map((item:any, idx:string)=>{
@@ -532,10 +510,9 @@ export default function StudentCoursePage() {
         });
       });
       setstreamLists([...stream_list]);
-      // console.log('stream_list', stream_list);
     })
     .catch(error => {
-      console.log(error.message);
+      message.error(error.message);
     }); 
   };
 
@@ -554,7 +531,6 @@ export default function StudentCoursePage() {
         message.error(res.message)
         return
       }
-      console.log('assurl',res.data.fileUrl);
       const w:any = window.open("about:blank");  
       w.location.href = res.data.fileUrl;
     })
@@ -591,7 +567,6 @@ export default function StudentCoursePage() {
   // click left list
   const onclicklist = (e:any) => {
     setIsStreamOpen(false);
-    console.log(e.target.id);
     funlist.map(item => {
       item.is_selected = false;
     });
@@ -644,7 +619,6 @@ export default function StudentCoursePage() {
         message.error(res.message)
         return
       }
-      console.log('getsourcelink', res.data.fileUrl);
       const w:any = window.open("about:blank");  
       w.location.href=res.data.fileUrl
     })
@@ -673,7 +647,6 @@ export default function StudentCoursePage() {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      console.log('submiturl',res.data.fileUrl);
       const w:any = window.open("about:blank");  
       w.location.href = res.data.fileUrl;
     })
@@ -683,7 +656,6 @@ export default function StudentCoursePage() {
   }
   // drop course 1
   const dropcourse = () => {
-    console.log('dropdatalist', datalist);
     showModal();
   }
   // drop course 2
@@ -722,7 +694,6 @@ export default function StudentCoursePage() {
   }
   // onclick to show ass content
   const showasscontent = (e:any) => {
-    console.log();
     assign_list.map(item => {
       item.is_selected = false;
     });
@@ -745,8 +716,6 @@ export default function StudentCoursePage() {
       }
     })
     getallstreams(current_course_id, '0'); // update stream
-    console.log(e.target.id);
-    console.log();
     stream_list.map(item => {
       item.is_selected = false;
     });
@@ -765,7 +734,6 @@ export default function StudentCoursePage() {
   const handleOk = () => {
     datalist.map((item:any)=>{
       if (item.is_selected) {
-        console.log(item.id);
         deletedropcourse(item.id);
       }
     })
@@ -790,7 +758,6 @@ export default function StudentCoursePage() {
         current_course_id = item.id
       }
     })
-    console.log(value, current_course_id);
     if (value == '') { // if value == '', interface will get 404
       getallsections(current_course_id);
       return
@@ -809,7 +776,6 @@ export default function StudentCoursePage() {
         message.error(res.message);
         return
       }
-      console.log('search:', res.data.sections);
       // update funlist (left list)
       fun_list.map(item => {
         item.is_selected = false;
@@ -858,10 +824,8 @@ export default function StudentCoursePage() {
                   message.error(res.message);
                   return
                 }
-                console.log('video url:',res.data.auth.playURL);
                 inneritem.url = res.data.auth.playURL
                 setmaterialLists([...materials_list]);
-                console.log("search--materials_list:", materials_list);
               });
             }
           })
@@ -879,19 +843,19 @@ export default function StudentCoursePage() {
   const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
     const optionLetters = ['a', 'b', 'c', 'd'];
     switch (questionType) {
-      case 0: // 对于单选题
+      case 0: 
         setAnswers(prevAnswers => ({
           ...prevAnswers,
           [quizId + '_' + questionId]: {
             quizId: quizId,
             questionId: questionId,
-            options: [optionLetters[answer]], // 使用选项字母代替索引
+            options: [optionLetters[answer]], 
             content: ''
           }
         }));
         break;
-      case 1: // 对于多选题
-        const selectedOptions = answer.map(index => optionLetters[index]); // 使用选项字母代替索引
+      case 1:
+        const selectedOptions = answer.map(index => optionLetters[index]); 
         setAnswers(prevAnswers => ({
           ...prevAnswers,
           [quizId + '_' + questionId]: {
@@ -902,14 +866,14 @@ export default function StudentCoursePage() {
           }
         }));
         break;
-      case 2: // 对于问答题
+      case 2:
         setAnswers(prevAnswers => ({
           ...prevAnswers,
           [quizId + '_' + questionId]: {
             quizId: quizId,
             questionId: questionId,
             options: [],
-            content: answer // answer 是用户输入的字符串
+            content: answer
           }
         }));
         break;
@@ -920,13 +884,9 @@ export default function StudentCoursePage() {
   
     
   const submitQuizAnswers = async (quizId:any) => {
-    // 对于对象中的每个属性（即问题）进行迭代
     for (const key in answers) {
-        // 如果属性的 key 包含了 quizId
         if (key.startsWith(quizId + '_')) {
             const answer = answers[key];
-
-            // 创建请求参数
             let params = new URLSearchParams();
             if (answer.options.length > 0) {
               params.append('optionIds', answer.options.join(','));
@@ -934,7 +894,7 @@ export default function StudentCoursePage() {
             if (answer.content !== '') {
                 params.append('content', answer.content);
             }
-            const response = await fetch(`/service-edu/edu-student/submit/question/${answer.questionId}`, {
+            const response = await fetch(`${HOST_STUDENT}/submit/question/${answer.questionId}`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',
@@ -945,7 +905,7 @@ export default function StudentCoursePage() {
 
           const data = await response.json();
           if (data.success) {
-              console.log(`Question ${answer.questionId} submitted successfully.`);
+              //message.success(`Question ${answer.questionId} submitted successfully.`);
           } else {
               message.error(`Failed to submit question. Error: ${data.message}`);
               return;
@@ -1015,6 +975,72 @@ export default function StudentCoursePage() {
       localStorage.setItem('timeLeft', timeLeft.toString());
     }
   }, [timeLeft]);
+
+  const [singleCourse, setSingleCourse] = useState<Array<any>>([{cover: '',title:'',category:'',description:'',hasForum:false}]);
+  const [assOptions, setAssOptions] = useState<any[]>([]);
+  const [quizes, setQuizes] = useState<any[]>([]);
+  const fetchOptions = (courseId: string) => {
+    // Current course information
+    fetch(`${HOST_COURSE}/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedCourse = data.data.course;
+      setSingleCourse(fetchedCourse);
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+    // All assignments created by the current course
+    fetch(`${HOST_ASSIGNMENT}/assignments/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedAssignments = data.data.assignments;
+      setAssOptions(fetchedAssignments);
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+    // All quizzes created for the current course
+    fetch(`${HOST_QUIZ}/quiz/course/${courseId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
+      // Assuming the course title is returned in the 'title' field of the response
+      const fetchedQuizes = data.data.quizzes;
+      setQuizes(fetchedQuizes);
+    })
+    .catch((error) => {
+      message.error(error.message);
+    });
+  };
   const handleShowStudentRank = () => {
     const updatedFunList = fun_list.map((item) => {
       return { ...item, is_selected: false };
@@ -1022,6 +1048,14 @@ export default function StudentCoursePage() {
   
     setfunLists(updatedFunList);
     setShowStudentRank(true);
+
+    let current_course_id = ''
+    datalist.map((item:any) => {
+      if (item.is_selected){
+        current_course_id = item.id
+      }
+    })
+    fetchOptions(current_course_id);   
   };
   const toshowchatbot = () => {
     const updatedFunList = fun_list.map((item) => {
@@ -1331,7 +1365,7 @@ export default function StudentCoursePage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? 'stu_right_content': 'display_non'}>
+              <div className={funlist[4].is_selected ? '': 'display_non'}>
                 {
                   streamlist.length == 0 ? <div>There is no stream now.</div> : ''
                 }
@@ -1348,7 +1382,7 @@ export default function StudentCoursePage() {
               <div className={showStudentRank ? 'stu_right_content': 'display_non'}>
               {showStudentRank && (
                   <div className="student_rank_content">
-                    <StudentRank />
+                    <StudentRank quizes={quizes} assInfor={assOptions} course={singleCourse} />
                   </div>
                 )}
               </div>

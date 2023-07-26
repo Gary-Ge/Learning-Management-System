@@ -89,7 +89,6 @@ export default function Dashboard() {
     }
   }
   const onclicktab = (e:any) => {
-    console.log('tabs',e.target.id);
     tabs_list.map((item)=> {
       item.is_selected = false
     })
@@ -114,7 +113,8 @@ export default function Dashboard() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       setImageUrl(res.data.user.avatar);
       setEmail(res.data.user.email);
@@ -174,15 +174,15 @@ export default function Dashboard() {
   const handleSubmit = () => {
     const token = getToken();
     if (!validNotNull(username)) {
-      alert('Please input a username');
+      message.error('Please input a username');
       return;
     }
     if (!validEmail(email)) {
-      alert('Please input a valid email');
+      message.error('Please input a valid email');
       return;
     }
     if (password !== "" && password !== null && !ValidPassword(password)) {
-      alert('Please input a valid password');
+      message.error('Please input a valid password');
       return;
     }
 
@@ -207,7 +207,7 @@ export default function Dashboard() {
         handleModalClose();
       })
       .catch(error => {
-        alert(error.message);
+        message.error(error.message);
       });
     } else {
       // If the user upload a new avatar, first upload the avatar, then update the user info

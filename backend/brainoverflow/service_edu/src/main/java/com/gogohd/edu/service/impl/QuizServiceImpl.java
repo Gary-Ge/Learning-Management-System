@@ -292,11 +292,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizMapper, Quiz> implements Qu
         Map<String, Float> studentScores = new HashMap<>();
         for (Answer answer : answers) {
             String studentId = answer.getUserId();
-            float questionScore = (float) questions.stream()
-                    .filter(question -> question.getQuestionId().equals(answer.getQuestionId()))
-                    .mapToDouble(Question::getMark)
-                    .findFirst()
-                    .orElse(0f);
+            float questionScore = answer.getMark();
             float studentScore = studentScores.getOrDefault(studentId, 0f);
             studentScores.put(studentId, studentScore + questionScore);
         }

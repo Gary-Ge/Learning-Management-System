@@ -14,7 +14,7 @@ export function ValidPassword (password:any) {
   }
   
   export function validNotNull (value:any) {
-    if (value == null || value === '') {
+    if (value == null || value === '' || value == -1) {
       return false
     }
     return true
@@ -38,6 +38,8 @@ export const HOST_STAFF = '/service-edu/edu-staff'
 export const HOST_STUDENT = '/service-edu/edu-student'
 export const COURSE_URL = '/courses'
 export const HOST_COURSE = '/service-edu/edu-course'
+export const HOST_Quiz = '/service-edu/edu-quiz'
+export const HOST_Question = '/service-edu/edu-question'
 export const COURSE_DETAIL_URL = '/course'
 export const HOST_SECTION = '/service-edu/edu-section'
 export const HOST_RESOURCE = '/service-edu/edu-resource'
@@ -46,4 +48,8 @@ export const HOST_FORUM_CATEGORY = '/service-forum/forum-category'
 export const HOST_FORUM_POST = '/service-forum/forum-post'
 export const HOST_FORUM_REPLY = '/service-forum/forum-reply'
 export const HOST_CHAT = '/service-chat/chat-bot'
-export const HOST_STREAM_BASIC = '/service-stream/stream-basic'
+export const HOST_QUIZ = '/service-edu/edu-quiz'
+export const HOST_STREAM_QUIZ = '/service-stream/stream-quiz'
+export const HOST_STREAM_CHAT = '/service-stream/stream-chat'
+export const HOST_STREAM = '/service-stream/stream-basic'
+export const HOST_QUESTION = '/service-edu/edu-question'

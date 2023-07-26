@@ -22,7 +22,7 @@
     "config/**/*",
     ".umirc.ts",
     "typings.d.ts"
-  ],
+, "component/studentrank.tsx", "component/Quiz.tsx", "component/QuizButton.tsx", "component/UploadImageButton.tsx", "component/quizEdit.tsx"  ],
   "exclude": [
     "node_modules",
     "lib",

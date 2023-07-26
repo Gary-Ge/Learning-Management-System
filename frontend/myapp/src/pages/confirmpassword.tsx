@@ -18,7 +18,7 @@ export default function ConfirmPassword() {
     };
     const handleSubmit = () => {
         if (password !== newpassword) {
-            alert('Password is not equal to new password')
+            message.error('Password is not equal to new password')
             return;
         }
         const storedEmail = localStorage.getItem("email");
@@ -31,7 +31,8 @@ export default function ConfirmPassword() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-              throw new Error(res.message)
+              message.error(res.message)
+              return;
             }
             message.success('Reset your password successfully');
             history.push('/login');

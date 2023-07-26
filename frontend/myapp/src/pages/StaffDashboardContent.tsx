@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Button, Modal, Image, Form, Collapse, Divider, message } from 'antd';
-import './StaffDashboardContent.less';
-import Navbar from "../../component/navbar"
-import {getToken} from '../utils/utils'
 import {
   PlusCircleOutlined,
   HeartFilled,
@@ -19,29 +16,30 @@ import {
   EditOutlined,CommentOutlined,RobotOutlined,
   CalendarOutlined
 } from '@ant-design/icons';
-import CourseLayout from './CourseLayout';
-import TextLesson from './TextLesson';
-import VideoLesson from './VideoLesson';
-import StreamLesson from './StreamLesson';
-import Assignment from './Assignment';
-import Quiz from './Quiz';
-import TextButton from './TextButton';
-import VideoButton from './VideoButton';
-import StreamButton from './StreamButton';
-import QuizButton from './QuizButton';
-import AssignmentButton from './AssignmentButton';
-import TextLessonEdit from './TextLessonEdit';
-import VideoLessonEdit from './VideoLessonEdit';
-import StreamLessonEdit from './StreamLessonEdit';
-import QuizEdit from './quizEdit';
-import LinkBoard from './LinkBoard';
-import LinkBoardStu from './LinkBoardStu';
-import CourseLayoutEdit from './CourseLayoutEdit';
-import AssignmentEdit from './AssignmentEdit';
-import ShowMark from './ShowMark';
+import './StaffDashboardContent.less';
+import Navbar from "../../component/navbar"
+import CourseLayout from '../../component/CourseLayout';
+import TextLesson from '../../component/TextLesson';
+import VideoLesson from '../../component/VideoLesson';
+import StreamLesson from '../../component/StreamLesson';
+import Assignment from '../../component/Assignment';
+import Quiz from '../../component/Quiz';
+import TextButton from '../../component/TextButton';
+import VideoButton from '../../component/VideoButton';
+import StreamButton from '../../component/StreamButton';
+import QuizButton from '../../component/QuizButton';
+import AssignmentButton from '../../component/AssignmentButton';
+import TextLessonEdit from '../../component/TextLessonEdit';
+import VideoLessonEdit from '../../component/VideoLessonEdit';
+import StreamLessonEdit from '../../component/StreamLessonEdit';
+import QuizEdit from '../../component/quizEdit';
+import LinkBoard from '../../component/LinkBoard';
+import CourseLayoutEdit from '../../component/CourseLayoutEdit';
+import AssignmentEdit from '../../component/AssignmentEdit';
+import ShowMark from '../../component/ShowMark';
 import Newcalendar from './Calendar';
 import { useHistory } from 'umi';
-import { Route, Switch, useParams, useLocation } from 'react-router-dom';
+import { getToken, HOST_STAFF, HOST_COURSE, HOST_ASSIGNMENT, HOST_QUIZ } from '../utils/utils'
 
 const { Footer, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -66,6 +64,7 @@ const StaffDashboardContent: React.FC = () => {
     setContentMarginLeft(isSiderVisible ? 310 : 0);
   }, [isSiderVisible]);
 
+  
   const handleAddCourses = () => {
     setSelectedOption('course');
   };
@@ -85,7 +84,7 @@ const StaffDashboardContent: React.FC = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900/service-edu/edu-staff/courses`, {
+      const response = await fetch(`${HOST_STAFF}/courses`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -97,7 +96,7 @@ const StaffDashboardContent: React.FC = () => {
       const fetchedCourses = data.data.courses;
       setCourses([...fetchedCourses]);
     } catch (error:any) {
-      console.log(error.message);
+      message.error(error.message);
     }
   };
 
@@ -109,19 +108,15 @@ const StaffDashboardContent: React.FC = () => {
     const handleResize = () => {
       setIsSiderVisible(window.innerWidth > 768);
     };
-
     // Call the handleResize function when the component is mounted
     handleResize();
-
     // Subscribe to window resize events
     window.addEventListener('resize', handleResize);
-
     // Unsubscribe from window resize events when the component is unmounted
     return () => {
       window.removeEventListener('resize', handleResize);
     }
   }, []);
-
   const [showModal, setShowModal] = useState(false);
   const [selectedCourseTitle, setSelectedCourseTitle] = useState('');
   const handleShowModal = (courseId: string, courseTitle: string) => {
@@ -131,11 +126,10 @@ const StaffDashboardContent: React.FC = () => {
   };
   const [singleCourse, setSingleCourse] = useState<Array<any>>([{cover: '',title:'',category:'',description:'',hasForum:false}]);
   const handleEditCourse = (courseId: string) => {
-    // console.log(courseId);
     setSelectedCourseId(courseId);
     setSelectedOption('courseEdit');
     // Send request to get course information
-    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+    fetch(`${HOST_COURSE}/course/${courseId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -144,22 +138,21 @@ const StaffDashboardContent: React.FC = () => {
     })
     .then((response) => response.json())
     .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
       // Assuming the course title is returned in the 'title' field of the response
       const fetchedCourse = data.data.course;
       setSingleCourse(fetchedCourse);
-      // console.log('data', fetchedCourse);
-      // console.log('data_courseId', data.data.course.courseId);
-      // console.log('data_title', data.data.course.title);
     })
     .catch((error) => {
-      console.log(error.message);
+      message.error(error.message);
     });
   };
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const handleSubmitText = (sectionId: string) => {
     setTextChangeFlag(!textChangeFlag);
     setSelectedOption('close');
-    console.log('Submitted sectionId:', sectionId);
   };
 
   const handleSubmitStream = () => {
@@ -183,41 +176,29 @@ const StaffDashboardContent: React.FC = () => {
   };
   const [singleSection, setSingleSection] = useState(null);
   const handleSingleSectionChange = (sectionData: any) => {
-    // 在这里处理 singleSection 参数
-    // console.log('sectionData', sectionData);
     setSingleSection(sectionData);
     setSelectedOption('editTextLesson');
-    // 执行其他操作
   };
   const [singleVideoSection, setVideoSection] = useState(null);
   const handleSingleVideoSectionChange = (sectionData: any) => {
-    // 在这里处理 singleSection 参数
-    // console.log('sectionData', sectionData);
     setVideoSection(sectionData);
     setSelectedOption('editVideoLesson');
-    // 执行其他操作
   };
   const [singleQuizSection, setQuizSection] = useState(null);
   const handlesingleQuizSectionChange = (sectionData: any) => {
-    // 在这里处理 singleSection 参数
-    //console.log('sectionData', sectionData);
     setQuizSection(sectionData);
     setSelectedOption('editQuizLesson');
-    // 执行其他操作
   };
   const [singleStreamSection, setStreamSection] = useState(null);
   const handleSingleStreamSectionChange = (sectionData: any) => {
-    // 在这里处理 singleSection 参数
-    // console.log('sectionData', sectionData);
     setStreamSection(sectionData);
     setSelectedOption('editStreamLesson');
-    // 执行其他操作
   };
   const handleSingleStreamLinkSectionChange = (sectionData: any, courseId: string) => {
     setStreamSection(sectionData);
     setSelectedOption('streamLink');
-    // 当前课程信息
-    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+    // Current course information
+    fetch(`${HOST_COURSE}/course/${courseId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -226,11 +207,14 @@ const StaffDashboardContent: React.FC = () => {
     })
     .then((response) => response.json())
     .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
       const fetchedCourse = data.data.course;
       setSingleCourse(fetchedCourse);
     })
     .catch((error) => {
-      console.log(error.message);
+      message.error(error.message);
     });
   };
   const streamCancel = (streamId: string) => {
@@ -238,18 +222,15 @@ const StaffDashboardContent: React.FC = () => {
   };
   const [singleAssignment, setSingleAssignment] = useState(null);
   const handleSingleAssignmentChange = (assignmentData: any) => {
-    // 在这里处理 singleAssignment 参数
-    console.log('assignmentData', assignmentData);
     setSingleAssignment(assignmentData);
     setSelectedOption('editAssignmentLesson');
-    // 执行其他操作
   };
 
   const [assOptions, setAssOptions] = useState<any[]>([]);
   const [quizes, setQuizes] = useState<any[]>([]);
   const fetchOptions = (courseId: string) => {
-    // 当前课程信息
-    fetch(`http://175.45.180.201:10900/service-edu/edu-course/course/${courseId}`, {
+    // Current course information
+    fetch(`${HOST_COURSE}/course/${courseId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -258,19 +239,18 @@ const StaffDashboardContent: React.FC = () => {
     })
     .then((response) => response.json())
     .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
       // Assuming the course title is returned in the 'title' field of the response
       const fetchedCourse = data.data.course;
       setSingleCourse(fetchedCourse);
-      // console.log('data', fetchedCourse);
-      // console.log('data_courseId', data.data.course.courseId);
-      // console.log('data_title', data.data.course.title);
     })
     .catch((error) => {
-      console.log(error.message);
+      message.error(error.message);
     });
-    // 当前课程创建的的所有assignments
-    // 发起 fetch 请求获取选项数据
-    fetch(`http://175.45.180.201:10900/service-edu/edu-assignment/assignments/${courseId}`, {
+    // All assignments created by the current course
+    fetch(`${HOST_ASSIGNMENT}/assignments/${courseId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -279,17 +259,18 @@ const StaffDashboardContent: React.FC = () => {
     })
     .then((response) => response.json())
     .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
       // Assuming the course title is returned in the 'title' field of the response
       const fetchedAssignments = data.data.assignments;
       setAssOptions(fetchedAssignments);
-      // console.log('data', fetchedAssignments);
     })
     .catch((error) => {
-      console.log(error.message);
+      message.error(error.message);
     });
-    // 当前课程创建的所有quizzes
-    // 发起 fetch 请求获取选项数据
-    fetch(`http://175.45.180.201:10900/service-edu/edu-quiz/quiz/course/${courseId}`, {
+    // All quizzes created for the current course
+    fetch(`${HOST_QUIZ}/quiz/course/${courseId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -298,13 +279,15 @@ const StaffDashboardContent: React.FC = () => {
     })
     .then((response) => response.json())
     .then((data) => {
+      if (data.code !== 20000) {
+        throw new Error(data.message)
+      }
       // Assuming the course title is returned in the 'title' field of the response
       const fetchedQuizes = data.data.quizzes;
       setQuizes(fetchedQuizes);
-      // console.log('data', fetchedAssignments);
     })
     .catch((error) => {
-      console.log(error.message);
+      message.error(error.message);
     });
   };
   
@@ -332,14 +315,12 @@ const StaffDashboardContent: React.FC = () => {
         {/* add course materials button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 'auto' }}>
           <Button 
-            // key={courseId}
             type="primary" 
             ghost
             icon={<PlusCircleFilled />}
             style={{ marginRight: '5%' }}
             onClick={() => handleShowModal(courseId, courseTitle)}
           ></Button>
-          {/* <input defaultValue={courseId}></input> */}
           <Button 
             type="primary" 
             ghost
@@ -350,10 +331,8 @@ const StaffDashboardContent: React.FC = () => {
               setSelectedCourseId(courseId);
               fetchOptions(courseId);
             }}
-            // onClick={() => handleShowMarks(courseId)}
           ></Button>
           <Button 
-            // key={courseId}
             type="primary" 
             ghost
             icon={<EditOutlined />}
@@ -377,18 +356,16 @@ const StaffDashboardContent: React.FC = () => {
           closeIcon={<CloseOutlined />}
           footer={null}
           style={{ fontFamily: 'Comic Sans MS' }} 
-          // key={selectedCourseId}
         >
           Learning Content
           <Form style={{ margin: '2%' }}>
            <Form.Item style={{ textAlign: 'center' }}>
               <Button 
-                // key={selectedCourseId}
                 type="primary" 
                 ghost 
                 style={{ width: '110px', height: '90px', border: '1px solid #999999', margin: '3%', color: 'black' }}
                 onClick={() => {
-                  setShowModal(false); // 关闭表单的 Modal
+                  setShowModal(false);
                   setSelectedOption('text');
                   setSelectedCourseId(selectedCourseId);
                 }}
@@ -406,7 +383,7 @@ const StaffDashboardContent: React.FC = () => {
                 ghost 
                 style={{ width: '110px', height: '90px', border: '1px solid #999999', margin: '3%', color: 'black' }}
                 onClick={() => {
-                  setShowModal(false); // 关闭表单的 Modal
+                  setShowModal(false);
                   setSelectedOption('video');
                   setSelectedCourseId(selectedCourseId);
                 }}
@@ -419,12 +396,11 @@ const StaffDashboardContent: React.FC = () => {
                 </span>
               </Button>
               <Button 
-                // key={selectedCourseId}
                 type="primary" 
                 ghost 
                 style={{ width: '110px', height: '90px', border: '1px solid #999999', margin: '3%', color: 'black' }}
                 onClick={() => {
-                  setShowModal(false); // 关闭表单的 Modal
+                  setShowModal(false);
                   setSelectedOption('stream');
                   setSelectedCourseId(selectedCourseId);
                 }}
@@ -440,12 +416,11 @@ const StaffDashboardContent: React.FC = () => {
           <Form style={{ margin: '2%' }}>
             <Form.Item style={{ textAlign: 'center' }}>
               <Button 
-                // key={selectedCourseId}
                 type="primary" 
                 ghost 
                 style={{ width: '110px', height: '90px', border: '1px solid #999999', margin: '3%', color: 'black' }}
                 onClick={() => {
-                  setShowModal(false); // 关闭表单的 Modal
+                  setShowModal(false);
                   setSelectedOption('quiz');
                   setSelectedCourseId(selectedCourseId);
                 }}
@@ -456,12 +431,11 @@ const StaffDashboardContent: React.FC = () => {
                 <span style={{ fontSize: '8px', fontFamily: 'Comic Sans MS', fontWeight: 'normal' }} >Quiz</span>
               </Button>
               <Button 
-                // key={selectedCourseId}
                 type="primary" 
                 ghost 
                 style={{ width: '110px', height: '90px', border: '1px solid #999999', margin: '3%', color: 'black' }}
                 onClick={() => {
-                  setShowModal(false); // 关闭表单的 Modal
+                  setShowModal(false);
                   setSelectedOption('assignment');
                   setSelectedCourseId(selectedCourseId);
                 }}
@@ -505,7 +479,6 @@ const StaffDashboardContent: React.FC = () => {
                               }}
                     >
                       {/* Additional content for each collapsed menu */}
-                      {/* Place your additional content here */}
                       {renderAdditionalButton(course.courseId, course.title)}
                     </Panel>
                     )
@@ -586,14 +559,10 @@ const StaffDashboardContent: React.FC = () => {
           <Newcalendar />
         )}
         {selectedOption === 'close' && (
-          // 没有选择时的内容
+          // No content when selected
           <>
             <Layout style={{ minHeight: '100vh', backgroundColor: '#EFF1F6', textAlign: 'center' }}>
               <div style={{ textAlign: 'center', paddingTop: '20%', }}>
-                {/* <img 
-                  src={"../../../images/teacher.png"} 
-                  // style={{ width: '20%', height: 'auto', }} 
-                /> */}
                 <Image src={require("../../../images/teacher.png")} />
               </div>
               <Title className='nocourse-title' level={3} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', paddingTop: '5%' }}>
@@ -609,7 +578,7 @@ const StaffDashboardContent: React.FC = () => {
       </Layout>
     </Layout>
     <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999 }}>
-      {/* 隐藏按钮 */}
+      {/* Hide button */}
       <Button
         type="primary"
         icon={isSiderVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}

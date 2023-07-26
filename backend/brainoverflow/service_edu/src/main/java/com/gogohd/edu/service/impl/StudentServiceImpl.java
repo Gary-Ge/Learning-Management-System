@@ -15,10 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -374,43 +372,25 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 //        }
 //    }
 
-    private float calculateMark(Question question, char[] selectedOptions) {
-        float mark = 0;
-        boolean allCorrect = true;
+    private float calculateMark(Question question, String optionIds) {
+        List<String> list = Arrays.asList(optionIds.split(","));
+        Collections.sort(list);
+        optionIds = String.join(",", list);
 
-        int[] correctOptionIds = {question.getACorrect(), question.getBCorrect(), question.getCCorrect(),
+        StringBuilder sb = new StringBuilder();
+
+        int[] correctAnswers = new int[] {question.getACorrect(), question.getBCorrect(), question.getCCorrect(),
                 question.getDCorrect(), question.getECorrect(), question.getFCorrect()};
-        List<String> correctOptions = new ArrayList<>();
 
-        for (int i = 0; i < correctOptionIds.length; i++) {
-            if (correctOptionIds[i] == 1) {
-                char option = (char) ('A' + i);
-                correctOptions.add(String.valueOf(option));
+        for (int i = 0; i < 6; i++) {
+            char correct = (char) ('a' + i);
+            if (correctAnswers[i] == 1) {
+                if (sb.length() == 0) sb.append(correct);
+                else sb.append(',').append(correct);
             }
         }
 
-        for (char selectedOption : selectedOptions) {
-            String selectedOptionLowerCase = String.valueOf(selectedOption).trim().toLowerCase();
-            boolean isCorrect = false;
-
-            for (String correctOption : correctOptions) {
-                if (correctOption != null && correctOption.equalsIgnoreCase(selectedOptionLowerCase)) {
-                    isCorrect = true;
-                    break;
-                }
-            }
-
-            if (!isCorrect) {
-                allCorrect = false;
-                break;
-            }
-        }
-
-        if (allCorrect) {
-            mark = question.getMark();
-        }
-
-        return mark;
+        return optionIds.contentEquals(sb) ? question.getMark() : 0;
     }
 
     @Override
@@ -448,7 +428,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // Based on the question type, set the appropriate data
         if (question.getType() == 0 || question.getType() == 1) {
-            if (optionIds != "") {
+            if (!Objects.equals(optionIds, "")) {
                 answer.setOptionIds(optionIds);
             } else {
                 throw new BrainException(ResultCode.ERROR, "Input answer in incorrect question type");
@@ -456,7 +436,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             answer.setContent(null); // Clear content
         } else if (question.getType() == 2) {
             answer.setOptionIds(null); // Clear optionIds
-            if (content != ""){
+            if (!Objects.equals(content, "")){
                 answer.setContent(content);
             } else {
                 throw new BrainException(ResultCode.ERROR, "Input answer in incorrect question type");
@@ -467,9 +447,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         // Calculate the mark for the answer if the question type is multiple-choice
         if (question.getType() == 0 || question.getType() == 1) {
-            char[] selectedOptions = optionIds.toCharArray();
-            float mark = calculateMark(question, selectedOptions);
-            answer.setMark(mark);
+            answer.setMark(calculateMark(question, optionIds));
         }
 
         // Insert the answer record
@@ -550,4 +528,184 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         return dueDateList;
     }
+
+    @Override
+    public Object getMedalsByCourseId(String userId, String courseId) {
+        Map<String, Float> allMarks = new HashMap<>();
+
+        List<String> assMedals = new ArrayList<>();
+        List<String> assNames = new ArrayList<>();
+
+        AtomicReference<Float> totalMark = new AtomicReference<>(0f);
+
+        LambdaQueryWrapper<Assignment> assignmentWrapper = new LambdaQueryWrapper<>();
+        assignmentWrapper.eq(Assignment::getCourseId, courseId);
+        assignmentMapper.selectList(assignmentWrapper)
+                .forEach(assignment -> {
+                    Set<String> visited = new HashSet<>();
+                    Set<Float> marks = new HashSet<>();
+
+                    AtomicReference<Float> currentUserMark = new AtomicReference<>(0f);
+
+                    // Select all the submits of this assignment
+                    LambdaQueryWrapper<Submit> submitWrapper = new LambdaQueryWrapper<>();
+                    submitWrapper.eq(Submit::getAssignmentId, assignment.getAssignmentId());
+                    submitMapper.selectList(submitWrapper).stream()
+                            .filter(submit -> !visited.contains(submit.getSubmittedBy()))
+                            .forEach(submit -> {
+                                Float mark = submit.getMark() == null ? 0 : submit.getMark();
+                                String submittedBy = submit.getSubmittedBy();
+
+                                if (submittedBy.equals(userId)) {
+                                    currentUserMark.set(mark);
+                                }
+
+                                marks.add(mark);
+                                allMarks.put(submittedBy, allMarks.getOrDefault(submittedBy, 0f) + mark);
+
+                                visited.add(submittedBy);
+                            });
+
+                    List<Float> markList = new ArrayList<>(marks);
+                    markList.sort(Collections.reverseOrder());
+                    int rank = findRankInDescendingOrderList(markList, currentUserMark.get());
+                    totalMark.set(totalMark.get() + currentUserMark.get());
+
+                    if (rank == 1) {
+                        assMedals.add("gold");
+                        assNames.add(assignment.getTitle());
+                    } else if (rank == 2) {
+                        assMedals.add("silver");
+                        assNames.add(assignment.getTitle());
+                    } else if (rank == 3) {
+                        assMedals.add("copper");
+                        assNames.add(assignment.getTitle());
+                    }
+                });
+
+        List<String> quizMedals = new ArrayList<>();
+        List<String> quizNames = new ArrayList<>();
+
+        LambdaQueryWrapper<Quiz> quizWrapper = new LambdaQueryWrapper<>();
+        quizWrapper.eq(Quiz::getCourseId, courseId);
+        quizMapper.selectList(quizWrapper)
+                .forEach(quiz -> {
+                    Set<Float> marks = new HashSet<>();
+
+                    AtomicReference<Float> currentUserMark = new AtomicReference<>(0f);
+
+                    getMarkByQuizId(quiz.getQuizId()).forEach(map -> {
+                        Float mark = (Float) map.get("totalScore");
+                        String submittedBy = (String) map.get("userId");
+
+                        if (submittedBy.equals(userId)) {
+                            currentUserMark.set(mark);
+                        }
+
+                        marks.add(mark);
+                        allMarks.put(submittedBy, allMarks.getOrDefault(submittedBy, 0f) + mark);
+                    });
+
+                    List<Float> markList = new ArrayList<>(marks);
+                    markList.sort(Collections.reverseOrder());
+                    int rank = findRankInDescendingOrderList(markList, currentUserMark.get());
+                    totalMark.set(totalMark.get() + currentUserMark.get());
+
+                    if (rank == 1) {
+                        quizMedals.add("gold");
+                        quizNames.add(quiz.getTitle());
+                    } else if (rank == 2) {
+                        quizMedals.add("silver");
+                        quizNames.add(quiz.getTitle());
+                    } else if (rank == 3) {
+                        quizMedals.add("copper");
+                        quizNames.add(quiz.getTitle());
+                    }
+                });
+
+        Set<Float> totalMarkSet = new HashSet<>(allMarks.values());
+        List<Float> totalMarkList = new ArrayList<>(totalMarkSet);
+        totalMarkList.sort(Collections.reverseOrder());
+        int rank = findRankInDescendingOrderList(totalMarkList, totalMark.get());
+        List<String> totalMedals = new ArrayList<>();
+
+        Map<String, Object> totalResult = new HashMap<>();
+        totalResult.put("title", "All Grades");
+        if (rank == 1) {
+            totalMedals.add("gold");
+        } else if (rank == 2) {
+            totalMedals.add("silver");
+        } else if (rank == 3) {
+            totalMedals.add("copper");
+        }
+        totalResult.put("medals", totalMedals);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        result.add(totalResult);
+
+        Map<String, Object> assResult = new HashMap<>();
+        assResult.put("title", "Assignment");
+        assResult.put("medals", assMedals);
+        assResult.put("description", assNames);
+        result.add(assResult);
+
+        Map<String, Object> quizResult = new HashMap<>();
+        quizResult.put("title", "Quiz");
+        quizResult.put("medals", quizMedals);
+        quizResult.put("description", quizNames);
+        result.add(quizResult);
+
+        return result;
+    }
+
+    private int findRankInDescendingOrderList(List<Float> list, float target) {
+        int left = 0;
+        int right = list.size() - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            if (list.get(mid) < target) {
+                right = mid - 1;
+            } else if (list.get(mid) > target) {
+                left = mid + 1;
+            } else {
+                return mid + 1;
+            }
+        }
+        return right + 2;
+    }
+
+    private List<Map<String, Object>> getMarkByQuizId(String quizId) {
+        LambdaQueryWrapper<Question> questionWrapper = new LambdaQueryWrapper<>();
+        questionWrapper.eq(Question::getQuizId, quizId);
+        List<Question> questions = questionMapper.selectList(questionWrapper);
+
+        LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
+        answerWrapper.in(Answer::getQuestionId, questions.stream().map(Question::getQuestionId).collect(Collectors.toList()));
+        List<Answer> answers = answerMapper.selectList(answerWrapper);
+
+        Map<String, Float> studentScores = new HashMap<>();
+        for (Answer answer: answers) {
+            String studentId = answer.getUserId();
+            float studentScore = studentScores.getOrDefault(studentId, 0f);
+            studentScores.put(studentId, studentScore + (answer.getMark() == null ? 0 : answer.getMark()));
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : studentScores.entrySet()) {
+            String studentId = entry.getKey();
+            float totalScore = entry.getValue();
+
+            Map<String, Object> studentResult = new HashMap<>();
+            studentResult.put("userId", studentId);
+            studentResult.put("totalScore", totalScore);
+
+            result.add(studentResult);
+        }
+
+        return result;
+    }
+
 }

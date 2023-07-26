@@ -28,11 +28,11 @@ export default function LoginPage() {
 
   const handleSubmit = () => {
     if (!validNotNull(username)) {
-      alert('Please input a username')
+      message.error('Please input a username')
       return
     }
     if (!validEmail(email)) {
-      alert('Please input a valid email')
+      message.error('Please input a valid email')
       return
     } 
     const dto = new RegisterDTO(username,password,email);

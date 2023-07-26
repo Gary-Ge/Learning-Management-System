@@ -3,7 +3,6 @@ package com.gogohd.edu.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gogohd.edu.entity.Quiz;
 import com.gogohd.edu.entity.vo.CreateQuizVo;
-import com.gogohd.edu.entity.vo.UpdateQuestionVo;
 import com.gogohd.edu.entity.vo.UpdateQuizVo;
 
 import java.util.List;
