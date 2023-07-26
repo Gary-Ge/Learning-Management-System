@@ -52,17 +52,17 @@ const fun_list = [
 ];
 
 const course_outline = [{ outline_title: '', author: '', category: '', coverimg: '', time: '', courseid : '', outline_content: "",}];
-let materials_list = [
-  {
-    key: '0', title: '', time: '', content: "",
-    file_list: [], cover: '', type:''
-  },{
-    key: '1', title: '', time: '', content: "",
-    file_list: [], cover: '', type:''
-  },{
-    key: '2', title: '', time: '', content: "",
-    file_list: [], cover: '', type:''
-  },
+let materials_list:any = [
+  // {
+  //   key: '0', title: '', time: '', content: "",
+  //   file_list: [], cover: '', type:''
+  // },{
+  //   key: '1', title: '', time: '', content: "",
+  //   file_list: [], cover: '', type:''
+  // },{
+  //   key: '2', title: '', time: '', content: "",
+  //   file_list: [], cover: '', type:''
+  // },
 ];
 interface List {
   assFileId: string,
@@ -327,7 +327,7 @@ export default function StudentCoursePage() {
           cover: item.cover
         });
       });
-      materials_list.map(item => {
+      materials_list.map((item:any) => {
         if (item.type == 'Custom Video Section') {
           item.file_list.map((inneritem:any) => {
             if (inneritem.type == "Video") {
@@ -584,7 +584,7 @@ export default function StudentCoursePage() {
     if (e.target.id == '1') { // materials
       getallsections(current_course_id);
     }
-    if(e.target.id == '2'){ // assignment show
+    if(e.target.id == '2'){ // quiz show
       set_quiz_left_list_show(!quiz_left_list_show);
     } else {
       set_quiz_left_list_show(false);
@@ -594,7 +594,7 @@ export default function StudentCoursePage() {
     } else {
       set_ass_left_list_show(false);
     }
-    if(e.target.id == '4'){ // assignment show
+    if(e.target.id == '4'){ // stream show
       set_stream_left_list_show(!stream_left_list_show);
     } else {
       set_stream_left_list_show(false);
@@ -1139,7 +1139,7 @@ export default function StudentCoursePage() {
                   materialslist.length == 0 ? <div>there is no section now...</div> : ''
                 }
                 {
-                  materialslist.map(item => <div className='materials_wrap' key={item.key}>
+                  materialslist.map((item:any) => <div className='materials_wrap' key={item.key}>
                   <div className='materials_title'>{item.title}</div>
                   <div className='materials_time'>{item.time}</div>
                   <div className={item.cover == '' || item.cover == null ? 'display_non':'materials_img'}><img src={item.cover}/></div>

@@ -558,7 +558,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       dataIndex: 'avatar', 
       key: 'avatar',
       width: 200,
-      align: 'center',
+      // align: 'center',
       render: (record: any) => (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <img src={record} width={'30%'} />
@@ -606,9 +606,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     <Layout style={{ backgroundColor: '#EFF1F6', height: 'auto' }}>
       <Content
         style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', 
           padding: '30px', margin: '30px auto', borderRadius: '10px', background: '#FFFFFF',
-          maxWidth: '800px', width: '100%', height: 'auto',
+          maxWidth: '800px', width: '100%', minHeight:'100vh',
+          // justifyContent: 'center',
           // border: '1px solid red'
         }}
       >

@@ -38,6 +38,7 @@ import CourseLayoutEdit from '../../component/CourseLayoutEdit';
 import AssignmentEdit from '../../component/AssignmentEdit';
 import ShowMark from '../../component/ShowMark';
 import Newcalendar from './Calendar';
+import Chatbot from '../../component/chatbot';
 import { useHistory } from 'umi';
 import { getToken, HOST_STAFF, HOST_COURSE, HOST_ASSIGNMENT, HOST_QUIZ } from '../utils/utils'
 
@@ -80,6 +81,9 @@ const StaffDashboardContent: React.FC = () => {
 
   const handleAddCalendar = () => {
     setSelectedOption('calendar');
+  }
+  const handleAddChatbot = () => {
+    setSelectedOption('chatbot');
   }
 
   const fetchCourses = async () => {
@@ -494,7 +498,7 @@ const StaffDashboardContent: React.FC = () => {
             <div className='staff_btn_wrap'>
               <Button onClick={gotoforum} icon={<CommentOutlined />} type="primary" ghost className='fm flex_1 mrt5' ></Button>
               <Button onClick={handleAddCalendar} icon={<CalendarOutlined />} type="primary" ghost className='fm flex_1 mrt5'></Button>
-              <Button onClick={handleAddCalendar} icon={<RobotOutlined />} type="primary" ghost className='fm flex_1'></Button>
+              <Button onClick={handleAddChatbot} icon={<RobotOutlined />} type="primary" ghost className='fm flex_1'></Button>
             </div>
           </>
         ) : (
@@ -507,7 +511,7 @@ const StaffDashboardContent: React.FC = () => {
             </Button>
             <div  className='staff_btn_wrap'>
               <Button onClick={handleAddCalendar} icon={<CalendarOutlined />} type="primary" ghost className='fm flex_1'></Button>
-              <Button onClick={handleAddCalendar} icon={<RobotOutlined />} type="primary" ghost className='fm flex_1'></Button>
+              <Button onClick={handleAddChatbot} icon={<RobotOutlined />} type="primary" ghost className='fm flex_1'></Button>
             </div>
           </>
         )}
@@ -557,6 +561,9 @@ const StaffDashboardContent: React.FC = () => {
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />
+        )}
+        {selectedOption === 'chatbot' && (
+          <Chatbot />
         )}
         {selectedOption === 'close' && (
           // No content when selected

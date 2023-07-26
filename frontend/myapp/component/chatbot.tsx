@@ -15,7 +15,7 @@ let chat_list:any = [
 export default function chatbot() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
-    console.log('query', query, location.pathname);
+    // console.log('query', query, location.pathname);
     let pagetype = 'staff'
     if (location.pathname == '/viewstudentcourse' || location.pathname == '/studentcourse') {
         pagetype = 'student'
@@ -33,7 +33,7 @@ export default function chatbot() {
         settypevalue(event.target.value)
     }
     const submit = () => {
-        console.log(typevalue);
+        // console.log(typevalue);
         chat_list.push({
             type: 'user', message: typevalue,
         })
@@ -45,7 +45,7 @@ export default function chatbot() {
         setchatlist([...chat_list])
 
         setTimeout(() => {
-            console.log(chat_list);
+            // console.log(chat_list);
         
             let formData = {
                 message: typevalue
@@ -64,7 +64,7 @@ export default function chatbot() {
                     message.error(res.message)
                     return
                 }
-                console.log(res.data.response);
+                // console.log(res.data.response);
                 // chat_list.push({
                 //     type: 'chatbot', message: res.data.response
                 // })
@@ -111,7 +111,7 @@ export default function chatbot() {
     }
 
     return(
-        <div className='stu_right_content chatbotbigwrap'>
+        <div className='stu_right_content chatbotbigwrap fm'>
         <p className='chatbottitle'>Your Chatbot Service</p>
         <div className='gray6 chatbothint'>
             Tips: Type in the keyword <span className='chatbotkeyword' onClick={()=>{clickword('myinfo')}}>myinfo</span> to get information about your current users.
