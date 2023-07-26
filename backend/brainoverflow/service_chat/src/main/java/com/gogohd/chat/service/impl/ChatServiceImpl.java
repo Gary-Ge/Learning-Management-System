@@ -157,14 +157,14 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-        return "Your user information is:\nUsername: " + userInfo.get("username") +
-                "\nEmail Address: " + userInfo.get("email") + "\nYou created this account on: " +
+        return "Your user information is:<br/><br/>Username: " + userInfo.get("username") +
+                "<br/>Email Address: " + userInfo.get("email") + "<br/>You created this account on: " +
                 simpleDateFormat.format(userInfo.get("created_at"));
     }
 
     private String getDeadlines(String userId) {
         StringBuffer sb = new StringBuffer();
-        sb.append("The deadlines for each course you have enrolled in are:\n\n");
+        sb.append("The deadlines for each course you have enrolled in are:<br/><br/>");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -194,10 +194,10 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
 
         total.sort(Comparator.comparing((Map<String, Object> m) -> simpleDateFormat.format(m.get("end"))));
         total.forEach(item -> {
-            sb.append("Type: ").append(item.get("type")).append("\n");
-            sb.append("Course Name: ").append(item.get("course_title")).append("\n");
-            sb.append("Event Name: ").append(item.get("event_title")).append("\n");
-            sb.append("Deadline: ").append(simpleDateFormat.format(item.get("end"))).append("\n\n");
+            sb.append("Type: ").append(item.get("type")).append("<br/>");
+            sb.append("Course Name: ").append(item.get("course_title")).append("<br/>");
+            sb.append("Event Name: ").append(item.get("event_title")).append("<br/>");
+            sb.append("Deadline: ").append(simpleDateFormat.format(item.get("end"))).append("<br/><br/>");
         });
 
         return sb.toString();
@@ -205,7 +205,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
 
     private String getDeadlinesForStaff(String userId) {
         StringBuffer sb = new StringBuffer();
-        sb.append("The deadlines for each course you are teaching are:\n\n");
+        sb.append("The deadlines for each course you are teaching are:<br/><br/>");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -235,10 +235,10 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
 
         total.sort(Comparator.comparing((Map<String, Object> m) -> simpleDateFormat.format(m.get("end"))));
         total.forEach(item -> {
-            sb.append("Type: ").append(item.get("type")).append("\n");
-            sb.append("Course Name: ").append(item.get("course_title")).append("\n");
-            sb.append("Event Name: ").append(item.get("event_title")).append("\n");
-            sb.append("Deadline: ").append(simpleDateFormat.format(item.get("end"))).append("\n\n");
+            sb.append("Type: ").append(item.get("type")).append("<br/>");
+            sb.append("Course Name: ").append(item.get("course_title")).append("<br/>");
+            sb.append("Event Name: ").append(item.get("event_title")).append("<br/>");
+            sb.append("Deadline: ").append(simpleDateFormat.format(item.get("end"))).append("<br/><br/>");
         });
 
         return sb.toString();
@@ -246,7 +246,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
 
     private String getUpdate(String userId) {
         StringBuffer sb = new StringBuffer();
-        sb.append("The most recent updating for each course you have enrolled in are:\n\n");
+        sb.append("The most recent updating for each course you have enrolled in are:<br/><br/>");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -256,11 +256,11 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
                     Map<String, Object> section =
                             baseMapper.selectMostRecentSectionByCourseId((String) course.get("cid"));
                     if (section != null) {
-                        sb.append("Course Name: ").append(course.get("title")).append("\n");
-                        sb.append("Recently Updated Section: ").append(section.get("title")).append("\n");
+                        sb.append("Course Name: ").append(course.get("title")).append("<br/>");
+                        sb.append("Recently Updated Section: ").append(section.get("title")).append("<br/>");
                         sb.append("Updated At: ").append(simpleDateFormat.format(section.get("updated_at")))
-                                .append("\n");
-                        sb.append("Link: ").append(HOST).append(COURSE_URL).append(course.get("cid")).append("\n\n");
+                                .append("<br/>");
+                        sb.append("Link: ").append(HOST).append(COURSE_URL).append(course.get("cid")).append("<br/><br/>");
                         hasUpdate.set(true);
                     }
                 });
@@ -273,7 +273,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
     }
     private String getUpdateForStaff(String userId) {
         StringBuffer sb = new StringBuffer();
-        sb.append("The most recent updating for each course you are teaching are:\n\n");
+        sb.append("The most recent updating for each course you are teaching are:<br/><br/>");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -283,11 +283,11 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
                     Map<String, Object> section =
                             baseMapper.selectMostRecentSectionByCourseId((String) course.get("cid"));
                     if (section != null) {
-                        sb.append("Course Name: ").append(course.get("title")).append("\n");
-                        sb.append("Recently Updated Section: ").append(section.get("title")).append("\n");
+                        sb.append("Course Name: ").append(course.get("title")).append("<br/>");
+                        sb.append("Recently Updated Section: ").append(section.get("title")).append("<br/>");
                         sb.append("Updated At: ").append(simpleDateFormat.format(section.get("updated_at")))
-                                .append("\n");
-                        sb.append("Link: ").append(HOST).append(COURSE_URL).append(course.get("cid")).append("\n\n");
+                                .append("<br/>");
+                        sb.append("Link: ").append(HOST).append(COURSE_URL).append(course.get("cid")).append("<br/><br/>");
                         hasUpdate.set(true);
                     }
                 });
@@ -307,13 +307,13 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
         }
 
         StringBuffer sb = new StringBuffer();
-        sb.append("The courses related to \"").append(keyword).append("\" are:\n\n");
+        sb.append("The courses related to \"").append(keyword).append("\" are:<br/><br/>");
 
         courses.forEach(course -> {
-                    sb.append("Course Name: ").append(course.get("title")).append("\n");
-                    sb.append("Course Category: ").append(course.get("category_name")).append("\n");
-                    sb.append("Course Description: ").append(course.get("description")).append("\n");
-                    sb.append("Course Creator: ").append(course.get("username")).append("\n\n");
+                    sb.append("Course Name: ").append(course.get("title")).append("<br/>");
+                    sb.append("Course Category: ").append(course.get("category_name")).append("<br/>");
+                    sb.append("Course Description: ").append(course.get("description")).append("<br/>");
+                    sb.append("Course Creator: ").append(course.get("username")).append("<br/><br/>");
                 });
 
         return sb.toString();
