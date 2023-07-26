@@ -89,7 +89,6 @@ export default function Dashboard() {
     }
   }
   const onclicktab = (e:any) => {
-    console.log('tabs',e.target.id);
     tabs_list.map((item)=> {
       item.is_selected = false
     })
