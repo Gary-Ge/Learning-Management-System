@@ -36,9 +36,9 @@ export default function LoginPage() {
       return
     } 
     const dto = new RegisterDTO(username,password,email);
-    console.log(dto); 
-    console.log(dto.username); 
-    console.log(typeof dto.username); 
+    // console.log(dto); 
+    // console.log(dto.username); 
+    // console.log(typeof dto.username); 
     fetch(`${HOST}${REGISTER_URL}`, {
       method: 'POST',
       body: JSON.stringify(dto),

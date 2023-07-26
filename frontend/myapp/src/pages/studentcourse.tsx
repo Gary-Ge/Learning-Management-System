@@ -4,13 +4,14 @@ import StudentRank from "./studentrank";
 import { useState, useEffect } from "react";
 import Navbar from "../../component/navbar"
 import Footer from "../../component/footer"
+import Chatbot from "../../component/chatbot"
 import { Input, Button, Modal, message, Upload,Radio,Space,Checkbox,Form } from 'antd';
 import type { UploadProps } from 'antd';
 import { useLocation, useHistory } from 'umi';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import ReactPlayer from 'react-player';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE,
-  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT } from '../utils/utils';
+  COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE, HOST_ASSIGNMENT, HOST_STREAM_BASIC } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_2 from '../../../images/stu_icon_2.png';
 import stu_icon_3 from '../../../images/stu_icon_3.png';
@@ -27,13 +28,7 @@ import gototopicon from '../../../images/gototop.png';
 
 
 let data:any = [
-  // {
-  //   key: '0', title: '',is_selected: true, id: "111", isenroll: true
-  // },
 ];
-
-
-
 
 const fun_list = [
   {
@@ -47,7 +42,7 @@ const fun_list = [
   },
   {
     key: '3', title: 'Assignments', is_selected: false, img_link: stu_icon_6, 
-    ass_list:[{key: '0', id: '', title: 'ass1'},{key: '1', id: '', title: 'ass2'}]
+    ass_list:[{key: '0', id: '', title: ''},{key: '1', id: '', title: ''}]
   },
   {
     key: '4', title: 'Join Class', is_selected: false, img_link: stu_icon_2
@@ -56,20 +51,8 @@ const fun_list = [
     key: '5', title: 'Forums', is_selected: false, img_link: stu_icon_4
   },
 ];
-  // {
-  //   key: '1', title: 'Join Class', is_selected: false, img_link: stu_icon_2
-  // },
 
-  // {
-  //   key: '3', title: 'Forums', is_selected: false, img_link: stu_icon_4
-  // },
-
-const course_outline = [
-  { outline_title: '', author: '',
-  category: '', coverimg: '', time: '',
-  courseid : '',
-  outline_content: "",
-}];
+const course_outline = [{ outline_title: '', author: '', category: '', coverimg: '', time: '', courseid : '', outline_content: "",}];
 let materials_list = [
   {
     key: '0', title: '', time: '', content: "",
@@ -90,22 +73,21 @@ let quiz_list = [
   {
     key: '0',quizid:'',title:'',start: '',end: '',limitation:'',
     is_selected: false,
-	question_list: [
-  {
-    key: '0',questionid:'',title:'',type:0,cover:'',shortanswer:'',mark:0,
-    options: [
-      { id: 0, value: '' },
-      { id: 1, value: ''},
-      { id: 2, value: ''},
-      { id: 3, value: ''},
-      { id: 4, value: ''},
-      { id: 5, value: ''},
-    ],
+    question_list: [
+      {
+        key: '0',questionid:'',title:'',type:0,cover:'',shortanswer:'',mark:0,
+        options: [
+          { id: 0, value: '' },
+          { id: 1, value: ''},
+          { id: 2, value: ''},
+          { id: 3, value: ''},
+          { id: 4, value: ''},
+          { id: 5, value: ''},
+        ],
+      }
+    ]
   }
 ]
-  }
-]
-
 
 let assign_list = [
   {
@@ -124,7 +106,6 @@ let stream_list = [
 
 
 export default function StudentCoursePage() {
-  // const [isenrollflag, setisenrollflag] = useState(true);
   const token = getToken();
   const { Dragger } = Upload;
   const [fileList, setFileList] = useState<any[]>([]);
@@ -145,10 +126,9 @@ export default function StudentCoursePage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<null | number>(null);
   const [showStudentRank, setShowStudentRank] = useState(false);
+  const [showChatbot, setshowChatbot] = useState(false);
 
   const props = (key:number, id:string) => {
-    // console.log('++key', key);
-    // console.log('fileList', fileList);
     return {
       onRemove: (file:any) => {
         const index = fileList[key].indexOf(file);
@@ -326,26 +306,7 @@ export default function StudentCoursePage() {
       console.log(error.message);
     });
   };
-  // get video url
-  // const getvideourl = (resourceId:string, inneritem:any)=> {
-  //   fetch(`${HOST_RESOURCE}/video/${resourceId}`, {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/x-www-form-urlencoded",
-  //       "Authorization": `Bearer ${token}`
-  //     }
-  //   })
-  //   .then(res => res.json())
-  //   .then(res => {
-  //     if (res.code !== 20000) {
-  //       // throw new Error(res.message)
-  //       message.error(res.message);
-  //       return
-  //     }
-  //     console.log('video url:',res.data.auth.playURL);
-  //     inneritem.url = res.data.auth.playURL
-  //   });
-  // }
+
   // get all sections of a course
   const getallsections = (courseid:string) => {
     fetch(`${HOST_SECTION}/sections/${courseid}`, {
@@ -542,7 +503,7 @@ export default function StudentCoursePage() {
 
   // get all streams
   const getallstreams = (courseid:string, original_key: string) => {
-    fetch(`http://175.45.180.201:10900/service-stream/stream-basic/streams/${courseid}`, {
+    fetch(`${HOST_STREAM_BASIC}/streams/${courseid}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -597,6 +558,9 @@ export default function StudentCoursePage() {
       const w:any = window.open("about:blank");  
       w.location.href = res.data.fileUrl;
     })
+    .catch(error => {
+      message.error(error.message)
+    });
   }
 
   // click tabs title
@@ -634,6 +598,7 @@ export default function StudentCoursePage() {
     funlist[e.target.id].is_selected = true;
     setfunLists([...funlist]);
     setShowStudentRank(false)
+    setshowChatbot(false)
     // get current course id
     let current_course_id = ''
     datalist.map((item:any) => {
@@ -686,17 +651,13 @@ export default function StudentCoursePage() {
   }
   // download materials 1
   const downLoadMaterial = (e:any) => {
-    console.log('resourceid',e.target.id);
     getsourcelink(e.target.id);
   };
   // download assignment
   const downLoadAss = (e:any) => {
-    console.log('download',e.target.id);
     getassigndownloadlink(e.target.id);
   };
   const downLoaduploadedfile = (e:any) => {
-    console.log('download uploadedfile',e.target.id);
-    // todo
     getsubmitfile(e.target.id);
   }
   const getsubmitfile = (submitid:string) => {
@@ -710,13 +671,15 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        message.error(res.message)
-        return
+        throw new Error(res.message)
       }
       console.log('submiturl',res.data.fileUrl);
       const w:any = window.open("about:blank");  
       w.location.href = res.data.fileUrl;
     })
+    .catch(error => {
+      message.error(error.message)
+    });
   }
   // drop course 1
   const dropcourse = () => {
@@ -735,17 +698,17 @@ export default function StudentCoursePage() {
     .then(res => res.json())
     .then(res => {
       if (!res.success) {
-        message.error(res.message)
-        return
+        throw new Error(res.message)
       } else {
         getallcourse();
-        // getcourseinfo(courseid.toString(), true);
         setIsModalOpen(false);
       }
     })
+    .catch(error => {
+      message.error(error.message)
+    });
   }
   const showquizcontent = (e:any) => {
-    console.log('hh',e.target.id);
     quizlist.map(item => {
       item.is_selected = false;
     });
@@ -909,11 +872,12 @@ export default function StudentCoursePage() {
       // setmaterialLists([...materials_list]);
       // console.log('materialslist', materialslist);
     })
+    .catch(error => {
+      message.error(error.message)
+    });
   }
   const handleAnswerChange = (quizId:any, questionId:any, answer:any, questionType = 0) => {
-    // 定义选项字母映射
     const optionLetters = ['a', 'b', 'c', 'd'];
-  
     switch (questionType) {
       case 0: // 对于单选题
         setAnswers(prevAnswers => ({
@@ -1059,6 +1023,14 @@ export default function StudentCoursePage() {
     setfunLists(updatedFunList);
     setShowStudentRank(true);
   };
+  const toshowchatbot = () => {
+    const updatedFunList = fun_list.map((item) => {
+      return { ...item, is_selected: false };
+    });
+  
+    setfunLists(updatedFunList);
+    setshowChatbot(true)
+  }
 
   return (
     <div className='stu_wrap'>
@@ -1105,7 +1077,7 @@ export default function StudentCoursePage() {
           {
             funlist.length != 0 ?             
             <div className='stu_icon_last_list'>
-            <img src={stu_icon_7} className="stu_icon_list"/>
+            <img src={stu_icon_7} className="stu_icon_list" onClick={toshowchatbot}/>
             <img src={stu_icon_8} className="stu_icon_list" onClick={handleShowStudentRank}/>
             <img src={stu_icon_9} className="stu_icon_list" onClick={dropcourse}/>
             </div> : ''
@@ -1379,6 +1351,11 @@ export default function StudentCoursePage() {
                     <StudentRank />
                   </div>
                 )}
+              </div>
+              <div className={showChatbot ? '': 'display_non'}>
+                {
+                  showChatbot && <Chatbot/>
+                }
               </div>
             </div> : <div className='nocoursewrap'>You do not have any course, please enter 'Student Dashboard' to join courses.</div>
         }
