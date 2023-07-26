@@ -55,16 +55,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
         String messageUniform = message.toUpperCase();
 
         if (messageUniform.equals(INFO)) {
-            deleteContext(true, userId);
             return getMyInfo(userId);
         } else if (messageUniform.equals(DEADLINE) || messageUniform.equals(DEADLINES) || messageUniform.equals(DUE)) {
-            deleteContext(true, userId);
             return getDeadlines(userId);
         } else if (messageUniform.equals(UPDATE)) {
-            deleteContext(true, userId);
             return getUpdate(userId);
         } else if (messageUniform.startsWith(SEARCH)) {
-            deleteContext(true, userId);
             return searchCourses(userId, messageUniform.substring(6).trim());
         }
 
@@ -81,16 +77,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
         String messageUniform = message.toUpperCase();
 
         if (messageUniform.equals(INFO)) {
-            deleteContext(true, userId);
             return getMyInfo(userId);
         } else if (messageUniform.equals(DEADLINE) || messageUniform.equals(DEADLINES) || messageUniform.equals(DUE)) {
-            deleteContext(true, userId);
             return getDeadlinesForStaff(userId);
         } else if (messageUniform.equals(UPDATE)) {
-            deleteContext(true, userId);
             return getUpdateForStaff(userId);
         } else if (messageUniform.startsWith(SEARCH)) {
-            deleteContext(true, userId);
             return searchCourses(userId, messageUniform.substring(6).trim());
         }
 
