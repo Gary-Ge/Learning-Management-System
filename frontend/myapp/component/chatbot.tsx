@@ -33,6 +33,10 @@ export default function chatbot() {
         settypevalue(event.target.value)
     }
     const submit = () => {
+        if (typevalue == '' || typevalue == ' ') {
+            message.error('text input can not be empty!');
+            return
+        }
         // console.log(typevalue);
         chat_list.push({
             type: 'user', message: typevalue,
@@ -62,6 +66,10 @@ export default function chatbot() {
             .then(res => {
                 if (res.code !== 20000) {
                     message.error(res.message)
+                    if (res.message == 'The message is empty') {
+                        chat_list[chat_list.length - 1].message = 'The message is empty'
+                        setchatlist([...chat_list])
+                    }
                     return
                 }
                 // console.log(res.data.response);
