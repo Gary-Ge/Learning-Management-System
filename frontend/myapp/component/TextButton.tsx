@@ -90,8 +90,8 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
   return (
     <Layout style={{ backgroundColor: 'white' }}>
       {(sections||[]).map((section) => (
-        <>
         <div key={`tid_${section.sectionId}`}>
+        <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
             <Button
               key={section.sectionId}
@@ -122,8 +122,8 @@ const TextButton: React.FC<{ courseId: string; onSingleSectionChange: (sectionDa
               }} 
             />
           </div>
-        </div>
         </>
+        </div>
       ))}
     </Layout>
   );

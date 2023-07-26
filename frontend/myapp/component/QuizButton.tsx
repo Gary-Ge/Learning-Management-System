@@ -90,6 +90,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
   return (
     <Layout style={{ backgroundColor: 'white' }}>
       {(sections||[]).map((section) => (
+        <div key={section.quizId}>
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
           <Button
@@ -123,6 +124,7 @@ const QuizButton: React.FC<{ courseId: string; onSingleQuizSectionChange: (secti
           />
         </div>
         </>
+      </div>
       ))}
     </Layout>
   );

@@ -120,12 +120,11 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
   const handleLinkButtonMouseLeave = () => {
     setActiveLinkButton(null);
   };
-  
   return (
     <Layout style={{ backgroundColor: 'white' }}>
       {(streams||[]).map((stream) => (
-        <>
         <div key={`strid_${stream.streamId}`}>
+        <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
             <Button
               key={stream.streamId}
@@ -179,8 +178,8 @@ const StreamButton: React.FC<{ courseId: string; onSingleStreamChange: (StreamDa
             </span>
             <span style={{ flex: '1' }}></span>
           </Button>
-        </div>
         </>
+        </div>
       ))}
     </Layout>
   );

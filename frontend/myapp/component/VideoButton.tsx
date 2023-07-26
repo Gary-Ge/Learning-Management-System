@@ -88,11 +88,11 @@ const VideoButton: React.FC<{ courseId: string; onSingleVideoSectionChange: (sec
   return (
     <Layout style={{ backgroundColor: 'white' }}>
       {(sections||[]).map((section) => (
+        <div key={section.sectionId}>
         <>
-        <div key={`vid_${section.sectionId}`}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
             <Button
-              key={section.sectionId}
+              key={section.sectionid}
               onClick={() => handleButtonClick(section.sectionId)}
               onMouseEnter={() => handleButtonMouseEnter(section.sectionId)}
               onMouseLeave={handleButtonMouseLeave}
@@ -120,8 +120,8 @@ const VideoButton: React.FC<{ courseId: string; onSingleVideoSectionChange: (sec
               }} 
             />
           </div>
-        </div>
         </>
+        </div>
       ))}
     </Layout>
   );
