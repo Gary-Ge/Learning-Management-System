@@ -171,7 +171,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
                   Video Source
                 </Text>
               }
-              name="video source"
+              // name="video source"
             >
             </Form.Item>
             <Form.Item>
@@ -184,7 +184,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
                 Description
               </Text>
             }
-            name="description"
+            // name="description"
             rules={[
               { required: true, message: 'Please input the video description!' },
             ]}
