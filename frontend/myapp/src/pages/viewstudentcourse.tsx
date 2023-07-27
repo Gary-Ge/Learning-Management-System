@@ -1,30 +1,16 @@
 import'./studentcourse.less';
 import { useState, useEffect } from "react";
-import Navbar from "../../component/navbar"
-import Footer from "../../component/footer"
-import { Button, Modal, message } from 'antd';
+import Navbar from "../../component/navbar";
+import Footer from "../../component/footer";
+import Chatbot from "../../component/chatbot";
+import { Button, Modal, message, Input } from 'antd';
 import { useLocation, useHistory } from 'umi';
 import { HOST_STUDENT,COURSE_URL,getToken, HOST_COURSE, COURSE_DETAIL_URL,HOST_SECTION, HOST_RESOURCE } from '../utils/utils';
 import stu_icon_1 from '../../../images/stu_icon_1.png';
 import stu_icon_7 from '../../../images/stu_icon_7.png';
+import gototopicon from '../../../images/gototop.png';
 
-let data:any = [
-  // {
-  //   key: '0', title: '',is_selected: true, id: "", isenroll: true
-  // },
-];
-
-const fun_list:any = [
-  // {
-  //   key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
-  // },
-  // {
-  //   key: '1', title: 'Materials', is_selected: false, img_link: stu_icon_3
-  // },
-  // {
-  //   key: '2', title: 'Assignments', is_selected: false, img_link: stu_icon_6
-  // },
-];
+let data:any = [];
 
 const course_outline = [
   { outline_title: '', author: '',
@@ -34,8 +20,14 @@ const course_outline = [
 }];
 
 export default function IndexPage() {
+  let fun_list:any = [{
+    key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
+  },{
+    key: '1', title: 'Chatbot', is_selected: false, img_link: stu_icon_7
+  }]
+  const { TextArea } = Input;
   const history = useHistory();
-  const [messageApi, contextHolder] = message.useMessage();
+  // const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isjoinModalOpen, setjoinIsModalOpen] = useState(false);
   const [viewbtnshow, setviewbtnshow] = useState(true);
@@ -117,12 +109,14 @@ export default function IndexPage() {
           isenroll: false
       }]);
       // tab content left list
-      setfunLists([{
-        key: '0', title: 'Outline', is_selected: true, img_link: stu_icon_1
-      },{
-        key: '1', title: 'Chatbot', is_selected: false, img_link: stu_icon_7
-      }
-      ]);
+      fun_list.map((item:any)=> {
+        item.is_selected = false
+        if (item.key == '0') {
+          item.is_selected = true
+        }
+      })
+      setfunLists([...fun_list]);
+      // todo clear chatbot content
     })
     .catch(error => {
       console.log(error.message);
@@ -174,14 +168,25 @@ export default function IndexPage() {
   };
 // chatbot message
   const info = (key:string) => {
-    if(key == '1'){
-      messageApi.info('This feature is still being developed in sprint 2 !');
-    }
+    // console.log(key);
+    // if(key == '1'){
+      fun_list.map((item:any)=> {
+        item.is_selected = false
+        if (item.key == key) {
+          item.is_selected = true
+        }
+      })
+      setfunLists([...fun_list]);
+      // messageApi.info('This feature is still being developed in sprint 2 !');
+    // }
   };
   
   const gotocoursepage = () => {
     history.push(`/studentcourse?courseid=${courseid}&title=`);
   }
+  const gototop = () => {
+    window.scrollTo(0, 0);
+}
 
   return (
     <div className='stu_wrap'>
@@ -200,7 +205,7 @@ export default function IndexPage() {
         {/* tab content left list */}
         <div className='stu_left_list'>
           {
-            funlist.map((item:any) => <div className={item.is_selected ? 'stu_active': ''} id={item.key} key={item.key} onClick={() => info(item.key)}>
+            funlist.map((item:any) => <div className={item.is_selected ? 'stu_active stu_left_list_title': 'stu_left_list_title'} id={item.key} key={item.key} onClick={() => info(item.key)}>
             <img src={item.img_link} className="stu_icon"/>{item.title}</div>)
           }
           {
@@ -209,7 +214,8 @@ export default function IndexPage() {
           
         </div>
         {/* tab content right content: outline */}
-        <div className='stu_right_content'>
+        {
+          funlist[0].is_selected ? <div className='stu_right_content'>
           <div className='outline_title'>Course Outline : {courseoutline[0].outline_title}</div>
           <div className='outline_img'><img src={courseoutline[0].coverimg}/></div>
           <div className='outline_title_second'>Course Teacher</div>
@@ -220,7 +226,12 @@ export default function IndexPage() {
           <div className='outline_content'>{courseoutline[0].time}</div>
           <div className='outline_title_second'>Course Summary</div>
           <div className='outline_content'>{courseoutline[0].outline_content}</div>
-        </div>
+        </div>:""
+        }
+        {
+          funlist[1].is_selected ? 
+          <Chatbot/> : ""
+        }
       </div>
       <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <p>The course is already registered, please go to the course page.</p>
@@ -228,8 +239,8 @@ export default function IndexPage() {
       <Modal open={isjoinModalOpen} onOk={joinhandleOk} onCancel={joinhandleCancel}>
         <p>Do you want to join the course?</p>
       </Modal>
+      <div><img src={gototopicon} className="gotopicon" onClick={gototop}/></div>
       <Footer />
-      {contextHolder}
     </div>
   );
 }

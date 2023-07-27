@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, message,Select,Radio, Tag, Checkbox  } from 'antd';
-import './StaffDashboardContent.less';
+import '../src/pages/StaffDashboardContent.less';
 import {
   HeartFilled,
   DeleteOutlined,
   PlusCircleOutlined,
 } from '@ant-design/icons';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import {getToken} from '../utils/utils'
-import { QuizDTO } from '../utils/entities';
-import Quiz from './Quiz';
+import {getToken,HOST_Question,HOST_Quiz} from '../src/utils/utils'
+import { QuizDTO } from '../src/utils/entities';
 import UploadImageButton from './UploadImageButton';
 
 const { Content, Footer } = Layout;
@@ -275,7 +273,7 @@ function transformQuestionData(question:any, index:number) {
 
 const handleButtonClick = () => {
   const newForm = {
-    id: forms.length + 1, // 生成一个新的唯一ID
+    id: forms.length + 1,
     options: [
       { id: 1, value: '', isCorrect: false },
       { id: 2, value: '', isCorrect: false },
@@ -297,7 +295,7 @@ const handleButtonClick = () => {
 const removeForm = (formId: number) => {
   // Check if forms array is defined
   if (!forms) {
-    console.error('Forms is undefined');
+    message.error('Forms is undefined');
     return;
   }
 
@@ -305,13 +303,12 @@ const removeForm = (formId: number) => {
 
   // Check if formToRemove is defined
   if (!formToRemove) {
-    console.error(`Form with id ${formId} not found.`);
+    message.error(`Form with id ${formId} not found.`);
     return;
   }
 
   if (formToRemove.questionId) {
-    console.log(formToRemove.questionId)
-    fetch(`/service-edu/edu-question/question/${formToRemove.questionId}`, {
+    fetch(`${HOST_Question}/question/${formToRemove.questionId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -337,7 +334,7 @@ const removeForm = (formId: number) => {
       setShowTotalMark(updatedForms.length > 0);
     })
     .catch(error => {
-      console.log("delete question",error)
+      message.error("delete question",error)
     })
   } else{
     const updatedForms = forms.filter((form) => form.id !== formId);
@@ -355,7 +352,6 @@ const removeForm = (formId: number) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    console.log(forms)
     setTitle(quiz.title);
     setStart(quiz.start);
     setEnd(quiz.end);
@@ -375,7 +371,7 @@ const removeForm = (formId: number) => {
       "quiz attempt time": quiz.limitation,
       ...Object.assign({}, ...formValues),
     })
-    fetch(`/service-edu/edu-question/questions/${quiz.quizId}`, {
+    fetch(`${HOST_Question}/questions/${quiz.quizId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -384,7 +380,6 @@ const removeForm = (formId: number) => {
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
       if (res.code !== 20000) {
         message.error(res.message)
         return
@@ -394,18 +389,16 @@ const removeForm = (formId: number) => {
         setForms(newFormsData);
         const total = newFormsData.reduce((sum:any, form:any) => sum + (form.mark || 0), 0);
         setTotalMarks(total);
-        //console.log(res.data.questions)
       }
     })
     .catch(error => {
-      console.log(error);
+      message.error(error.message);
     });
 }, [quiz]);
 
 
 
   const handleSubmit = () => {
-    // 处理提交逻辑
     for (const form of forms) {
     const requestData = {
       cover: form.cover,
@@ -427,7 +420,7 @@ const removeForm = (formId: number) => {
       fcorrect: form.options[5]?.isCorrect ? 1 : 0,
     }
     if (form.questionId){
-      fetch(`/service-edu/edu-question/question/${form.questionId}`, {
+      fetch(`${HOST_Question}/question/${form.questionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -443,11 +436,10 @@ const removeForm = (formId: number) => {
         }
       })
       .catch(error => {
-        console.log("update",error)
+        message.error(error.message)
       })
     }else {
-      console.log(quiz.courseId)
-      fetch(`/service-edu/edu-question/question/${quiz.courseId}/${quiz.quizId}`, {
+      fetch(`${HOST_Question}/question/${quiz.courseId}/${quiz.quizId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -468,13 +460,13 @@ const removeForm = (formId: number) => {
         });
       })
       .catch(error => {
-        console.log("create last question",error)
+        message.error(error.message)
       })
     }
   }
   const dto = new QuizDTO(title,start, end,limitation);
     const requestData = JSON.stringify(dto);
-    fetch(`/service-edu/edu-quiz/quiz/${quiz.quizId}`, {
+    fetch(`${HOST_Quiz}/quiz/${quiz.quizId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -484,7 +476,6 @@ const removeForm = (formId: number) => {
     })
     .then(res => res.json())
     .then(res => {
-      // console.log('res', res);
       if (res.code !== 20000) {
         message.error(res.message)
         return
@@ -495,7 +486,7 @@ const removeForm = (formId: number) => {
       }
     })
     .catch(error => {
-      console.log(error);
+      message.error(error.message);
     });
   };
   
@@ -514,7 +505,6 @@ const removeForm = (formId: number) => {
           width: '100%',
           margin: '30px auto',
           height: 'auto',
-          // border: '1px solid red'
         }}
       >
         <Title level={4} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'bold', }}>Edit Quiz</Title>

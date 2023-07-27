@@ -91,8 +91,8 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
   return (
     <Layout style={{ backgroundColor: 'white' }}>
       {(assignments||[]).map((assignment) => (
-        <>
         <div key={`btn_${assignment.assignmentId}`}>
+        <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
             <Button
               key={assignment.assignmentId}
@@ -123,8 +123,8 @@ const AssignmentButton: React.FC<{ courseId: string; onSingleAssignmentChange: (
               }} 
             />
           </div>
-        </div>
         </>
+        </div>
       ))}
     </Layout>
   );

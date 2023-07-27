@@ -13,7 +13,7 @@ import {
   DesktopOutlined,
   QuestionCircleOutlined,
   FilePdfOutlined,
-  EditOutlined,
+  EditOutlined,CommentOutlined,RobotOutlined,
   CalendarOutlined
 } from '@ant-design/icons';
 import './StaffDashboardContent.less';
@@ -23,21 +23,22 @@ import TextLesson from '../../component/TextLesson';
 import VideoLesson from '../../component/VideoLesson';
 import StreamLesson from '../../component/StreamLesson';
 import Assignment from '../../component/Assignment';
-import Quiz from './Quiz';
+import Quiz from '../../component/Quiz';
 import TextButton from '../../component/TextButton';
 import VideoButton from '../../component/VideoButton';
 import StreamButton from '../../component/StreamButton';
-import QuizButton from './QuizButton';
+import QuizButton from '../../component/QuizButton';
 import AssignmentButton from '../../component/AssignmentButton';
 import TextLessonEdit from '../../component/TextLessonEdit';
 import VideoLessonEdit from '../../component/VideoLessonEdit';
 import StreamLessonEdit from '../../component/StreamLessonEdit';
-import QuizEdit from './quizEdit';
+import QuizEdit from '../../component/quizEdit';
 import LinkBoard from '../../component/LinkBoard';
 import CourseLayoutEdit from '../../component/CourseLayoutEdit';
 import AssignmentEdit from '../../component/AssignmentEdit';
 import ShowMark from '../../component/ShowMark';
 import Newcalendar from './Calendar';
+import Chatbot from '../../component/chatbot';
 import { useHistory } from 'umi';
 import { getToken, HOST_STAFF, HOST_COURSE, HOST_ASSIGNMENT, HOST_QUIZ } from '../utils/utils'
 
@@ -48,19 +49,22 @@ const { Panel } = Collapse;
 const StaffDashboardContent: React.FC = () => {
   const token = getToken();
   const [isSiderVisible, setIsSiderVisible] = useState(true);
-  const [contentMarginLeft, setContentMarginLeft] = useState(isSiderVisible ? 200 : 0);
-  useEffect(() => {
-    setContentMarginLeft(isSiderVisible ? 200 : 0);
-  }, [isSiderVisible]);
-  
-  const [courseSubmitted, setCourseSubmitted] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('close');
+  const [contentMarginLeft, setContentMarginLeft] = useState(isSiderVisible ? 310 : 0);
 
+  // const [courseSubmitted, setCourseSubmitted] = useState(false);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [selectedOption, setSelectedOption] = useState('close');
   const [textChangeFlag, setTextChangeFlag] = useState(false);
   const [streamChangeFlag, setStreamChangeFlag] = useState(false);
   const [assignmentChangeFlag, setAssignmentChangeFlag] = useState(false);
   const [videoChangeFlag, setVideoChangeFlag] = useState(false);
   const [quizChangeFlag, setQuizChangeFlag] = useState(false);
+  const [markChangeFlag, setMarkChangeFlag] = useState(false);
+
+  useEffect(() => {
+    setContentMarginLeft(isSiderVisible ? 310 : 0);
+  }, [isSiderVisible]);
+
   
   const handleAddCourses = () => {
     setSelectedOption('course');
@@ -71,11 +75,15 @@ const StaffDashboardContent: React.FC = () => {
   const handleSubmitCourse = (courseId: string) => {
     fetchCourses();
     setSelectedOption('close');
-    setCourseSubmitted(true);
+    // setCourseSubmitted(true);
+    // console.log('courseSubmitted', courseId);
   };
-  const [courses, setCourses] = useState<any[]>([]);
+
   const handleAddCalendar = () => {
     setSelectedOption('calendar');
+  }
+  const handleAddChatbot = () => {
+    setSelectedOption('chatbot');
   }
 
   const fetchCourses = async () => {
@@ -90,18 +98,16 @@ const StaffDashboardContent: React.FC = () => {
 
       const data = await response.json();
       const fetchedCourses = data.data.courses;
-      setCourses(fetchedCourses);
+      setCourses([...fetchedCourses]);
     } catch (error:any) {
       message.error(error.message);
     }
   };
 
   useEffect(() => {
-    fetchCourses(); // Initially load chapter data
-    if (courses !== null) {
-      setCourseSubmitted(true);
-    }
+    fetchCourses();// initialisation: get all courses
   }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setIsSiderVisible(window.innerWidth > 768);
@@ -115,7 +121,6 @@ const StaffDashboardContent: React.FC = () => {
       window.removeEventListener('resize', handleResize);
     }
   }, []);
-  
   const [showModal, setShowModal] = useState(false);
   const [selectedCourseTitle, setSelectedCourseTitle] = useState('');
   const handleShowModal = (courseId: string, courseTitle: string) => {
@@ -453,27 +458,21 @@ const StaffDashboardContent: React.FC = () => {
   return (
     <>
     <Navbar />
-    <Layout className='staff-dashboard' style={{ backgroundColor: '#EFF1F6' }}>
+    <Layout className='staff-dashboard'>
       <Sider
-        className='left-sider'
-        style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
-          left: isSiderVisible ? 0 : -200,
-          top: 63,
-          backgroundColor: '#EFF1F6',
-          borderRight: '1px solid grey',
-          transition: 'left 0.3s',
-        }}
+      width="300"
+        className={isSiderVisible ? 'left-sider' : 'display_non'}
+        style={{top: 63,}}
       >
-        {courseSubmitted ? (
+        {/* NOT need to use courseSubmitted */}
+        { courses.length != 0 ? (
           <>
-            <div style={{ height: 'calc(100% - 31%)', overflow: 'auto', marginBottom: '15px' }}>
+            <div style={{ height: 'calc(100% - 160px)', overflow: 'auto', marginBottom: '15px' }}>
               <div style={{ textAlign: 'center', marginTop: '5%', marginBottom: '5%' }}>
                 <Collapse className="custom-collapse">
-                  {(courses || []).map((course) => (
-                    <Panel 
+                  {(courses || []).map((course) => {
+                    return (
+                      <Panel 
                       header={course.title} 
                       key={course.courseId} 
                       style={{ border: '1px solid #008CFF',
@@ -486,70 +485,33 @@ const StaffDashboardContent: React.FC = () => {
                       {/* Additional content for each collapsed menu */}
                       {renderAdditionalButton(course.courseId, course.title)}
                     </Panel>
-                  ))}
+                    )
+
+                  })}
                 </Collapse>
               </div>
             </div>
-            {/* The bottom two buttons */}
-            <div style={{ textAlign: 'center', marginBottom: '5%' }}>
-              <Button 
-                type="primary" 
-                style={{ width: '70%',  
-                        fontFamily: 'Comic Sans MS' 
-                      }}
-                onClick={gotoforum}
-              >
-                Forum
-              </Button>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <Button 
-                onClick={handleAddCourses} 
-                icon={<PlusCircleOutlined />} 
-                type="primary" 
-                ghost
-                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
-              >
-                Add Courses
-              </Button>
-            </div>
-            <div style={{ textAlign: 'center',marginTop:'10px' }}>
-              <Button 
-                onClick={handleAddCalendar} 
-                icon={<CalendarOutlined />} 
-                type="primary" 
-                ghost
-                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
-              >
-               Calendar
-              </Button>
+
+            <Button onClick={handleAddCourses} icon={<PlusCircleOutlined />} type="primary" className='staff_btn_addcourse'>
+              Add Courses
+            </Button>
+            <div className='staff_btn_wrap'>
+              <Button onClick={gotoforum} icon={<CommentOutlined />} type="primary" ghost className='fm flex_1 mrt5' ></Button>
+              <Button onClick={handleAddCalendar} icon={<CalendarOutlined />} type="primary" ghost className='fm flex_1 mrt5'></Button>
+              <Button onClick={handleAddChatbot} icon={<RobotOutlined />} type="primary" ghost className='fm flex_1'></Button>
             </div>
           </>
         ) : (
           <>
-            <Title className='left-title' level={5} style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', padding: 10, fontWeight: 'normal' }}>
+            <div className='left-title'>
               Create your courses
-            </Title>
-            <div className='button-div' style={{ textAlign: 'center' }}>
-              <Button
-                type="link"
-                onClick={handleAddCourses}
-                icon={<PlusCircleOutlined />}
-                style={{ color: '#0085FC', border: '1px solid #0085FC', textAlign: 'center', fontFamily: 'Comic Sans MS' }}
-              >
-                Add Courses
-              </Button>
             </div>
-            <div style={{ textAlign: 'center',marginTop:'10px' }}>
-              <Button 
-                onClick={handleAddCalendar} 
-                icon={<CalendarOutlined />} 
-                type="primary" 
-                ghost
-                style={{ fontFamily: 'Comic Sans MS', width: '80%' }} 
-              >
-               Calendar
-              </Button>
+            <Button onClick={handleAddCourses} icon={<PlusCircleOutlined />} type="primary" className='staff_btn_addcourse'>
+              Add Courses
+            </Button>
+            <div  className='staff_btn_wrap'>
+              <Button onClick={handleAddCalendar} icon={<CalendarOutlined />} type="primary" ghost className='fm flex_1'></Button>
+              <Button onClick={handleAddChatbot} icon={<RobotOutlined />} type="primary" ghost className='fm flex_1'></Button>
             </div>
           </>
         )}
@@ -599,6 +561,9 @@ const StaffDashboardContent: React.FC = () => {
         )}
         {selectedOption === 'calendar' && (
           <Newcalendar />
+        )}
+        {selectedOption === 'chatbot' && (
+          <Chatbot />
         )}
         {selectedOption === 'close' && (
           // No content when selected

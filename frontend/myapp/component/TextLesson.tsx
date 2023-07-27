@@ -165,7 +165,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
                 Description
               </Text>
             }
-            name="description"
+            // name="description"
             rules={[
               { required: true, message: 'Please input the text description!' },
             ]}
@@ -188,7 +188,7 @@ const TextLesson: React.FC<{ onCancel: () => void; onSubmit: (sectionId: string)
                 Materials
               </Text>
             }
-            name="materials"
+            // name="materials"
           >
           </Form.Item>
           <Form.Item>

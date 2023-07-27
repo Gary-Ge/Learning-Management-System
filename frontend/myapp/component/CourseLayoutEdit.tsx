@@ -93,7 +93,7 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
           <CourseUploadImageButton onImageUpload={handleImageUpload} url={course.cover}  />
         </div>
         <Form form={form} style={{ margin: '0 auto', maxWidth: '400px' }}>
-          <Form.Item 
+          <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS', color: 'black' }}>
                 Course Name
@@ -131,7 +131,6 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
                   Description
               </Text>
             }
-            name="description"
             rules={[
               { max: 1000, message: 'The course description must be less than 200 characters!' },
             ]}
@@ -149,10 +148,10 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
           <Form.Item
             label={
               <Text style={{ fontFamily: 'Comic Sans MS',color: 'black' }}>
-                  Create Forums?
+                  Create Forums
               </Text>
             }
-            name="createForums"
+            // name="createForums"
           >
             <Radio.Group value={course.hasForum} defaultValue={course.hasForum} onChange={(e) => setForum(e.target.value)}>
               <Radio value={true} style={{ fontSize: '15px', fontFamily: 'Comic Sans MS', color: 'black' }}>

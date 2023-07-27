@@ -89,7 +89,6 @@ export default function Dashboard() {
     }
   }
   const onclicktab = (e:any) => {
-    console.log('tabs',e.target.id);
     tabs_list.map((item)=> {
       item.is_selected = false
     })
@@ -114,7 +113,8 @@ export default function Dashboard() {
     .then(res => res.json())
     .then(res => {
       if (res.code !== 20000) {
-        throw new Error(res.message)
+        message.error(res.message)
+        return
       }
       setImageUrl(res.data.user.avatar);
       setEmail(res.data.user.email);
@@ -203,6 +203,9 @@ export default function Dashboard() {
           message.error(res.message);
           return
         }
+        const currentUrl = window.location.href;
+        console.log('Current URL:', currentUrl);
+        window.location.reload();
         message.success("User information updated successfully");
         handleModalClose();
       })

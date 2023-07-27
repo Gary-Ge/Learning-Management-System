@@ -28,8 +28,6 @@ export function ValidPassword (password:any) {
 export const HEADER = { 'Content-Type': 'application/json' }
 
 export const HOST = `/service-ucenter/ucenter`
-// export const HOST_STUDENT = '/service-edu/edu-student'
-// export const HOST_COURSE = '/service-edu/edu-course'
 export const REGISTER_URL = '/register'
 export const LOGIN_URL = '/login'
 export const CHANGEFILE_URL = '/user'
@@ -49,6 +47,7 @@ export const HOST_ASSIGNMENT = '/service-edu/edu-assignment'
 export const HOST_FORUM_CATEGORY = '/service-forum/forum-category'
 export const HOST_FORUM_POST = '/service-forum/forum-post'
 export const HOST_FORUM_REPLY = '/service-forum/forum-reply'
+export const HOST_CHAT = '/service-chat/chat-bot'
 export const HOST_QUIZ = '/service-edu/edu-quiz'
 export const HOST_STREAM_QUIZ = '/service-stream/stream-quiz'
 export const HOST_STREAM_CHAT = '/service-stream/stream-chat'

@@ -1,15 +1,16 @@
 import { defineConfig } from 'umi';
 
+const target = 'http://175.45.180.201:10900/';
+
 export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
   routes: [
     { path: '/', component: '@/pages/index' },
-    { path: '/staffcourse', component: '@/pages/StaffDashboardContent' },
-    // { path: '/staffcourse/:streamId', component: '@/pages/StaffDashboardContent' },
     { path: '/login', component: '@/pages/login' },
     { path: '/register', component: '@/pages/register' },
+    { path: '/staffcourse', component: '@/pages/StaffDashboardContent' },
     { path: '/studentcourse', component: '@/pages/studentcourse' },
     { path: '/viewstudentcourse', component: '@/pages/viewstudentcourse' },
     { path: '/forgetpassword', component: '@/pages/forgetpassword' },
@@ -20,20 +21,24 @@ export default defineConfig({
   fastRefresh: {},
   proxy: {
     '/service-ucenter': {
-      'target': 'http://175.45.180.201:10900/',// to do localhost:8000
+      'target': target,
       'changeOrigin': true,
     },
     '/service-edu': {
-      'target': 'http://175.45.180.201:10900/',// to do localhost:8000
+      'target': target,
       'changeOrigin': true,
     },
     '/service-forum': {
-      'target': 'http://175.45.180.201:10900/',// to do localhost:8000
+      'target': target,
       'changeOrigin': true,
     },
     '/service-stream': {
-      'target': 'http://175.45.180.201:10900/',// to do localhost:8000
+      'target': target,
       'changeOrigin': true,
-    },    
+    },
+    '/service-chat': {
+      'target': target,
+      'changeOrigin': true,
+    },
   },
 });

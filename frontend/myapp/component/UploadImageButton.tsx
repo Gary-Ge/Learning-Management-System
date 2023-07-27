@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Upload, message  } from 'antd';
-import './StaffDashboardContent.less';
-import {getToken} from '../utils/utils'
+import '../src/pages/StaffDashboardContent.less';
+import {getToken} from '../src/utils/utils'
 import {
   CameraOutlined,
   InstagramOutlined,
@@ -82,7 +82,7 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
           <img 
             src={uploadedImageUrl} 
             alt="Uploaded" 
-            style={{ width: '100%', height: '100%', maxWidth: '200px', maxHeight: '200px' }} 
+            style={{ width: '100%', height: '100%', maxWidth: '200px', maxHeight: '200px'}} 
           />
         </>
       );
@@ -131,7 +131,7 @@ const UploadImageButton: React.FC<UploadImageButtonProps> = ({ onImageUpload, ur
           width: '100%', 
           height: '100%', 
           borderStyle: 'dashed', 
-          border: '1px dashed #6C8EBF' 
+          border: '1px dashed #6C8EBF',
        }}
       >
         {renderButtonContent()}

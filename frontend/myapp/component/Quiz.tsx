@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, theme, Typography, Button, Form, Input, DatePicker, TimePicker, Select, Radio, Tag, Checkbox,message } from 'antd';
-import './StaffDashboardContent.less';
+import '../src/pages/StaffDashboardContent.less';
 import {
   HeartFilled,
   DeleteOutlined,
@@ -8,8 +8,8 @@ import {
 } from '@ant-design/icons';
 import 'react-quill/dist/quill.snow.css';
 import UploadImageButton from './UploadImageButton';
-import { QuizDTO } from '../utils/entities';
-import {  getToken, validNotNull } from '../utils/utils';
+import { QuizDTO } from '../src/utils/entities';
+import {  getToken, validNotNull,HOST_Quiz,HOST_Question} from '../src/utils/utils';
 import { useEffect } from 'react';
 
 const { Content, Footer } = Layout;
@@ -202,6 +202,7 @@ const handleOptionMCSelection = (formId: any, optionId: any) => {
   setForms(newForms);
 };
 const createNewQuiz = () => {
+  return new Promise((resolve, reject) => {
   if (!validNotNull(title)) {
     message.error('Please input a valid quiz title')
     return
@@ -218,11 +219,8 @@ const createNewQuiz = () => {
     message.error('Please input a valid quiz end')
     return
   }
-  console.log(token)
-  console.log(courseId)
   const dto = new QuizDTO(title, start,end,limitation);
-  console.log(dto)
-  fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
+  fetch(`${HOST_Quiz}/quiz/${courseId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -243,6 +241,7 @@ const createNewQuiz = () => {
    message.error(error.message)
     setQuizCreated(false);
   })
+});
 }
 const createQuiz = () => {
   if (!validNotNull(title)) {
@@ -261,11 +260,8 @@ const createQuiz = () => {
     message.error('Please input a valid quiz end')
     return
   }
-  console.log(token)
-  console.log(courseId)
   const dto = new QuizDTO(title, start,end,limitation);
-  console.log(dto)
-  fetch(`/service-edu/edu-quiz/quiz/${courseId}`, {
+  fetch(`${HOST_Quiz}/quiz/${courseId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -297,10 +293,9 @@ const createQuiz = () => {
   
   const addForm = () => {
     if (forms.length === 0) {
-      // 如果forms数组为空，则创建一个新的表单
-      const newFormId = Date.now(); // 为新表单生成一个唯一的ID
-      const newOptionId1 = Date.now(); // 为第一个新选项生成一个唯一的ID
-      const newOptionId2 = newOptionId1 + 1; // 为第二个新选项生成一个唯一的ID
+      const newFormId = Date.now(); 
+      const newOptionId1 = Date.now(); 
+      const newOptionId2 = newOptionId1 + 1; 
       setForms([
         {
           id: newFormId,
@@ -351,8 +346,7 @@ const createQuiz = () => {
       ecorrect: currentForm.options[4]?.isCorrect ? 1 : 0,
       fcorrect: currentForm.options[5]?.isCorrect ? 1 : 0,
     };
-    console.log(dto_question)
-    fetch(`/service-edu/edu-question/question/${courseId}/${quizId}`, {
+    fetch(`${HOST_Question}/question/${courseId}/${quizId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -364,6 +358,7 @@ const createQuiz = () => {
     .then(res => {
       if (res.code !== 20000) {
        message.error(res.message)
+       return
       }
       setForms(forms => {
         const newForms = [...forms];
@@ -379,7 +374,7 @@ const createQuiz = () => {
     shortAnswer:'' }]);
     })
     .catch(error => {
-      console.log("create question",error)
+      message.error(error.message)
     })
     }
     }
@@ -387,7 +382,7 @@ const createQuiz = () => {
 const removeForm = (formId: number) => {
   // Check if forms array is defined
   if (!forms) {
-    console.error('Forms is undefined');
+    message.error('Forms is undefined');
     return;
   }
 
@@ -395,13 +390,12 @@ const removeForm = (formId: number) => {
 
   // Check if formToRemove is defined
   if (!formToRemove) {
-    console.error(`Form with id ${formId} not found.`);
+    message.error(`Form with id ${formId} not found.`);
     return;
   }
 
   if (formToRemove.questionId) {
-    console.log(formToRemove.questionId)
-    fetch(`/service-edu/edu-question/question/${formToRemove.questionId}`, {
+    fetch(`${HOST_Question}/question/${formToRemove.questionId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -427,7 +421,7 @@ const removeForm = (formId: number) => {
       setShowTotalMark(updatedForms.length > 0);
     })
     .catch(error => {
-      console.log("delete question",error)
+     message.error(error.message)
     })
   } else{
     const updatedForms = forms.filter((form) => form.id !== formId);
@@ -497,17 +491,20 @@ const handleButtonClick = () => {
   const handleCancel = () => {
     onCancel(); // Call the onCancel function received from props
   };
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if (!quizCreated) {
-      // 创建测验并等待quizCreated状态更新为true
-      createNewQuiz();
+      try {
+      await createNewQuiz();
       onSubmit();
+    } catch (error) {
+      // handle error here
+    }
     } else {
     const formData = {
       options: [] as { value: string; isCorrect: boolean }[],
   };
   const optionsData: { value: string; isCorrect: boolean }[] = [];
-  const currentForm = forms[forms.length-1]; // 获取最后一个添加的问题
+  const currentForm = forms[forms.length-1]; 
   if (currentForm && currentForm.options) {
       currentForm.options.forEach((option) => {
         optionsData.push({
@@ -535,7 +532,7 @@ const handleButtonClick = () => {
         ecorrect: currentForm.options[4]?.isCorrect ? 1 : 0,
         fcorrect: currentForm.options[5]?.isCorrect ? 1 : 0,
       };
-      fetch(`/service-edu/edu-question/question/${courseId}/${quizId}`, {
+      fetch(`${HOST_Question}/question/${courseId}/${quizId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -556,10 +553,13 @@ const handleButtonClick = () => {
         });
       })
       .catch(error => {
-        console.log("create last question",error)
+        message.error(error.message)
       })
     }
     for (const form of forms) {
+      if (!form.questionId) {
+        continue;
+      }
       const dto_update = {
         cover: form.cover,
         content: form.questionTitle,
@@ -579,8 +579,7 @@ const handleButtonClick = () => {
         ecorrect: form.options[4]?.isCorrect ? 1 : 0,
         fcorrect: form.options[5]?.isCorrect ? 1 : 0,
       };
-      console.log(form.questionId)
-      fetch(`/service-edu/edu-question/question/${form.questionId}`, {
+      fetch(`${HOST_Question}/question/${form.questionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -591,23 +590,18 @@ const handleButtonClick = () => {
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          message.error(res.message)
+          //message.error(res.message)
           return
         }
       })
       .catch(error => {
-        console.log("update",error)
+       //error
       })
     }
     message.success('create quiz successfully')
     onSubmit();
   }
   };
-  useEffect(() => {
-    if (quizId) {
-      console.log(quizId);
-    }
-  }, [quizId]);
   return (
     <Layout style={{ backgroundColor: '#EFF1F6' }}>
       <Content 

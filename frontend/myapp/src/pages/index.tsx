@@ -23,29 +23,6 @@ const customizeRenderEmpty = () => (
     <p>Data Not Found</p>
   </div>
 );
-const StudentDashboardContent: React.FC = () => {
-
-  const userDataString = localStorage.getItem('userData');
-  const userDataName = userDataString ? JSON.parse(userDataString) : null;
-
-  return (
-    <div style={{ marginLeft: '110px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
-      <div>
-      {/*{userDataName ? (
-                <>
-                    Hi,
-                    <br />
-                    Welcome to our website ~~
-                </>
-            ) : (*/}
-                <>Hi,
-                <br />
-                Welcome to our website ~~</>
-            {/* )} */}
-      </div>
-    </div>
-  );
-};
 const data = [
   {
     title: 'Comp9900',
@@ -81,6 +58,29 @@ export default function IndexPage() {
   const gotoviewstudent = (id: string,title: string) => {
     history.push(`/viewstudentcourse?courseid=${id}&title=${title}`);
   }
+  
+  const StudentDashboardContent: React.FC = () => {
+
+    const userDataString = localStorage.getItem('userData');
+    const userDataName = userDataString ? JSON.parse(userDataString) : null;
+    return (
+      <div style={{ marginLeft: '110px',fontFamily: 'Comic Sans MS',fontSize:'20px',color: 'rgb(25,121,254)'}}>
+        <div>
+        {userDataName ? (
+                  <>
+                      Hi, {userDataName.username}
+                      <br />
+                      Welcome to our website ~~
+                  </>
+              ) : (
+                  <>Hi,
+                  <br />
+                  Welcome to our website ~~</>
+              )}
+        </div>
+      </div>
+    );
+  };
 
   const [customize, setCustomize] = useState(true);
   const [userData, setUserData] = useState({});
@@ -94,6 +94,7 @@ export default function IndexPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDate, setSelectedDate] = useState<string>(moment().format('YYYY-MM-DD'));
   const [allDue,setAllDue] = useState([])
+  
   const courses = courseDetails.map(detail => ({
     src: detail.course.cover,
     title: detail.course.title,
@@ -160,7 +161,6 @@ export default function IndexPage() {
         message.error(res.message);
         return
       }
-      console.log('calendar',res.data.courses);
       let get_all_due = res.data.courses
       let all_due:any = []
       get_all_due.AssignmentList.map((item:any)=> {
@@ -290,7 +290,6 @@ useEffect(() => {
 
 
 const onSearch = (value: string) => {
-  console.log('search', value);
   fetch(`${HOST_COURSE}${COURSE_URL}/${value}`, {
     method: "GET",
     headers: {
