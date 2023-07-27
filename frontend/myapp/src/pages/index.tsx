@@ -68,7 +68,7 @@ export default function IndexPage() {
         <div>
         {userDataName ? (
                   <>
-                      Hi,{/*{userDataName.username}*/}
+                      Hi, {userDataName.username}
                       <br />
                       Welcome to our website ~~
                   </>

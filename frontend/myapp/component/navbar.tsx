@@ -203,6 +203,9 @@ export default function Dashboard() {
           message.error(res.message);
           return
         }
+        const currentUrl = window.location.href;
+        console.log('Current URL:', currentUrl);
+        window.location.reload();
         message.success("User information updated successfully");
         handleModalClose();
       })
