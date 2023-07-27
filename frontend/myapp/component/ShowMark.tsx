@@ -573,13 +573,14 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     values.length = 0;
     onCancel(); // Call the onCancel function received from props
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Process commit logic
     const mes: any[] = [];
+    const promises: Promise<any>[] = [];
     for (const value of values || []) {
       const dto = new ShowMarkDTO(value.value);
       const requestData = JSON.stringify(dto);
-      fetch(value.url, {
+      const promise = fetch(value.url, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -590,32 +591,39 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
-          mes.push(1);
+          mes.push({'corr': 1});
           throw new Error(res.message)
         } else {
-          mes.push(0);
+          mes.push({'corr': 0});
         }
       })
       .catch(error => {
         message.error(error.message);
       });
+      promises.push(promise);
     }
-    let tf = -1;
-    for (const item of mes || []) {
-      if (item === 1) {
-        tf = 1;
-        break;
+    try {
+      await Promise.all(promises);
+      let tf = -1;
+      for (const item of mes || []) {
+        if (item.corr === 1) {
+          tf = 1;
+          break;
+        } else if (item.corr === 0) {
+          tf = 0;
+        }
       }
-      tf = 0;
+  
+      if (tf === 1) {
+        message.error('There is some wrong in here!');
+      } else if (tf === 0) {
+        message.success('Mark Successfully!');
+      }
+      values.length = 0;
+      onSubmit();
+    } catch (error) {
+      message.error(error);
     }
-    if (tf === 1) {
-      message.error('There is some wrong in here!');
-    } 
-    else if (tf === 0) {
-      message.success('Mark Successfully!');
-    }
-    values.length = 0;
-    onSubmit();
   };
 
   return (
