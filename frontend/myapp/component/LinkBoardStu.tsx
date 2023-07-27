@@ -10,7 +10,7 @@ import crown from '../../images/crown.png';
 import fail from '../../images/fail.png';
 import FlvJs from 'flv.js';
 import SockJsClient from 'react-stomp';
-import { getToken, HOST_STREAM, HOST_STREAM_CHAT, HOST_STREAM_QUIZ } from '../src/utils/utils'
+import { getToken, HOST_STREAM, HOST_STREAM_CHAT, HOST_STREAM_QUIZ,target_stream } from '../src/utils/utils'
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -229,7 +229,7 @@ const LinkBoardStu: React.FC<{ stream: any }> = ({ stream }) => {
   return (
     <>
     <SockJsClient
-      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
+      url={`${target_stream}/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
       topics={[`/topic/stream/${stream.streamId}`]}
       onMessage={(msg: any) => {
         if (msg.type === 0) {
