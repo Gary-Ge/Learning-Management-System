@@ -48,7 +48,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
   let cur_userId = JSON.parse(localStorage.getItem("userData")).userId;
   const fetchSubmitAssignments = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/submits`, {
+      const response = await fetch(`${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/submits`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -65,7 +65,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
           if (file.submitId !== '') {
             try {
               const response = await fetch(
-                `http://175.45.180.201:10900${HOST_ASSIGNMENT}/submit/${file.submitId}`,
+                `${HOST_ASSIGNMENT}/submit/${file.submitId}`,
                 {
                   method: 'GET',
                   headers: {

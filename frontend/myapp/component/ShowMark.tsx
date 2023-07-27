@@ -116,7 +116,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         const files: any[] = [];
         for (const file of student.files || []) {
           if (file.submitId !== '') {
-            fetch(`http://175.45.180.201:10900${HOST_ASSIGNMENT}/submit/${file.submitId}`, {
+            fetch(`${HOST_ASSIGNMENT}/submit/${file.submitId}`, {
               method: 'GET',
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -221,13 +221,13 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       key: 'grade',
       render: (record: any) => {
         const foundValue = (values || []).find((value: any) => {
-          return value.url === `http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`;
+          return value.url === `${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`;
         });
         if (foundValue) {
           return (
             <GradeInput
               mark={foundValue.value}
-              fetchUrl={`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`}
+              fetchUrl={`${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -235,7 +235,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           return (
             <GradeInput
               mark={record[0]}
-              fetchUrl={`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`}
+              fetchUrl={`${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -257,7 +257,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   const [submitQuizes, setSubmitQuizes] = useState<any[]>([]);
   const fetchSubmitQuizzes = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900${HOST_QUESTION}/quiz/${selectedQuizId}/answers`, {
+      const response = await fetch(`${HOST_QUESTION}/quiz/${selectedQuizId}/answers`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -276,7 +276,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   const [allQuestions, setAllQuestions] = useState<any[]>([]);
   const fetchAllQuestions = async () => {
     try {
-      const response = await fetch(`http://175.45.180.201:10900${HOST_QUESTION}/questions/${selectedQuizId}`, {
+      const response = await fetch(`${HOST_QUESTION}/questions/${selectedQuizId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -317,13 +317,13 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       key: 'grade', 
       render: (record: any) => {
         const foundValue = (values || []).find((value: any) => {
-          return value.url === `http://175.45.180.201:10900${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`;
+          return value.url === `${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`;
         });
         if (foundValue) {
           return (
             <GradeInput
               mark={foundValue.value}
-              fetchUrl={`http://175.45.180.201:10900${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`}
+              fetchUrl={`${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -331,7 +331,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           return (
             <GradeInput
               mark={record[0]}
-              fetchUrl={`http://175.45.180.201:10900${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`}
+              fetchUrl={`${HOST_QUESTION}/question/${selectedQuestionId}/mark/${record[1]}`}
               handleValue={handleValue}
             />
           );
@@ -432,7 +432,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     for (const quiz of quizes || []) {
       if (quiz.quizId !== '') {
         try {
-          const response = await fetch(`http://175.45.180.201:10900${HOST_QUESTION}/quiz/${quiz.quizId}/answers`, {
+          const response = await fetch(`${HOST_QUESTION}/quiz/${quiz.quizId}/answers`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -479,7 +479,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     for (const ass of assInfor || []) {
       if (ass.assignmentId !== '') {
         try {
-          const response = await fetch(`http://175.45.180.201:10900${HOST_ASSIGNMENT}/assignment/${ass.assignmentId}/submits`, {
+          const response = await fetch(`${HOST_ASSIGNMENT}/assignment/${ass.assignmentId}/submits`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -575,6 +575,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
   };
   const handleSubmit = () => {
     // Process commit logic
+    const mes: any[] = [];
     for (const value of values || []) {
       const dto = new ShowMarkDTO(value.value);
       const requestData = JSON.stringify(dto);
@@ -589,15 +590,31 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       .then(res => res.json())
       .then(res => {
         if (res.code !== 20000) {
+          mes.push(1);
           throw new Error(res.message)
+        } else {
+          mes.push(0);
         }
       })
       .catch(error => {
         message.error(error.message);
       });
     }
+    let tf = -1;
+    for (const item of mes || []) {
+      if (item === 1) {
+        tf = 1;
+        break;
+      }
+      tf = 0;
+    }
+    if (tf === 1) {
+      message.error('There is some wrong in here!');
+    } 
+    else if (tf === 0) {
+      message.success('Mark Successfully!');
+    }
     values.length = 0;
-    message.success('Mark Successfully!');
     onSubmit();
   };
 

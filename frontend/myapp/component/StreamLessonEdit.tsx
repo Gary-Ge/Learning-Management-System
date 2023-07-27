@@ -71,7 +71,6 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
   const [form] = Form.useForm();
 
   useEffect(() => {
-    console.log('stream', stream);
     setTitle(stream.title);
     setStart(stream.start);
     setEnd(stream.end);
