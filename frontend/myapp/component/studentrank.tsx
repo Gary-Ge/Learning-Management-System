@@ -11,7 +11,7 @@ import { getToken, HOST_ASSIGNMENT, HOST_QUESTION, HOST,HOST_STUDENT } from '../
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ quizes, course, assInfor }) => {
+const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:any }> = ({ quizes, course, assInfor, courseid }) => {
   const [open, setOpen] = useState(false);
   const data = [
       {
@@ -42,7 +42,6 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
       copper: copper
   };
   const query = new URLSearchParams(location.search);
-  let courseid: any = query.get('courseid');
   const [medal, setMedal] = useState<MedalItem[]>([]);
   const token = getToken();
   const [selectedType, setSelectedType] = useState('');
@@ -531,8 +530,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
                     <div style={{ display: 'flex',alignItems: 'center',justifyContent:'flex-start' }}>
                       {item.medals.map((medal, index) => (
                         <div key={index} style={{ marginRight: '20px' }}>
+                          <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center'}}>
                           <img src={medalImages[medal as MedalType]} alt="medal" style={{ width: '100px' }} />
-                          {item.description && <p style={{marginLeft: item.title === 'Quiz' ? '32px' : '10px'}}>{item.description[index]}</p>}
+                          {item.description && <p>{item.description[index]}</p>}
+                        </div>
                         </div>
                       ))}
                     </div>
