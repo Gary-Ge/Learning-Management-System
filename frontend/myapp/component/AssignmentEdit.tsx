@@ -281,7 +281,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
                 Description
               </Text>
             }
-            name="description"
+            //name="description"
           >
           </Form.Item>
           <Form.Item>
