@@ -146,10 +146,6 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
                   Description
               </Text>
             }
-<<<<<<< HEAD
-=======
-            //name="description"
->>>>>>> 22d4a86250e9482901bd3db827c4ad3bd260249e
             rules={[
               { required: true, message: 'Please input the course description!' },
               { max: 1000, message: 'The course description must be less than 200 characters!' },
