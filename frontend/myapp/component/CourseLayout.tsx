@@ -146,14 +146,15 @@ const CourseLayout: React.FC<{ onCancel: () => void; onSubmit: (courseId: string
                   Description
               </Text>
             }
-            name="description"
             rules={[
               { required: true, message: 'Please input the course description!' },
               { max: 1000, message: 'The course description must be less than 200 characters!' },
             ]}
           >
           </Form.Item>
-          <Form.Item>
+          <Form.Item
+            name="description"
+          >
             <Input.TextArea 
               placeholder="You can input many words here..."
               rows={4} 

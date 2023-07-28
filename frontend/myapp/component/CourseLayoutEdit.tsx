@@ -151,7 +151,6 @@ const CourseLayoutEdit: React.FC<{ onCancel: () => void; onSubmit: (courseId: st
                   Create Forums
               </Text>
             }
-            // name="createForums"
           >
             <Radio.Group value={course.hasForum} defaultValue={course.hasForum} onChange={(e) => setForum(e.target.value)}>
               <Radio value={true} style={{ fontSize: '15px', fontFamily: 'Comic Sans MS', color: 'black' }}>

@@ -685,7 +685,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
             Course Name: {stream.title}
           </Text>
           <Modal
-            visible={showPushUrlModal}
+            open={showPushUrlModal}
             onCancel={() => setShowPushUrlModal(false)}
             onOk={handleStartPush}
             okText="Start Push"

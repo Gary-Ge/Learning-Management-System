@@ -1372,11 +1372,11 @@ export default function StudentCoursePage() {
                 }
                 {isStreamOpen && 
                   streamlist.map(_item =>
-                    <>
                     <div key={_item.key} id={_item.streamId} className={_item.is_selected ? '' : 'display_non'}>
+                      <>
                       <LinkBoardStu stream={_item}/>
+                      </>
                     </div>
-                    </>
                   )
                 }
               </div>

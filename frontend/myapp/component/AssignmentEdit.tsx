@@ -281,7 +281,6 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
                 Description
               </Text>
             }
-            name="description"
           >
           </Form.Item>
           <Form.Item>
@@ -296,6 +295,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
           </Form.Item>
           <Form.Item>
           {assignmentInfor.assFiles.map((assFile: any) => (
+              <div key={assFile.assFileId}>
               <>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                 <Button
@@ -323,6 +323,7 @@ const AssignmentEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; ass
                 />
               </div>
               </>
+              </div>
             ))}
             <FileUploader onFileListChange={handleFileListChange} />
           </Form.Item>

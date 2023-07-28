@@ -595,87 +595,103 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
             {selectedAssignmentId !== '' && 
               <>
               <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '10px 200px 0 200px', marginBottom: '10px' }}>
-                {dataAssignmentRank[1] && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px' }}>
-                      <Badge.Ribbon text="2st" placement="start" color='silver'>
-                        <Content
-                          style={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                            width: '100%', height: 'auto',
-                            border: '1px solid black'
-                          }}
-                        >
-                          <img src={dataAssignmentRank[1].avatar} width={'40%'}/>
-                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                              {dataAssignmentRank[1].name.length > 6 ? dataAssignmentRank[1].name.substring(0, 3) + '...' : dataAssignmentRank[1].name}
-                            </span>
-                          </Text>
-                          <div>
+              
+              <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <img src={crown} width={'10%'}/>
+                </div>
+
+                <div style={{ flex: 1, display: 'flex' }}>
+                    
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                    {dataAssignmentRank[1] && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                        <Badge.Ribbon text="2st" placement="start" color='silver'>
+                          <Content
+                            style={{
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                              width: '200px', height: '120px',
+                              border: '1px solid black'
+                            }}
+                          >
+                            <img src={dataAssignmentRank[1].avatar} width={'40%'}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              {dataAssignmentRank[1].grade}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                                {dataAssignmentRank[1].name.length > 6 ? dataAssignmentRank[1].name.substring(0, 3) + '...' : dataAssignmentRank[1].name}
+                              </span>
                             </Text>
-                          </div>
-                        </Content>
-                      </Badge.Ribbon>
-                    </div>
-                )}
-                {dataAssignmentRank[0] && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px' }}>
-                      <img src={crown} width={'30%'}/>
-                      <Badge.Ribbon text="1st" placement="start" color='red'>
-                        <Content
-                          style={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            padding: '10px', borderRadius: '10px', background: '#FFFFFF',
-                            width: '100%', height: 'auto',
-                            border: '1px solid black'
-                          }}
-                        >
-                          <img src={dataAssignmentRank[0].avatar} width={'40%'}/>
-                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                              {dataAssignmentRank[0].name.length > 6 ? dataAssignmentRank[0].name.substring(0, 3) + '...' : dataAssignmentRank[0].name}
-                            </span>
-                          </Text>
-                          <div>
+                            <div>
+                              <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                                {dataAssignmentRank[1].grade}
+                              </Text>
+                            </div>
+                          </Content>
+                        </Badge.Ribbon>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {dataAssignmentRank[0] && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px', marginLeft: '10px' }}>
+                        <Badge.Ribbon text="1st" placement="start" color='red'>
+                          <Content
+                            style={{
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                              width: '200px', height: '120px',
+                              border: '1px solid black'
+                            }}
+                          >
+                            <img src={dataAssignmentRank[0].avatar} width={'40%'}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              {dataAssignmentRank[0].grade}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                                {dataAssignmentRank[0].name.length > 6 ? dataAssignmentRank[0].name.substring(0, 3) + '...' : dataAssignmentRank[0].name}
+                              </span>
                             </Text>
-                          </div>
-                        </Content>
-                      </Badge.Ribbon>
-                    </div>                  
-                )}
-                {dataAssignmentRank[2] && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                      <Badge.Ribbon text="3st" placement="start" color='orange'>
-                        <Content
-                          style={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                            width: '100%', height: 'auto',
-                            border: '1px solid black'
-                          }}
-                        >
-                          <img src={dataAssignmentRank[2].avatar} width={'40%'}/>
-                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                              {dataAssignmentRank[2].name.length > 6 ? dataAssignmentRank[2].name.substring(0, 3) + '...' : dataAssignmentRank[2].name}
-                            </span>
-                          </Text>
-                          <div>
+                            <div>
+                              <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                                {dataAssignmentRank[0].grade}
+                              </Text>
+                            </div>
+                          </Content>
+                        </Badge.Ribbon>
+                      </div>                  
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    {dataAssignmentRank[2] && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                        <Badge.Ribbon text="3st" placement="start" color='orange'>
+                          <Content
+                            style={{
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                              width: '200px', height: '120px',
+                              border: '1px solid black'
+                            }}
+                          >
+                            <img src={dataAssignmentRank[2].avatar} width={'40%'}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              {dataAssignmentRank[2].grade}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                                {dataAssignmentRank[2].name.length > 6 ? dataAssignmentRank[2].name.substring(0, 3) + '...' : dataAssignmentRank[2].name}
+                              </span>
                             </Text>
-                          </div>
-                        </Content>
-                      </Badge.Ribbon>
-                    </div>
-                )}
+                            <div>
+                              <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                                {dataAssignmentRank[2].grade}
+                              </Text>
+                            </div>
+                          </Content>
+                        </Badge.Ribbon>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
+
               <div style={{ overflowX: 'auto', width: '100%' }}>
                 <Table 
                   style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
@@ -699,6 +715,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
                       <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Choose the following assignment submit files:</Text>
                     </Form.Item>
                     {(files || []).map((file: any) => (
+                      <div key={file.file}>
                       <>
                         <div key={file.file} style={{ display: 'flex', marginBottom: '5px' }}>
                           <div style={{ flex: 1 }}>
@@ -713,6 +730,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
                           />
                         </div>
                       </>
+                      </div>
                     ))}
                   </Form>
                 </Modal>
@@ -800,87 +818,103 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
             {selectedQuestionId === 'all' &&
               <>
                 <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '10px 200px 0 200px', marginBottom: '10px' }}>
-                  {dataQuizRank[1] && (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px' }}>
-                        <Badge.Ribbon text="2st" placement="start" color='silver'>
-                          <Content
-                            style={{
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                              width: '100%', height: 'auto',
-                              border: '1px solid black'
-                            }}
-                          >
-                            <img src={dataQuizRank[1].avatar} width={'40%'}/>
-                            <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                {dataQuizRank[1].name.length > 6 ? dataQuizRank[1].name.substring(0, 3) + '...' : dataQuizRank[1].name}
-                              </span>
-                            </Text>
-                            <div>
+                
+                <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+                  <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <img src={crown} width={'10%'}/>
+                  </div>
+
+                  <div style={{ flex: 1, display: 'flex' }}>
+                    
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                      {dataQuizRank[1] && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                          <Badge.Ribbon text="2st" placement="start" color='silver'>
+                            <Content
+                              style={{
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                                width: '200px', height: '120px',
+                                border: '1px solid black'
+                              }}
+                            >
+                              <img src={dataQuizRank[1].avatar} width={'40%'}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                                {dataQuizRank[1].grade}
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                                  {dataQuizRank[1].name.length > 6 ? dataQuizRank[1].name.substring(0, 3) + '...' : dataQuizRank[1].name}
+                                </span>
                               </Text>
-                            </div>
-                          </Content>
-                        </Badge.Ribbon>
-                      </div>
-                  )}
-                  {dataQuizRank[0] && (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px' }}>
-                        <img src={crown} width={'30%'}/>
-                        <Badge.Ribbon text="1st" placement="start" color='red'>
-                          <Content
-                            style={{
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                              padding: '10px', borderRadius: '10px', background: '#FFFFFF',
-                              width: '100%', height: 'auto',
-                              border: '1px solid black'
-                            }}
-                          >
-                            <img src={dataQuizRank[0].avatar} width={'40%'}/>
-                            <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                {dataQuizRank[0].name.length > 6 ? dataQuizRank[0].name.substring(0, 3) + '...' : dataQuizRank[0].name}
-                              </span>
-                            </Text>
-                            <div>
+                              <div>
+                                <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                                  {dataQuizRank[1].grade}
+                                </Text>
+                              </div>
+                            </Content>
+                          </Badge.Ribbon>
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {dataQuizRank[0] && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px', marginLeft: '10px' }}>
+                          <Badge.Ribbon text="1st" placement="start" color='red'>
+                            <Content
+                              style={{
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                                width: '200px', height: '120px',
+                                border: '1px solid black'
+                              }}
+                            >
+                              <img src={dataQuizRank[0].avatar} width={'40%'}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                                {dataQuizRank[0].grade}
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                                  {dataQuizRank[0].name.length > 6 ? dataQuizRank[0].name.substring(0, 3) + '...' : dataQuizRank[0].name}
+                                </span>
                               </Text>
-                            </div>
-                          </Content>
-                        </Badge.Ribbon>
-                      </div>                  
-                  )}
-                  {dataQuizRank[2] && (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                        <Badge.Ribbon text="3st" placement="start" color='orange'>
-                          <Content
-                            style={{
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                              width: '100%', height: 'auto',
-                              border: '1px solid black'
-                            }}
-                          >
-                            <img src={dataQuizRank[2].avatar} width={'40%'}/>
-                            <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                {dataQuizRank[2].name.length > 6 ? dataQuizRank[2].name.substring(0, 3) + '...' : dataQuizRank[2].name}
-                              </span>
-                            </Text>
-                            <div>
+                              <div>
+                                <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                                  {dataQuizRank[0].grade}
+                                </Text>
+                              </div>
+                            </Content>
+                          </Badge.Ribbon>
+                        </div>                  
+                      )}
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                      {dataQuizRank[2] && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                          <Badge.Ribbon text="3st" placement="start" color='orange'>
+                            <Content
+                              style={{
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                                width: '200px', height: '120px',
+                                border: '1px solid black'
+                              }}
+                            >
+                              <img src={dataQuizRank[2].avatar} width={'40%'}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                                {dataQuizRank[2].grade}
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                                  {dataQuizRank[2].name.length > 6 ? dataQuizRank[2].name.substring(0, 3) + '...' : dataQuizRank[2].name}
+                                </span>
                               </Text>
-                            </div>
-                          </Content>
-                        </Badge.Ribbon>
-                      </div>
-                  )}
+                              <div>
+                                <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                                  {dataQuizRank[2].grade}
+                                </Text>
+                              </div>
+                            </Content>
+                          </Badge.Ribbon>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
                 <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Show a quiz total grade for student</Text>
                 <div style={{ overflowX: 'auto', width: '100%' }}>
                   <Table 
@@ -899,86 +933,101 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any }> = ({ qu
           <>
           <Form.Item>
             <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '10px 200px 0 200px', marginBottom: '10px' }}>
-              {firstSixData[1] && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px' }}>
-                  <Badge.Ribbon text="2st" placement="start" color='silver'>
-                    <Content
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                        width: '100%', height: 'auto',
-                        border: '1px solid black'
-                      }}
-                    >
-                      <img src={firstSixData[1].avatar} width={'40%'}/>
-                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                          {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
-                        </span>
-                      </Text>
-                      <div>
-                        <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                          {firstSixData[1].grade}
-                        </Text>
-                      </div>
-                    </Content>
-                  </Badge.Ribbon>
+            
+            <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <img src={crown} width={'10%'}/>
+              </div>
+
+              <div style={{ flex: 1, display: 'flex' }}>
+                
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                  {firstSixData[1] && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                      <Badge.Ribbon text="2st" placement="start" color='silver'>
+                        <Content
+                          style={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                            width: '200px', height: '120px',
+                            border: '1px solid black'
+                          }}
+                        >
+                          <img src={firstSixData[1].avatar} width={'40%'}/>
+                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                              {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
+                            </span>
+                          </Text>
+                          <div>
+                            <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                              {firstSixData[1].grade}
+                            </Text>
+                          </div>
+                        </Content>
+                      </Badge.Ribbon>
+                    </div>
+                  )}
                 </div>
-              )}
-              {firstSixData[0] && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px' }}>
-                  <img src={crown} width={'30%'}/>
-                  <Badge.Ribbon text="1st" placement="start" color='red'>
-                    <Content
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '10px', borderRadius: '10px', background: '#FFFFFF',
-                        width: '100%', height: 'auto',
-                        border: '1px solid black'
-                      }}
-                    >
-                      <img src={firstSixData[0].avatar} width={'40%'}/>
-                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                          {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
-                        </span>
-                      </Text>
-                      <div>
-                        <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                          {firstSixData[0].grade}
-                        </Text>
-                      </div>
-                    </Content>
-                  </Badge.Ribbon>
-                </div>                  
-              )}
-              {firstSixData[2] && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                  <Badge.Ribbon text="3st" placement="start" color='orange'>
-                    <Content
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                        width: '100%', height: 'auto',
-                        border: '1px solid black'
-                      }}
-                    >
-                      <img src={firstSixData[2].avatar} width={'40%'}/>
-                      <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                          {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
-                        </span>
-                      </Text>
-                      <div>
-                        <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                          {firstSixData[2].grade}
-                        </Text>
-                      </div>
-                    </Content>
-                  </Badge.Ribbon>
+
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {firstSixData[0] && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginRight: '10px', marginLeft: '10px' }}>
+                      <Badge.Ribbon text="1st" placement="start" color='red'>
+                        <Content
+                          style={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                            width: '200px', height: '120px',
+                            border: '1px solid black'
+                          }}
+                        >
+                          <img src={firstSixData[0].avatar} width={'40%'}/>
+                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                              {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
+                            </span>
+                          </Text>
+                          <div>
+                            <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                              {firstSixData[0].grade}
+                            </Text>
+                          </div>
+                        </Content>
+                      </Badge.Ribbon>
+                    </div>                  
+                  )}
                 </div>
-              )}
+
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  {firstSixData[2] && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                      <Badge.Ribbon text="3st" placement="start" color='orange'>
+                        <Content
+                          style={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
+                            width: '200px', height: '120px',
+                            border: '1px solid black'
+                          }}
+                        >
+                          <img src={firstSixData[2].avatar} width={'40%'}/>
+                          <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
+                              {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
+                            </span>
+                          </Text>
+                          <div>
+                            <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
+                              {firstSixData[2].grade}
+                            </Text>
+                          </div>
+                        </Content>
+                      </Badge.Ribbon>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </Form.Item>
           <Form.Item>

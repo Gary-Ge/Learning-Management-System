@@ -228,7 +228,6 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
                 Description
               </Text>
             }
-            name="description"
           >
           </Form.Item>
           <Form.Item>
@@ -247,7 +246,6 @@ const TextLessonEdit: React.FC<{ onCancel: () => void; onSubmit: (sectionId: str
                 Materials
               </Text>
             }
-            name="materials"
           >
           </Form.Item>
           <Form.Item>
