@@ -175,6 +175,10 @@ const StreamLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; s
                 Description
               </Text>
             }
+<<<<<<< HEAD
+=======
+            //name="description"
+>>>>>>> 22d4a86250e9482901bd3db827c4ad3bd260249e
           >
           </Form.Item>
           <Form.Item>

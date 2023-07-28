@@ -236,6 +236,10 @@ const Assignment: React.FC<{ onCancel: () => void; onSubmit: () => void; courseI
                 Description
               </Text>
             }
+<<<<<<< HEAD
+=======
+            //name="description"
+>>>>>>> 22d4a86250e9482901bd3db827c4ad3bd260249e
             rules={[
               { required: true, message: 'Please input the assignment description!' },
             ]}
