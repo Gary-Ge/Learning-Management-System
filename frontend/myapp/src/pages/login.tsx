@@ -51,7 +51,7 @@ export default function LoginPage() {
         return
       }
       saveToken(res.data.token)
-      history.push('/'); // redirect to login page, adjust as needed
+      history.push('/home'); // redirect to login page, adjust as needed
     })
     .catch(error => {
      message.error(error.message)
