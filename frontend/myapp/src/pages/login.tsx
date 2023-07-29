@@ -5,6 +5,7 @@ import { Link,useHistory } from 'umi';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { LoginDTO } from '../utils/entities';
 import { validEmail, validNotNull, HOST, LOGIN_URL, saveToken, HEADER } from '../utils/utils';
+import logo from '../../../images/logo_l.png';
 function clearToken() {
   localStorage.removeItem('token');
   localStorage.removeItem('userData');
@@ -63,7 +64,7 @@ export default function LoginPage() {
   return (
     <div className="body_login_register">
        <div className="icon-container">
-                <img src="/assert/logo_l.png" alt="icon" /> 
+                <img src={logo} alt="icon" /> 
             </div>
         <div className="container_login_register">
         <Form
