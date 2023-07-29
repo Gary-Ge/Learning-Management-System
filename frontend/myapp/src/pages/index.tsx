@@ -20,7 +20,7 @@ function checkToken() {
 const customizeRenderEmpty = () => (
   <div style={{ textAlign: 'center' }}>
     <SmileOutlined style={{ fontSize: 20 }} />
-    <p>Data Not Found</p>
+    <p>Not Due Now. Have Fun !</p>
   </div>
 );
 const { Search } = Input;
