@@ -33,7 +33,6 @@ let course_no_forums:{ value: string; label: string; courseid: string; category:
 let tag_list:{
     key: string; title: string, is_selected: boolean, color: string, id: string, label: string, value: string
 }[] = [];
-//     { key: '0', title: 'General', is_selected: true, color: 'Blue', id: '111'}
 
 let left_list:{key: string; id: string; title: string; is_selected: boolean; 
     color: string; tag:string; time: string; author: string}[] = []
@@ -140,11 +139,9 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-            //   throw new Error(res.message)
                 message.error(res.message)
                 return
             }
-            console.log('staff forums',res.data.courses);
             if (res.data.courses.length == 0) {
                 tab_list_data_new = []
                 message.info('There is no forum now.');
@@ -165,12 +162,13 @@ export default function teacherforums() {
                     is_selected: index == '0' ? true : false
                 })
             })
-            console.log('tab_list_data', tab_list_data_new);
             setdataLists([...tab_list_data_new]);
-            console.log('datalist', tab_list_data_new);
             getallcourse();
             getalltag_a_course(tab_list_data_new[0].id); // id means courseid
           })
+          .catch(error => {
+            message.error(error.message)
+          });
     }
     const getallcourse = () => {
         fetch(`${HOST_STAFF}/courses`, {
@@ -185,7 +183,6 @@ export default function teacherforums() {
             if (res.code !== 20000) {
                 throw new Error(res.message)
             }
-            console.log("get all courses",res.data.courses, tab_list_data_new);
             let getallcourse_data = res.data.courses
             if (getallcourse_data.length > tab_list_data_new.length) {
                 set_show_add_course(true);
@@ -209,11 +206,11 @@ export default function teacherforums() {
             })
             setcoursesnoforum([...course_no_forums]);
             set_select_course(course_no_forums[0]);
-            // console.log('setdefaultcourse', course_no_forums);
             setdefaultcourse(course_no_forums[0].value);
-            // console.log('coursesnoforum', course_no_forums, 
-            // 'defaultselectedcourse', course_no_forums[0].value);
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
       // click tabs title
     const onclickcourse = (idx:string, id:string) => {
@@ -222,7 +219,6 @@ export default function teacherforums() {
         });
         datalist[Number(idx)].is_selected = true;
         setdataLists([...datalist]);
-        console.log(id);
         getalltag_a_course(id); // id means courseid
         set_showcontentflag('0');
         setsearchValue('')
@@ -238,18 +234,16 @@ export default function teacherforums() {
         .then(res => res.json())
         .then(res => {
             if (res.code !== 20000) {
-                // throw new Error(res.message)
                 message.error(res.message);
                 return;
             }
-            console.log('category',res.data.categories);
             let categories = res.data.categories
             tag_list = []
             categories.map((item:any, index: string) => {
                 tag_list.push({
                     key: index, 
-                    title: item.name, 
-                    is_selected: false, // index == '0' ? true : false, 
+                    title: item.name,
+                    is_selected: false, 
                     color: item.color, 
                     id: item.categoryId,
                     label: item.name,
@@ -267,6 +261,9 @@ export default function teacherforums() {
             }
             
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
     // tag function: click tag(All)
     const onAllTagBtn = () => {
@@ -282,7 +279,6 @@ export default function teacherforums() {
                 current_course_id = item.id
             }
         });
-        console.log('current_course_id', current_course_id, tab_list_data_new);
         fetch(`${HOST_FORUM_POST}/posts/${current_course_id}`, {
             method: "GET",
             headers: {
@@ -293,11 +289,9 @@ export default function teacherforums() {
         .then(res => res.json())
         .then(res => {
             if (res.code !== 20000) {
-                // throw new Error(res.message)
                 message.error(res.message)
                 return
             }
-            console.log('get all post from all btn', res.data.posts)
             left_list = []
             let posts = res.data.posts
             posts.map((item:any, index: string) => {
@@ -321,11 +315,13 @@ export default function teacherforums() {
             }
            
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
     // tag function: click tag(other)
     const clicktag = (id: string) => {
         setisTagAll(false);
-        console.log('click tag id: ',id);
         tag_list.map(item => {
             item.is_selected = false
             if (item.id == id) {
@@ -333,7 +329,6 @@ export default function teacherforums() {
             }
         })
         settaglist([...tag_list]);
-        // get_a_tag_info(id); // show back to the tag edit
         // get current courseid
         let current_course_id = ''
         datalist.map((item:any) => { // current course id
@@ -342,30 +337,11 @@ export default function teacherforums() {
             }
         });
         getallposts(current_course_id, id);
-        // set_showcontentflag('0');
         setsearchValue('')
     }
 
-    // tag function: get a tag info
-    const get_a_tag_info = (tagid:string) => {
-        fetch(`${HOST_FORUM_CATEGORY}/category/${tagid}`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "Authorization": `Bearer ${token}`
-            }
-          })
-        .then(res => res.json())
-        .then(res => {
-            if (res.code !== 20000) {
-                throw new Error(res.message)
-            }
-            console.log('get a tag info', res.data.category);
-        })
-    }
     // tag function: create tag
     const createtag = () => {
-        console.log('inputTagName', inputTagName, 'tagcolor:', colorvalue);
         if (inputTagName == '' || inputTagName == ' ') {
             message.error('Name can not be empty!');
             return
@@ -376,7 +352,6 @@ export default function teacherforums() {
                 current_course_id = item.id
             }
         });
-        console.log('courseid', current_course_id);
         let formdata = { name: inputTagName, color: colorvalue}
         // fetch create a category
         fetch(`${HOST_FORUM_CATEGORY}/category/${current_course_id}`, {
@@ -399,6 +374,9 @@ export default function teacherforums() {
             set_tag_name('');
             getalltag_a_course(current_course_id); // id means courseid
         })
+        .catch(error => {
+            message.error(error.message)
+        });
 
     }
     const changetagname = (event:any) => {
@@ -424,14 +402,10 @@ export default function teacherforums() {
         setIsTagModalOpen(true);
     }
     const edittag = () => {
-        // fetch
         if (edit_tag_value == '' || inputTagName=='' || colorvalue =='') {
             message.error('All the value can not be empty!');
             return
         }
-        console.log(edit_tag_value);
-        console.log(inputTagName);
-        console.log(colorvalue);
         let formdata = {
             'name': inputTagName,
             'color': colorvalue
@@ -462,6 +436,9 @@ export default function teacherforums() {
             });
             getalltag_a_course(current_course_id); // id means courseid
           })
+          .catch(error => {
+            message.error(error.message)
+          });
     }
     // tag function: delete tag
     const deletetagmodelopen = () => {
@@ -469,7 +446,6 @@ export default function teacherforums() {
     }
     const deltag = () => {
         // delete tag
-        console.log('delete category id:', del_tag_value);
         fetch(`${HOST_FORUM_CATEGORY}/category/${del_tag_value}`, {
             method: "DELETE",
             headers: {
@@ -480,7 +456,6 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-            //   throw new Error(res.message)
               message.error(res.message);
             } else {
                 message.success(res.message);
@@ -495,6 +470,9 @@ export default function teacherforums() {
                 getalltag_a_course(current_course_id); // id means courseid
             }
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
     const DelTagModalCancel = () => {
         setDelTagModalOpen(false);
@@ -502,17 +480,13 @@ export default function teacherforums() {
     // create thread function: creat tag
     const create_change_tag = ({ target: {value} }: RadioChangeEvent) => {
         // value means tagid
-        console.log('checked', value);
-        // setcreate_thread_tag_id();
         setcreate_thread_tag_value(value);
     };
     // create thread content
     const createthreadcontent =  (value: string) => {
         set_create_thread_content(value);
-        console.log(create_thread_content);
     };
     const changeAuthorName = ({ target: { value } }: RadioChangeEvent) => {
-        console.log('radio1 checked', value);
         set_create_thread_author(value);
     };
     const showcreatethread = () => {
@@ -523,10 +497,6 @@ export default function teacherforums() {
     }
     // creat thread submit button ok
     const createThread = () => {
-        console.log('thread name: ', createthreadname);
-        console.log('tag id: ', create_thread_tag_value);
-        console.log('content: ', create_thread_content);
-        // console.log('author name: ', create_thread_author);
         let formdata = { categoryId: create_thread_tag_value, title: createthreadname, content: create_thread_content}
         // fetch create a thread
         let current_course_id = ''
@@ -546,7 +516,6 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-            //   throw new Error(res.message)
               message.error(res.message);
               return;
             }
@@ -555,11 +524,13 @@ export default function teacherforums() {
             // update post list
             getallposts(current_course_id, create_thread_tag_value);
             
-            // set_showcontentflag('0');// todo get current post info
             setCreateThreadName('');
             setcreate_thread_tag_value('');
             set_create_thread_content('');
             window.scrollTo(0, 0);
+          })
+          .catch(error => {
+            message.error(error.message)
           });
     }
     // left post get all posts of a course & category
@@ -576,7 +547,6 @@ export default function teacherforums() {
             if (res.code !== 20000) {
                 throw new Error(res.message)
             }
-            console.log('get all post', res.data.posts)
             left_list = []
             let posts = res.data.posts
             posts.map((item:any, index: string) => {
@@ -608,11 +578,13 @@ export default function teacherforums() {
             }
            
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
 
     // left post list click
     const onclickthreadlist = (id: string) => {
-        console.log('click thread: ', id);
         left_list.map((item:any)=>{
             item.is_selected = false
             if(item.id == id){
@@ -637,21 +609,18 @@ export default function teacherforums() {
             if (res.code !== 20000) {
                 throw new Error(res.message)
             }
-            console.log('get a post info', res.data.post);
             let get_post = res.data.post
-            // current_post.category = get_post.category
-            // current_post.title = get_post.title
-
-            // console.log("current_post",current_post)
             setcurrentpost({...get_post});
             set_showcontentflag('2');
             set_post_answer('');
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
 
     // post function: remove post
     const delpost = () => {
-        console.log('postid', currentpost.postId);
         fetch(`${HOST_FORUM_POST}/post/${currentpost.postId}`, {
             method: "DELETE",
             headers: {
@@ -662,7 +631,6 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-            //   throw new Error(res.message)
               message.error(res.message);
             } else {
                 message.success(res.message);
@@ -680,10 +648,11 @@ export default function teacherforums() {
                     }
                 })
                 getallposts(current_course_id, current_tag_id);
-                // todo get current post info
-                // set_showcontentflag('0');
             }
-        })
+          })
+          .catch(error => {
+            message.error(error.message)
+          });
         
     }
     // post function: open model to remove post
@@ -697,10 +666,6 @@ export default function teacherforums() {
 
     // post function: submit edit post
     const editpost = () => {
-        console.log('editpost:', currentpost.postId);
-        console.log('editpost category id:', edit_thread_tag_value);
-        console.log('editpost title:', editpostTitle);
-        console.log('editpost content', edit_thread_content);
         let formdata = {
             'categoryId': edit_thread_tag_value,
             'title': editpostTitle,
@@ -733,13 +698,15 @@ export default function teacherforums() {
             getallposts(current_course_id, edit_thread_tag_value);
             window.scrollTo(0, 0);
           })
+          .catch(error => {
+            message.error(error.message)
+          });
     }
     // post function: open model to edit post
     const toShowEditPostModal = () => {
         seteditpostTitle(currentpost.title);
         set_edit_thread_tag_value(currentpost.categoryId); // todo categoryid
         set_edit_thread_content(currentpost.content);
-        console.log('currentpost', currentpost);
         setEditPostModalOpen(true);
     }
     const EditPostModalCancel = () => {
@@ -762,7 +729,6 @@ export default function teacherforums() {
     }
     // reply function: reply to a post (submit button)
     const submitReplyToApost = () => {
-        console.log(post_answer);
         // reply to a post
         fetch(`${HOST_FORUM_REPLY}/post/${currentpost.postId}/reply`, {
             method: "POST",
@@ -783,6 +749,9 @@ export default function teacherforums() {
             getapostinfo(currentpost.postId);
             set_post_answer('');
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
     // reply to reply model
     const ReplyToReplyValueChange = (value: string) => {
@@ -804,8 +773,6 @@ export default function teacherforums() {
     // reply to reply submit
     const ReplyToReplyModalChange = () => {
         // fetch
-        console.log('current reply id:', currentReplyId);
-        console.log('ReplyToReplyValue', ReplyToReplyValue);
         if (replyModaliscreate) {
             // reply to a reply
             fetch(`${HOST_FORUM_REPLY}/reply/${currentReplyId}/reply`, {
@@ -827,7 +794,10 @@ export default function teacherforums() {
                 setReplyModalOpen(false);
                 getapostinfo(currentpost.postId);
                 setReplyToReplyValue('');
-            })
+            })          
+            .catch(error => {
+                message.error(error.message)
+            });
         } else { 
             // update a reply
             fetch(`${HOST_FORUM_REPLY}/reply/${currentReplyId}`, {
@@ -841,7 +811,6 @@ export default function teacherforums() {
                 .then(res => res.json())
                 .then(res => {
                 if (res.code !== 20000) {
-                    // throw new Error(res.message)
                     message.error(res.message);
                     return;
                 }
@@ -850,7 +819,9 @@ export default function teacherforums() {
                 getapostinfo(currentpost.postId);
                 setReplyToReplyValue('');
             })
-
+            .catch(error => {
+                message.error(error.message)
+            });
         }
         
 
@@ -868,7 +839,6 @@ export default function teacherforums() {
           .then(res => res.json())
           .then(res => {
             if (res.code !== 20000) {
-            //   throw new Error(res.message)
               message.error(res.message);
             } else {
                 message.success(res.message);
@@ -876,6 +846,9 @@ export default function teacherforums() {
                 getapostinfo(currentpost.postId);
             }
         })
+        .catch(error => {
+            message.error(error.message)
+        });
     }
 
     const gototop = () => {
@@ -890,7 +863,6 @@ export default function teacherforums() {
     };
     
     const handleOk = () => {
-        console.log('handleOk', defaultselectedcourse);
         let selectedcourse = defaultselectedcourse
         selectedcourse.hasForum = true
         // update course to have forum
@@ -911,13 +883,15 @@ export default function teacherforums() {
             message.success("creat a forum successfully");
             getallcourse_haveforum();
           })
+          .catch(error => {
+            message.error(error.message)
+        });
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
     };
     const handleChange = (value: string) => {
-        console.log(`selected ${value}`);
         coursesnoforum.map((item:any)=> {
             if (item.value == value) {
                 set_select_course(item);
@@ -932,7 +906,6 @@ export default function teacherforums() {
         setsearchValue(event.target.value)
     }
     const onSearch = (value: string)=> {
-        console.log(value);
         if (value == '') {return}
         let current_course_id = ''
         datalist.map((item:any) => { // current course id
@@ -953,7 +926,6 @@ export default function teacherforums() {
                 message.error(res.message)
                 return
             }
-            console.log(res.data);
             // 1. tag list update to all(original)
             setisTagAll(true);
             // update tag list
@@ -984,6 +956,9 @@ export default function teacherforums() {
             
 
           })
+          .catch(error => {
+            message.error(error.message)
+        });
     }
 
     return(
@@ -992,7 +967,6 @@ export default function teacherforums() {
             <div className='stu_forum_title'>Staff Course Forums</div>
             <div className='forum_title'>
                 <p className='forum_course'>Course:</p>
-
                 <div className='forum_title_list'>
                     {
                         datalist.length == 0 ? <span>There is no forum. Please create a forum of a course.</span>:''
@@ -1003,7 +977,6 @@ export default function teacherforums() {
                             <p className={course_item.key == datalist.length - 1 ? "display_non": "mrt"}>|</p>
                         </div>
                     )}
-                    {/* <Button type="primary" className={courseflag ? 'btn_add mlt10' : 'display_non' } onClick={addcourseModal}>+ Add Course</Button> */}
                     {
                         courseflag ? <PlusSquareTwoTone className='edit_icon' onClick={addcourseModal}/> : ''
                     }
@@ -1042,7 +1015,6 @@ export default function teacherforums() {
                         leftlist.map((_item: any) => {
                             return (
                             <div className='stu_forum_left_list' key={_item.key}>
-                                {/* <div>last week</div> */}
                                 <div className={_item.is_selected ? 'stu_forum_left_list_wrap post_active' : 'stu_forum_left_list_wrap'} onClick={() => onclickthreadlist(_item.id)}>
                                     <div className='list_title'>{_item.title}</div>
                                     <div className='stu_forum_left_list_content'>
@@ -1080,10 +1052,8 @@ export default function teacherforums() {
                             }
                             <div className='create_input'>
                                 <Radio.Group
-                                    // options={taglist}
                                     onChange={create_change_tag}
                                     value={create_thread_tag_value}
-                                    // optionType="button"
                                     buttonStyle="solid">
                                     {
                                         taglist.map(item => {
@@ -1097,20 +1067,13 @@ export default function teacherforums() {
                         </div>
                         <div className='create_left_title'>Thread Content:</div>
                         <div className='create_textarea' style={{height: '256px'}}>
-                            {/* <TextArea rows={8} allowClear onChange={createthreadcontent} value = {create_thread_content}/> */}
                             <ReactQuill
-                                // theme='snow'
                                 modules={quillModules}
-                                // formats={quillFormats}
-                                // placeholder=""
                                 value={create_thread_content}
                                 onChange={createthreadcontent}
                                 style={{height: '180px', width: '680px', color:'#000'}}
                             />
                         </div>
-                        {/* <div className='create_author_wrap'>
-                            <Radio.Group options={plainOptions} onChange={changeAuthorName} value={create_thread_author} />
-                        </div> */}
                         <Button type="primary" className='creat_btn' onClick={createThread}>Submit</Button>
                     </div>
                 </div>
@@ -1182,7 +1145,6 @@ export default function teacherforums() {
                     <div className='forum_answer_wrap'>
                         <div className='font_large font_weight'>Your Comment</div>
                         <div className='create_textarea' style={{height: '270px'}}>
-                            {/* <TextArea rows={8} allowClear onChange={changepostanswer} value = {post_answer}/> */}
                             <ReactQuill
                                 modules={quillModules}
                                 formats={quillFormats}
@@ -1201,7 +1163,6 @@ export default function teacherforums() {
                 <Select
                     value={defaultcourse}
                     defaultActiveFirstOption
-                    // onChange={handleChange}
                     onSelect={handleChange}
                     options={coursesnoforum}
                 />
@@ -1238,10 +1199,8 @@ export default function teacherforums() {
             <Modal className='fm' title="Delete a Category" open={DelTagModalOpen} onOk={deltag} onCancel={DelTagModalCancel}>
                 <span className='mrt'>Select a Category:</span><br/>
                 <Radio.Group
-                    // options={taglist}
                     onChange={del_change_tag}
                     value={del_tag_value}
-                    // optionType="button"
                     buttonStyle="solid"
                     className='mlt110 mt'
                 >
@@ -1299,7 +1258,6 @@ export default function teacherforums() {
             </Modal>
             <Modal className='fm' open={ReplyModalOpen} onOk={ReplyToReplyModalChange} onCancel={ReplyToReplyModalCancel} width="650px">
                 <p> Reply to :</p>
-                {/* <TextArea rows={8} allowClear onChange={ReplyToReplyValueChange} value = {ReplyToReplyValue}/> */}
                 <div className='create_textarea fm' style={{width: '520px', height: '250px'}}>
                     <ReactQuill
                                 modules={quillModules}

@@ -60,7 +60,6 @@ export default function IndexPage() {
       if (res.code !== 20000) {
         throw new Error(res.message)
       }
-      // console.log(res.data.courses);
       let courselist = res.data.courses;
       let courseidlist: any[] = [];
       courselist.map((item: any) => {
@@ -116,7 +115,6 @@ export default function IndexPage() {
         }
       })
       setfunLists([...fun_list]);
-      // todo clear chatbot content
     })
     .catch(error => {
       console.log(error.message);
@@ -168,8 +166,6 @@ export default function IndexPage() {
   };
 // chatbot message
   const info = (key:string) => {
-    // console.log(key);
-    // if(key == '1'){
       fun_list.map((item:any)=> {
         item.is_selected = false
         if (item.key == key) {
@@ -177,8 +173,6 @@ export default function IndexPage() {
         }
       })
       setfunLists([...fun_list]);
-      // messageApi.info('This feature is still being developed in sprint 2 !');
-    // }
   };
   
   const gotocoursepage = () => {

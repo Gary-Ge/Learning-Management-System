@@ -37,7 +37,7 @@ import LinkBoard from '../../component/LinkBoard';
 import CourseLayoutEdit from '../../component/CourseLayoutEdit';
 import AssignmentEdit from '../../component/AssignmentEdit';
 import ShowMark from '../../component/ShowMark';
-import Newcalendar from './Calendar';
+import Newcalendar from '../../component/Calendar';
 import Chatbot from '../../component/chatbot';
 import { useHistory } from 'umi';
 import { getToken, HOST_STAFF, HOST_COURSE, HOST_ASSIGNMENT, HOST_QUIZ } from '../utils/utils'
@@ -76,7 +76,6 @@ const StaffDashboardContent: React.FC = () => {
     fetchCourses();
     setSelectedOption('close');
     // setCourseSubmitted(true);
-    // console.log('courseSubmitted', courseId);
   };
 
   const handleAddCalendar = () => {

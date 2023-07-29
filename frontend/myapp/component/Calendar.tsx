@@ -3,13 +3,10 @@ import { Layout} from 'antd';
 import {HeartFilled} from '@ant-design/icons';
 import { Calendar } from 'antd';
 import { useState,useEffect } from "react";
-import { getToken, HOST_STAFF} from '../utils/utils';
-import { message, Badge } from 'antd';
-// import type { BadgeProps } from 'antd';
+import { getToken, HOST_STAFF} from '../src/utils/utils';
+import { message } from 'antd';
 import type { Dayjs } from 'dayjs';
 import moment from 'moment';
-import type { CalendarMode } from 'antd/es/calendar/generateCalendar';
-// import type { CellRenderInfo } from 'rc-picker/lib/interface';
 
 const { Content, Footer } = Layout;
 
@@ -21,7 +18,7 @@ const Newcalendar: React.FC = () => {
   const [allDue,setAllDue] = useState([])
   const [selectedDate, setSelectedDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const token = getToken()
-  // getCalendar();
+
   const getCalendar = () => {
     fetch(`${HOST_STAFF}/calendar`, {
       method: "GET",
@@ -37,7 +34,6 @@ const Newcalendar: React.FC = () => {
         message.error(res.message);
         return
       }
-      console.log('calendar',res.data.courses);
       let get_all_due = res.data.courses
       let all_due:any = []
       get_all_due.AssignmentList.map((item:any)=> {
@@ -49,7 +45,6 @@ const Newcalendar: React.FC = () => {
       get_all_due.StreamList.map((item:any)=> {
         all_due = all_due.concat(item)
       })
-      console.log('calendar all_due',all_due);
       all_due.map((item: any)=>{
         if(item.assignment_id){
           item.title = `${item.course_title}, Assignment: ${item.assignment_title}, Time: ${item.assignment_end.substring(11)}`
@@ -66,60 +61,20 @@ const Newcalendar: React.FC = () => {
       })
       setAllDue(all_due)
     })
+    .catch(error => {
+      message.error(error.message)
+    });
   }
-  
-  const getListData = (value: Dayjs) => {
-    let listData;
-    switch (value.date()) {
-      case 8:
-        listData = [
-          { type: 'warning', content: 'This is warning event.' },
-        ];
-        break;
-      case 10:
-        listData = [
-          { type: 'warning', content: 'This is warning event.' },
-        ];
-        break;
-      case 15:
-        listData = [
-          { type: 'warning', content: 'This is warning event' },
-        ];
-        break;
-      default:
-    }
-    return listData || [];
-  };
-  
-  // const getMonthData = (value: Dayjs) => {
-  //   if (value.month() === 8) {
-  //     return 1394;
-  //   }
-  // };
-  // const monthCellRender = (value: Dayjs) => {
-  //   const num = getMonthData(value);
-  //   return num ? (
-  //     <div className="notes-month">
-  //       <section>{num}</section>
-  //       <span>Backlog number</span>
-  //     </div>
-  //   ) : null;
-  // };
 
   const datecellrender = (value: Dayjs) => {
-    // const listData = getListData(value);
     let listData:any = []
     allDue.map((item:any) => {
-      //
       if (item.time.substring(8,9) == '0') {
-        console.log('staff canlendar',item.time, item.time.substring(9));
-        if (item.time.substring(9) == value.date().toString() && item.time.substring(5,7) == selectedDate.substring(5,7)) { // selectedDate.substring(5,7) // moment().format('YYYY-MM-DD').substring(5,7)
-          // listData = [{content: item.title}]
+        if (item.time.substring(9) == value.date().toString() && item.time.substring(5,7) == selectedDate.substring(5,7)) {
           listData.push({content: item.title, type: 'warning'})
         }
       } else {
-        if (item.time.substring(8) == value.date().toString() && item.time.substring(5,7) == selectedDate.substring(5,7)) { // selectedDate.substring(5,7) // moment().format('YYYY-MM-DD').substring(5,7)
-          // listData = [{content: item.title}]
+        if (item.time.substring(8) == value.date().toString() && item.time.substring(5,7) == selectedDate.substring(5,7)) {
           listData.push({content: item.title, type: 'warning'})
         }
       }
@@ -129,11 +84,9 @@ const Newcalendar: React.FC = () => {
       <ul className="events">
         {listData.map((item:any) => (
         <li key={item.content}>
-
           <div className='staff_calendar'>
             <span style={{width: '5px', height: '5px', background: 'orange', borderRadius: '50px', display: 'inline-block', marginRight:'5px'}}></span>
             {item.content}</div>
-                    {/* <Badge status={item.type as BadgeProps['status']} text={item.content} /> */}
           </li>
         ))}
       </ul>

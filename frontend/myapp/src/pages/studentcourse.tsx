@@ -52,18 +52,7 @@ const fun_list = [
 ];
 
 const course_outline = [{ outline_title: '', author: '', category: '', coverimg: '', time: '', courseid : '', outline_content: "",}];
-let materials_list:any = [
-  // {
-  //   key: '0', title: '', time: '', content: "",
-  //   file_list: [], cover: '', type:''
-  // },{
-  //   key: '1', title: '', time: '', content: "",
-  //   file_list: [], cover: '', type:''
-  // },{
-  //   key: '2', title: '', time: '', content: "",
-  //   file_list: [], cover: '', type:''
-  // },
-];
+let materials_list:any = [];
 interface List {
   assFileId: string,
   title: string
@@ -139,7 +128,6 @@ export default function StudentCoursePage() {
       beforeUpload: (file:any) => {
         fileList[key].push(file);
         let copyfilelist = fileList.slice();
-        // setFileList([...fileList, file]);
         setFileList([...copyfilelist]);
         return false;
       },
@@ -202,7 +190,6 @@ export default function StudentCoursePage() {
         message.error(res.message);
         return
       }
-      // console.log(res.data.courses);
       let courselist = []
       courselist = res.data.courses;
       data = [];
@@ -218,7 +205,6 @@ export default function StudentCoursePage() {
       let currentcourseid = '';
       if (courseidlist.indexOf(courseid) == -1) { // no enroll 
         courselist.map((item: any, index: number) => {
-          // console.log(item.title, item.courseId);
           data.push({
             key : index.toString(),
             id: item.courseId,
@@ -231,7 +217,6 @@ export default function StudentCoursePage() {
 
       } else { // all enroll
         courselist.map((item: any, index: number) => {
-          // console.log(item.title, item.courseId);
           data.push({
             key : index.toString(),
             id: item.courseId,
@@ -256,7 +241,6 @@ export default function StudentCoursePage() {
       set_quiz_left_list_show(false);
       set_ass_left_list_show(false);
       set_stream_left_list_show(false);
-      // console.log('++data',data);
     })
     .catch(error => {
       message.error(error.message);
@@ -287,10 +271,6 @@ export default function StudentCoursePage() {
       outline[0].courseid = res_data.courseId;
       outline[0].outline_content = res_data.description;
       setcourseoutline([...outline]);
-      // console.log("setviewtitle",res_data.title);
-      // if (flag) {
-      //   getallcourse(res_data.title);
-      // }
       
     })
     .catch(error => {
@@ -331,9 +311,6 @@ export default function StudentCoursePage() {
         if (item.type == 'Custom Video Section') {
           item.file_list.map((inneritem:any) => {
             if (inneritem.type == "Video") {
-              // let url_link = getvideourl(inneritem.resourceId);
-              // let videolink:any
-              // getvideourl(inneritem.resourceId, inneritem)
 
               fetch(`${HOST_RESOURCE}/video/${inneritem.resourceId}`, {
                 method: "GET",
@@ -351,6 +328,9 @@ export default function StudentCoursePage() {
                 }
                 inneritem.url = res.data.auth.playURL
                 setmaterialLists([...materials_list]);
+              })
+              .catch(error => {
+                message.error(error.message)
               });
             }
           })
@@ -454,9 +434,6 @@ export default function StudentCoursePage() {
         message.error(res.message)
         return
       }
-      // if (res.data.assignments.length == 0) {
-      //   setassignmentLists([]);
-      // } else {
       let  ass_fileList: never[][] = []
       assign_list = []
       let res_ass = res.data.assignments;
@@ -476,7 +453,6 @@ export default function StudentCoursePage() {
       });
       setFileList([...ass_fileList]);
       setassignmentLists([...assign_list]);
-      // console.log('assign_list', assign_list);
     })
     .catch(error => {
       message.error(error.message);
@@ -557,6 +533,8 @@ export default function StudentCoursePage() {
     set_stream_left_list_show(false);
     // clear materials content
     setmaterialLists([]);
+    // clear chatbot
+    setshowChatbot(false);
     // getallsections(id); // get materials
     getallquizzes(id, '0');
     getallassignments(id, '0'); // update assignment
@@ -622,6 +600,9 @@ export default function StudentCoursePage() {
       const w:any = window.open("about:blank");  
       w.location.href=res.data.fileUrl
     })
+    .catch(error => {
+      message.error(error.message)
+    });
   }
   // download materials 1
   const downLoadMaterial = (e:any) => {
@@ -803,13 +784,10 @@ export default function StudentCoursePage() {
           cover: item.cover
         });
       });
-      materials_list.map(item => {
+      materials_list.map((item:any) => {
         if (item.type == 'Custom Video Section') {
           item.file_list.map((inneritem:any) => {
             if (inneritem.type == "Video") {
-              // let url_link = getvideourl(inneritem.resourceId);
-              // let videolink:any
-              // getvideourl(inneritem.resourceId, inneritem)
               fetch(`${HOST_RESOURCE}/video/${inneritem.resourceId}`, {
                 method: "GET",
                 headers: {
@@ -826,6 +804,9 @@ export default function StudentCoursePage() {
                 }
                 inneritem.url = res.data.auth.playURL
                 setmaterialLists([...materials_list]);
+              })
+              .catch(error => {
+                message.error(error.message)
               });
             }
           })
@@ -833,8 +814,6 @@ export default function StudentCoursePage() {
           setmaterialLists([...materials_list]);
         }
       });
-      // setmaterialLists([...materials_list]);
-      // console.log('materialslist', materialslist);
     })
     .catch(error => {
       message.error(error.message)
