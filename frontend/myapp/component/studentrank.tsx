@@ -42,10 +42,12 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
       copper: copper
   };
   const query = new URLSearchParams(location.search);
+  let courseId: any = query.get('courseid');
   const [medal, setMedal] = useState<MedalItem[]>([]);
   const token = getToken();
   const [selectedType, setSelectedType] = useState('');
   useEffect(() => {
+    if(courseid){
     fetch(`${HOST_STUDENT}/medals/${courseid}`, {
         method: 'GET',
         headers: {
@@ -64,6 +66,26 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
       .catch(error => {
         message.error(error.message)
       }); 
+    } else {
+      fetch(`${HOST_STUDENT}/medals/${courseId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            "Authorization": `Bearer ${token}`
+          },
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code !== 20000) {
+           message.error(res.message)
+           return
+        }
+        setMedal(res.data.medals)
+      })
+      .catch(error => {
+        message.error(error.message)
+      });
+    }
   }, [courseid, token]);
   // When selectedType is assignment
   // Choose a course for any assignment
