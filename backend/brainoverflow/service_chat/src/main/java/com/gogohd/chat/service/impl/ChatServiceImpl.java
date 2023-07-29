@@ -64,7 +64,22 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
             return searchCourses(userId, messageUniform.substring(6).trim());
         }
 
-        return sendMessageToChatGPT(STUDENT_CHAT_PREFIX + userId, message);
+        StringBuilder sb = new StringBuilder();
+        sb.append("You are now a ChatBot helper of brainoverflow.com\n")
+                .append("The information of current user is:\n");
+
+        Map<String, Object> userInfo = baseMapper.selectUserById(userId);
+        SimpleDateFormat userDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        sb.append("The information of current user is:\n\nUsername: ")
+                .append(userInfo.get("username")).append("\nEmail Address: ")
+                .append(userInfo.get("email")).append("\nCreated on: ")
+                .append(userDateFormat.format(userInfo.get("created_at")))
+                .append("\n\n");
+
+        sb.append(getDeadlines(userId).replaceAll("<br/>", "\n"));
+        sb.append(getUpdate(userId).replaceAll("<br/>", "\n"));
+
+        return sendMessageToChatGPT(STUDENT_CHAT_PREFIX + userId, message, sb.toString());
     }
 
     @Override
@@ -86,7 +101,22 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
             return searchCourses(userId, messageUniform.substring(6).trim());
         }
 
-        return sendMessageToChatGPT(STAFF_CHAT_PREFIX + userId, message);
+        StringBuilder sb = new StringBuilder();
+        sb.append("You are now a ChatBot helper of brainoverflow.com\n")
+                .append("The information of current user is:\n");
+
+        Map<String, Object> userInfo = baseMapper.selectUserById(userId);
+        SimpleDateFormat userDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        sb.append("The information of current user is:\n\nUsername: ")
+                .append(userInfo.get("username")).append("\nEmail Address: ")
+                .append(userInfo.get("email")).append("\nCreated on: ")
+                .append(userDateFormat.format(userInfo.get("created_at")))
+                .append("\n\n");
+
+        sb.append(getDeadlinesForStaff(userId).replaceAll("<br/>", "\n"));
+        sb.append(getUpdateForStaff(userId).replaceAll("<br/>", "\n"));
+
+        return sendMessageToChatGPT(STAFF_CHAT_PREFIX + userId, message, sb.toString());
     }
 
     @Override
@@ -112,11 +142,14 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Void> implements Ch
         return new ArrayList<String>();
     }
 
-    private String sendMessageToChatGPT(String contextKey, String message) {
+    private String sendMessageToChatGPT(String contextKey, String message, String basic) {
         ListOperations<String, String> listOps = redisTemplate.opsForList();
         List<String> context = listOps.range(contextKey, 0, -1);
 
         List<ChatMessage> chatMessages = new ArrayList<>();
+        chatMessages.add(new ChatMessage(ChatMessageRole.USER.value(), basic));
+        chatMessages.add(new ChatMessage(ChatMessageRole.USER.value(),
+                "Please add <br/> at all the places in your response where line breaks are needed"));
 
         // Add all the content in context to request
         if (context != null && context.size() > 0 && context.size() % 2 == 0) {

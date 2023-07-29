@@ -115,6 +115,7 @@ export default function StudentCoursePage() {
   const [timeLeft, setTimeLeft] = useState<null | number>(null);
   const [showStudentRank, setShowStudentRank] = useState(false);
   const [showChatbot, setshowChatbot] = useState(false);
+  const [rankcourseid, setrankcourseid] = useState('');
 
   const props = (key:number, id:string) => {
     return {
@@ -540,6 +541,11 @@ export default function StudentCoursePage() {
     getallassignments(id, '0'); // update assignment
     getallstreams(id, '0'); // update stream
     getcourseinfo(id); // update course outline
+    const selectedId = datalist.find(item => item.is_selected === true)?.id || '';
+
+    // Update the state with the selectedId
+    setrankcourseid(selectedId);
+
   };
   const history = useHistory();
   // click left list
@@ -1351,18 +1357,18 @@ export default function StudentCoursePage() {
                 }
                 {isStreamOpen && 
                   streamlist.map(_item =>
-                    <>
                     <div key={_item.key} id={_item.streamId} className={_item.is_selected ? '' : 'display_non'}>
+                      <>
                       <LinkBoardStu stream={_item}/>
+                      </>
                     </div>
-                    </>
                   )
                 }
               </div>
               <div className={showStudentRank ? 'stu_right_content': 'display_non'}>
               {showStudentRank && (
                   <div className="student_rank_content">
-                    <StudentRank quizes={quizes} assInfor={assOptions} course={singleCourse} />
+                    <StudentRank quizes={quizes} assInfor={assOptions} course={singleCourse} courseid={rankcourseid} />
                   </div>
                 )}
               </div>

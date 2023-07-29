@@ -200,7 +200,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
                 Materials
               </Text>
             }
-            name="materials"
           >
           </Form.Item>
           <Form.Item>
@@ -236,7 +235,6 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
                 Description
               </Text>
             }
-            name="description"
           >
           </Form.Item>
           <Form.Item>

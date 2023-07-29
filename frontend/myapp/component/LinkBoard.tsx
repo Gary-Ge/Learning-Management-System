@@ -8,7 +8,7 @@ import {
   HeartFilled,
 } from '@ant-design/icons';
 import { PieChart, Pie, BarChart, Bar, Cell, XAxis, CartesianGrid, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
-import { getToken, validNotNull, HOST_STREAM, HOST_STREAM_CHAT, HOST_STREAM_QUIZ } from '../src/utils/utils'
+import { getToken, validNotNull, HOST_STREAM, HOST_STREAM_CHAT, HOST_STREAM_QUIZ,target_stream } from '../src/utils/utils'
 import FlvJs from 'flv.js';
 import SockJsClient from 'react-stomp';
 
@@ -500,7 +500,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
   return (
     <>
     <SockJsClient
-      url={`http://175.45.180.201:10940/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
+      url={`${target_stream}/ws?streamId=${stream.streamId}&userId=${JSON.parse(localStorage.getItem("userData")).userId}`}
       topics={[`/topic/stream/${stream.streamId}`]}
       onMessage={(msg: any) => {
         if (msg.type === 0) {
@@ -685,7 +685,7 @@ const LinkBoard: React.FC<{ course:any; stream: any; onClick: (streamId: string)
             Course Name: {stream.title}
           </Text>
           <Modal
-            visible={showPushUrlModal}
+            open={showPushUrlModal}
             onCancel={() => setShowPushUrlModal(false)}
             onOk={handleStartPush}
             okText="Start Push"

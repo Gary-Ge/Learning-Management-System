@@ -179,7 +179,6 @@ const StreamLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; cours
                 Description
               </Text>
             }
-            name="description"
             rules={[
               { required: true, message: 'Please input the stream description!' },
             ]}

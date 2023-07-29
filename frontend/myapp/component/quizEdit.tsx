@@ -532,7 +532,7 @@ const removeForm = (formId: number) => {
                 Quiz Attempt Time
               </Text>
             } 
-            name="quiz attempt time" 
+           name="quiz attempt time" 
           >
             <Input
                 type="number"
@@ -583,7 +583,7 @@ const removeForm = (formId: number) => {
                 <div style={{ flex: 2,marginLeft: '10px' }}>
                   <Form.Item
                     label={<Text style={{ fontFamily: 'Comic Sans MS' }}>Question Title</Text>}
-                    name={`Question Title ${form.id}`}
+                    //name={`Question Title ${form.id}`}
                     style={{ margin: '5px' }}
                   />
                   <Form.Item>
@@ -623,7 +623,7 @@ const removeForm = (formId: number) => {
                 <Text style={{ fontFamily: 'Comic Sans MS', marginLeft: '10px' }}>Mark</Text>
                 <Form.Item
                   style={{ flex: 1 }}
-                  name={`Mark ${form.id}`}
+                  //name={`Mark ${form.id}`}
                   initialValue={form.mark}
                 >
                   <Input

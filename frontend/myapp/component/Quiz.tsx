@@ -694,7 +694,7 @@ const handleButtonClick = () => {
                 <div style={{ flex: 2,marginLeft: '10px' }}>
                   <Form.Item
                     label={<Text style={{ fontFamily: 'Comic Sans MS' }}>Question</Text>}
-                    name="question"
+                    //name="question"
                     style={{ margin: '5px' }}
                   />
                   <Form.Item>

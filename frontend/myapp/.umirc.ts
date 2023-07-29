@@ -2,6 +2,7 @@ import { defineConfig } from 'umi';
 
 const target = 'http://175.45.180.201:10900/';
 
+
 export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
