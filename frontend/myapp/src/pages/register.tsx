@@ -5,6 +5,7 @@ import { Button, Form, Input, Radio, message } from 'antd';
 import type { SizeType } from 'antd/es/config-provider/SizeContext';
 import { validEmail, validNotNull,  ValidPassword, HOST, REGISTER_URL, saveToken, HEADER } from '../utils/utils';
 import { RegisterDTO } from '../utils/entities';
+import logo from '../../../images/logo_l.png';
 
 export default function LoginPage() {
   const [form] = Form.useForm();
@@ -36,9 +37,6 @@ export default function LoginPage() {
       return
     } 
     const dto = new RegisterDTO(username,password,email);
-    // console.log(dto); 
-    // console.log(dto.username); 
-    // console.log(typeof dto.username); 
     fetch(`${HOST}${REGISTER_URL}`, {
       method: 'POST',
       body: JSON.stringify(dto),
@@ -50,7 +48,6 @@ export default function LoginPage() {
          message.error(res.message)
          return
       }
-      console.log(res.data.token)
       saveToken(res.data.token)
       message.success('Register successfully!')
       history.push('/login'); // redirect to login page, adjust as needed
@@ -63,7 +60,7 @@ export default function LoginPage() {
   return (
     <div className="body_login_register">
       <div className="icon-container">
-                <img src="/assert/logo_l.png" alt="icon" /> 
+                <img src={logo} alt="icon" /> 
             </div>
       <div className="container_signin">
         <Form

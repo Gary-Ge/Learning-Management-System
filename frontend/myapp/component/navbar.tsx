@@ -95,7 +95,7 @@ export default function Dashboard() {
     tabs_list[Number(e.target.id) - 1].is_selected = true
     settablist([...tabs_list]);
     if (e.target.id == '1') {
-      history.push('/')
+      history.push('/home')
     } else {
       history.push('/staffcourse')
     }

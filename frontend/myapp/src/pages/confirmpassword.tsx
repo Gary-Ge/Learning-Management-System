@@ -5,6 +5,7 @@ import { Form, Input, Button, message } from 'antd';
 import { Link,history } from 'umi'; 
 import { HOST,PASSWORD_URL,HEADER} from '../utils/utils';
 import { LoginDTO } from '../utils/entities';
+import logo from '../../../images/logo_l.png';
 
 export default function ConfirmPassword() {
     const [form] = Form.useForm();
@@ -45,7 +46,7 @@ export default function ConfirmPassword() {
     return (
         <div className="container_forgetpassword_body">
             <div className="icon-container">
-                <img src="/assert/logo_l.png" alt="icon" /> 
+                <img src={logo} alt="icon" /> 
             </div>
             <div className="container_forgetpassword">
                 <Link to="/login">
