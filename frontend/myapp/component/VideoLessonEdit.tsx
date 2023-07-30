@@ -119,14 +119,14 @@ const VideoLessonEdit: React.FC<{ onCancel: () => void; onSubmit: () => void; vi
           if (res.code !== 20000) {
             throw new Error(res.message)
           }
-          message.success('Video lesson created successfully!')
+          message.success('Video lesson updated successfully!')
           onSubmit();
         })
         .catch(error => {
           message.error(error.message);
         });
       } else {
-        message.success('Video lesson created successfully!')
+        message.success('Video lesson updated successfully!')
         onSubmit();
       }
     })
