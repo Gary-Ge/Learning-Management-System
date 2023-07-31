@@ -643,7 +643,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
 
                 <div style={{ flex: 1, display: 'flex' }}>
                     
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-start', paddingBottom: '20px' }}>
                     {dataAssignmentRank[1] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
                         <Badge.Ribbon text="2st" placement="start" color='silver'>
@@ -651,11 +651,11 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                              width: '200px', height: '120px',
+                              width: '200px', height: '140px',
                               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                             }}
                           >
-                            <img src={dataAssignmentRank[1].avatar} height={'60%'} style={{borderRadius: '50%' }}/>
+                            <img src={dataAssignmentRank[1].avatar} height={'60px'} width={'60px'} style={{borderRadius: '50%' }}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' , display:'block'}}>
                                 {dataAssignmentRank[1].name}
@@ -684,7 +684,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'gold'
                             }}
                           >
-                            <img src={dataAssignmentRank[0].avatar} height={'60%'} style={{borderRadius: '50%', }}/>
+                            <img src={dataAssignmentRank[0].avatar} height={'90px'} width={'90px'} style={{borderRadius: '50%', }}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
                                 {dataAssignmentRank[0].name}
@@ -701,7 +701,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                     )}
                   </div>
 
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-end' , paddingBottom:'20px'}}>
                     {dataAssignmentRank[2] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                         <Badge.Ribbon text="3st" placement="start" color='orange'>
@@ -713,7 +713,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(245, 192, 160, 0.5)'
                             }}
                           >
-                            <img src={dataAssignmentRank[2].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                            <img src={dataAssignmentRank[2].avatar} height={'60px'} width={'60px'} style={{borderRadius: '50%'}}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
                                 {
@@ -871,7 +871,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
 
                   <div style={{ flex: 1, display: 'flex' }}>
                     
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-start', paddingBottom: '20px' }}>
                       {dataQuizRank[1] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
                           <Badge.Ribbon text="2st" placement="start" color='silver'>
@@ -879,11 +879,11 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                                width: '200px', height: '120px',
+                                width: '200px', height: '140px',
                                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)' , backgroundColor: 'rgb(160, 194, 228, 0.5)'
                               }}
                             >
-                              <img src={dataQuizRank[1].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                              <img src={dataQuizRank[1].avatar} height={'60px'} width={'60px'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
                                   {dataQuizRank[1].name}
@@ -912,7 +912,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'gold'
                               }}
                             >
-                              <img src={dataQuizRank[0].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                              <img src={dataQuizRank[0].avatar} height={'90px'} width={'90px'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' , display:'block'}}>
                                   {dataQuizRank[0].name}
@@ -929,7 +929,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                       )}
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-end', paddingBottom:'20px' }}>
                       {dataQuizRank[2] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                           <Badge.Ribbon text="3st" placement="start" color='orange'>
@@ -941,7 +941,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(245, 192, 160, 0.5)'
                               }}
                             >
-                              <img src={dataQuizRank[2].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                              <img src={dataQuizRank[2].avatar} height={'60px'} width={'60px'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
                                   {dataQuizRank[2].name}
@@ -986,7 +986,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
 
               <div style={{ flex: 1, display: 'flex' }}>
                 
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-start', paddingBottom: '20px' }}>
                   {firstSixData[1] && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                       <Badge.Ribbon text="2st" placement="start" color='silver'>
@@ -994,11 +994,11 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                           style={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                            width: '200px', height: '120px',
+                            width: '200px', height: '140px',
                             boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                           }}
                         >
-                          <img src={firstSixData[1].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                          <img src={firstSixData[1].avatar} height={'60px'} width={'60px'} style={{borderRadius: '50%'}}/>
                           <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px', display:'block' }}>
                               {firstSixData[1].name}
@@ -1027,7 +1027,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'gold'
                           }}
                         >
-                          <img src={firstSixData[0].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                          <img src={firstSixData[0].avatar} height={'90px'} width={'90px'} style={{borderRadius: '50%'}}/>
                           <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' , display:'block'}}>
                               {firstSixData[0].name}
@@ -1044,7 +1044,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                   )}
                 </div>
 
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-end', paddingBottom:'20px' }}>
                   {firstSixData[2] && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                       <Badge.Ribbon text="3st" placement="start" color='orange'>
@@ -1056,7 +1056,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(245, 192, 160, 0.5)'
                           }}
                         >
-                          <img src={firstSixData[2].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
+                          <img src={firstSixData[2].avatar} height={'60px'} width={'60px'} style={{borderRadius: '50%'}}/>
                           <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
                               {firstSixData[2].name}
