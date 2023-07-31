@@ -717,7 +717,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
 
                   <div style={{ flex: 1, display: 'flex' }}>
                     
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-start' , paddingBottom: '20px'}}>
                       {dataAssignmentRank[1] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                           <Badge.Ribbon text="2nd" placement="start" color='silver'>
@@ -725,7 +725,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                                width: '200px', height: '120px',
+                                width: '200px', height: '140px',
                                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                               }}
                             >
@@ -775,7 +775,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                       )}
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-end', paddingBottom: '20px' }}>
                       {dataAssignmentRank[2] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                           <Badge.Ribbon text="3rd" placement="start" color='orange'>
@@ -947,7 +947,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
 
                   <div style={{ flex: 1, display: 'flex' }}>
                     
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-start', paddingBottom: '20px' }}>
                       {dataQuizRank[1] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                           <Badge.Ribbon text="2nd" placement="start" color='silver'>
@@ -955,7 +955,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                                width: '200px', height: '120px',
+                                width: '200px', height: '140px',
                                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                               }}
                             >
@@ -1005,7 +1005,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                       )}
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-end', paddingBottom: '20px' }}>
                       {dataQuizRank[2] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                           <Badge.Ribbon text="3rd" placement="start" color='orange'>
@@ -1069,7 +1069,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
 
                 <div style={{ flex: 1, display: 'flex' }}>
                     
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-start' , paddingBottom: '20px'}}>
                     {firstSixData[1] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                         <Badge.Ribbon text="2nd" placement="start" color='silver'>
@@ -1077,7 +1077,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                              width: '200px', height: '120px',
+                              width: '200px', height: '140px',
                               boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                             }}
                           >
@@ -1127,7 +1127,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     )}
                   </div>
 
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'end', justifyContent: 'flex-end', paddingBottom: '20px' }}>
                     {firstSixData[2] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                         <Badge.Ribbon text="3st" placement="start" color='orange'>
