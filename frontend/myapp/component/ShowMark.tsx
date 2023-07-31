@@ -720,16 +720,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                       {dataAssignmentRank[1] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                          <Badge.Ribbon text="2st" placement="start" color='silver'>
+                          <Badge.Ribbon text="2nd" placement="start" color='silver'>
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
                                 width: '200px', height: '120px',
-                                border: '1px solid black'
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                               }}
                             >
-                              <img src={dataAssignmentRank[1].avatar} width={'40%'}/>
+                              <img src={dataAssignmentRank[1].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                   {dataAssignmentRank[1].name.length > 6 ? dataAssignmentRank[1].name.substring(0, 3) + '...' : dataAssignmentRank[1].name}
@@ -755,10 +755,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '50px',
                                 width: '200px', height: '170px',
-                                border: '1px solid black'
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'gold'
                               }}
                             >
-                              <img src={dataAssignmentRank[0].avatar} width={'40%'}/>
+                              <img src={dataAssignmentRank[0].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                   {dataAssignmentRank[0].name.length > 6 ? dataAssignmentRank[0].name.substring(0, 3) + '...' : dataAssignmentRank[0].name}
@@ -778,16 +778,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                       {dataAssignmentRank[2] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                          <Badge.Ribbon text="3st" placement="start" color='orange'>
+                          <Badge.Ribbon text="3rd" placement="start" color='orange'>
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
                                 width: '200px', height: '120px',
-                                border: '1px solid black'
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(245, 192, 160, 0.5)'
                               }}
                             >
-                              <img src={dataAssignmentRank[2].avatar} width={'40%'}/>
+                              <img src={dataAssignmentRank[2].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                   {dataAssignmentRank[2].name.length > 6 ? dataAssignmentRank[2].name.substring(0, 3) + '...' : dataAssignmentRank[2].name}
@@ -950,16 +950,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                       {dataQuizRank[1] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                          <Badge.Ribbon text="2st" placement="start" color='silver'>
+                          <Badge.Ribbon text="2nd" placement="start" color='silver'>
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
                                 width: '200px', height: '120px',
-                                border: '1px solid black'
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                               }}
                             >
-                              <img src={dataQuizRank[1].avatar} width={'40%'}/>
+                              <img src={dataQuizRank[1].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                   {dataQuizRank[1].name.length > 6 ? dataQuizRank[1].name.substring(0, 3) + '...' : dataQuizRank[1].name}
@@ -985,10 +985,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '50px',
                                 width: '200px', height: '170px',
-                                border: '1px solid black'
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'gold'
                               }}
                             >
-                              <img src={dataQuizRank[0].avatar} width={'40%'}/>
+                              <img src={dataQuizRank[0].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                   {dataQuizRank[0].name.length > 6 ? dataQuizRank[0].name.substring(0, 3) + '...' : dataQuizRank[0].name}
@@ -1008,16 +1008,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                       {dataQuizRank[2] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                          <Badge.Ribbon text="3st" placement="start" color='orange'>
+                          <Badge.Ribbon text="3rd" placement="start" color='orange'>
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
                                 width: '200px', height: '120px',
-                                border: '1px solid black'
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(245, 192, 160, 0.5)'
                               }}
                             >
-                              <img src={dataQuizRank[2].avatar} width={'40%'}/>
+                              <img src={dataQuizRank[2].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                   {dataQuizRank[2].name.length > 6 ? dataQuizRank[2].name.substring(0, 3) + '...' : dataQuizRank[2].name}
@@ -1072,16 +1072,16 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                     {firstSixData[1] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                        <Badge.Ribbon text="2st" placement="start" color='silver'>
+                        <Badge.Ribbon text="2nd" placement="start" color='silver'>
                           <Content
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
                               width: '200px', height: '120px',
-                              border: '1px solid black'
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(160, 194, 228, 0.5)'
                             }}
                           >
-                            <img src={firstSixData[1].avatar} width={'40%'}/>
+                            <img src={firstSixData[1].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                 {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
@@ -1107,10 +1107,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '50px',
                               width: '200px', height: '170px',
-                              border: '1px solid black'
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'gold'
                             }}
                           >
-                            <img src={firstSixData[0].avatar} width={'40%'}/>
+                            <img src={firstSixData[0].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                 {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
@@ -1136,10 +1136,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
                               width: '200px', height: '120px',
-                              border: '1px solid black'
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', backgroundColor: 'rgb(245, 192, 160, 0.5)'
                             }}
                           >
-                            <img src={firstSixData[2].avatar} width={'40%'}/>
+                            <img src={firstSixData[2].avatar} height={'60%'} style={{borderRadius: '50%'}}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
                                 {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
