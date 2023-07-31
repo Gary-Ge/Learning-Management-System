@@ -120,7 +120,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
           if (file.submitId !== '') {
             try {
               const response = await fetch(
-                `${HOST_ASSIGNMENT}/submit/${file.submitId}`,
+                `${HOST_STUDENT}/submit/${file.submitId}`,
                 {
                   method: 'GET',
                   headers: {
