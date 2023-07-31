@@ -209,7 +209,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
   };
   // The ordinate information of the selected assignment for the current course
   const assignmentColumns = [
-    { title: 'Student ID', dataIndex: 'id', key: 'id' },
+    { title: 'Student Email', dataIndex: 'id', key: 'id' },
     { title: 'Student Name', dataIndex: 'name', key: 'name' },
     {
       title: 'Download | View',
@@ -240,6 +240,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
   // Choose any quiz for a course
   const [selectedQuizId, setSelectedQuizId] = useState<string>("");
   const handleQuizIdChange = (value: string) => {
+    setSelectedQuestionId('')
     const selectedSingleQuiz = quizes.find((singleQuiz: any) => singleQuiz.quizId === value);
     if (selectedSingleQuiz) {
       setSelectedQuizId(selectedSingleQuiz.quizId);
@@ -277,7 +278,8 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
       });
       const data = await response.json();
       const fetchedQuestions = data.data.questions;
-      setAllQuestions(fetchedQuestions);
+      // console.log('fetchedQuestions', fetchedQuestions)
+      setAllQuestions([...fetchedQuestions]);
     } catch (error:any) {
       message.error(error.message);
     }
@@ -300,7 +302,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
   };
   // The longitudinal information for the selected question in the current course quiz
   const quizColumns = [
-    { title: 'Student ID', dataIndex: 'id', key: 'id' },
+    { title: 'Student Email', dataIndex: 'id', key: 'id' },
     { title: 'Student Name', dataIndex: 'name', key: 'name' },
     { title: 'Student Answer', dataIndex: 'answer', key: 'answer' },
     { title: 'Student Grade', dataIndex: 'grade', key: 'grade' },
@@ -314,6 +316,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
         if (infor.question.questionId === selectedQuestionId && infor.answer.userId === cur_userId) {
           if (infor.question.type === 0 || infor.question.type === 1) {
             results.push({
+              key: 1,
               id: infor.user.email,
               name: infor.user.username,
               answer: infor.answer.optionIds,
@@ -322,6 +325,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
           }
           else if (infor.question.type === 2) {
             results.push({
+              key: 2,
               id: infor.user.email,
               name: infor.user.username,
               answer: infor.answer.content,
@@ -339,7 +343,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
   }, [selectedQuestionId]);
   // The longitudinal information of the current course quiz or total grade of all grades
   const totalGradeColumns = [
-    { title: 'Student ID', dataIndex: 'id', key: 'id' },
+    { title: 'Student Email', dataIndex: 'id', key: 'id' },
     { title: 'Student Name', dataIndex: 'name', key: 'name' },
     { title: 'Student Grade', dataIndex: 'grade', key: 'grade' },
   ];
@@ -371,6 +375,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
       }
       if (user.userId === cur_userId) {
         results.push({
+          key: '1',
           id: user.email,
           name: user.name,
           grade: user.grade,
@@ -621,7 +626,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
               
               <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <img src={crown} width={'10%'}/>
+                  {dataAssignmentRank[0] ? <img src={crown} width={'10%'}/> : 'No data'}
                 </div>
 
                 <div style={{ flex: 1, display: 'flex' }}>
@@ -638,10 +643,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                               border: '1px solid black'
                             }}
                           >
-                            <img src={dataAssignmentRank[1].avatar} width={'40%'}/>
+                            <img src={dataAssignmentRank[1].avatar} height={'60%'}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                {dataAssignmentRank[1].name.length > 6 ? dataAssignmentRank[1].name.substring(0, 3) + '...' : dataAssignmentRank[1].name}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' , display:'block'}}>
+                                {dataAssignmentRank[1].name}
                               </span>
                             </Text>
                             <div>
@@ -667,10 +672,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                               border: '1px solid black'
                             }}
                           >
-                            <img src={dataAssignmentRank[0].avatar} width={'40%'}/>
+                            <img src={dataAssignmentRank[0].avatar} height={'60%'}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                {dataAssignmentRank[0].name.length > 6 ? dataAssignmentRank[0].name.substring(0, 3) + '...' : dataAssignmentRank[0].name}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
+                                {dataAssignmentRank[0].name}
                               </span>
                             </Text>
                             <div>
@@ -696,10 +701,12 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                               border: '1px solid black'
                             }}
                           >
-                            <img src={dataAssignmentRank[2].avatar} width={'40%'}/>
+                            <img src={dataAssignmentRank[2].avatar} height={'60%'}/>
                             <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                {dataAssignmentRank[2].name.length > 6 ? dataAssignmentRank[2].name.substring(0, 3) + '...' : dataAssignmentRank[2].name}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
+                                {
+                                  dataAssignmentRank[2].name
+                                }
                               </span>
                             </Text>
                             <div>
@@ -797,15 +804,18 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                     onChange={handleQuestionIdChange}
                     value={selectedQuestionId}
                   >
-                    {(allQuestions || []).map((question: any) => (
-                      <Select.Option
+                    {(allQuestions || []).map((question: any) => {
+                      return (
+                        <Select.Option
                         key={question.questionId}
                         style={{ fontFamily: 'Comic Sans MS', color: 'black' }}
                         value={question.questionId}
                       >
                         {question.content}
                       </Select.Option>
-                    ))}
+                      )
+
+                    })}
                     <Select.Option style={{ fontFamily: 'Comic Sans MS', color: 'black' }} value="all">ALL</Select.Option>
                   </Select>
                 </Form.Item>
@@ -819,9 +829,9 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                 <div>
                   <Text style={{ width: '100%', fontFamily: 'Comic Sans MS', fontWeight: 'bold' }} >Question Content:</Text>
                 </div>
-                {(allQuestions || []).map((question: any) => {
+                {(allQuestions || []).map((question: any, index: number) => {
                   if (question.questionId === selectedQuestionId) {
-                    return <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }}>{question.content}</Text>;
+                    return <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} key={index + '_' + question.content}>{question.content}</Text>;
                   }
                 })}
               </Form.Item>
@@ -844,7 +854,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                 
                 <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <img src={crown} width={'10%'}/>
+                    {dataQuizRank[0] ? <img src={crown} width={'10%'}/> : 'No data'}
                   </div>
 
                   <div style={{ flex: 1, display: 'flex' }}>
@@ -861,10 +871,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                                 border: '1px solid black'
                               }}
                             >
-                              <img src={dataQuizRank[1].avatar} width={'40%'}/>
+                              <img src={dataQuizRank[1].avatar} height={'60%'}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                  {dataQuizRank[1].name.length > 6 ? dataQuizRank[1].name.substring(0, 3) + '...' : dataQuizRank[1].name}
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
+                                  {dataQuizRank[1].name}
                                 </span>
                               </Text>
                               <div>
@@ -890,10 +900,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                                 border: '1px solid black'
                               }}
                             >
-                              <img src={dataQuizRank[0].avatar} width={'40%'}/>
+                              <img src={dataQuizRank[0].avatar} height={'60%'}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                  {dataQuizRank[0].name.length > 6 ? dataQuizRank[0].name.substring(0, 3) + '...' : dataQuizRank[0].name}
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' , display:'block'}}>
+                                  {dataQuizRank[0].name}
                                 </span>
                               </Text>
                               <div>
@@ -919,10 +929,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                                 border: '1px solid black'
                               }}
                             >
-                              <img src={dataQuizRank[2].avatar} width={'40%'}/>
+                              <img src={dataQuizRank[2].avatar} height={'60%'}/>
                               <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                                  {dataQuizRank[2].name.length > 6 ? dataQuizRank[2].name.substring(0, 3) + '...' : dataQuizRank[2].name}
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
+                                  {dataQuizRank[2].name}
                                 </span>
                               </Text>
                               <div>
@@ -959,7 +969,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
             
             <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <img src={crown} width={'10%'}/>
+                {firstSixData[0] ? <img src={crown} width={'10%'}/> : 'No data'}
               </div>
 
               <div style={{ flex: 1, display: 'flex' }}>
@@ -976,10 +986,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             border: '1px solid black'
                           }}
                         >
-                          <img src={firstSixData[1].avatar} width={'40%'}/>
+                          <img src={firstSixData[1].avatar} height={'60%'}/>
                           <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                              {firstSixData[1].name.length > 6 ? firstSixData[1].name.substring(0, 3) + '...' : firstSixData[1].name}
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px', display:'block' }}>
+                              {firstSixData[1].name}
                             </span>
                           </Text>
                           <div>
@@ -1005,10 +1015,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             border: '1px solid black'
                           }}
                         >
-                          <img src={firstSixData[0].avatar} width={'40%'}/>
+                          <img src={firstSixData[0].avatar} height={'60%'}/>
                           <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                              {firstSixData[0].name.length > 6 ? firstSixData[0].name.substring(0, 3) + '...' : firstSixData[0].name}
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' , display:'block'}}>
+                              {firstSixData[0].name}
                             </span>
                           </Text>
                           <div>
@@ -1034,10 +1044,10 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             border: '1px solid black'
                           }}
                         >
-                          <img src={firstSixData[2].avatar} width={'40%'}/>
+                          <img src={firstSixData[2].avatar} height={'60%'}/>
                           <Text style={{ color: 'black', textAlign: 'center', fontFamily: 'Comic Sans MS', fontWeight: 'bold', }}>
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px' }}>
-                              {firstSixData[2].name.length > 6 ? firstSixData[2].name.substring(0, 3) + '...' : firstSixData[2].name}
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '150px', display:'block' }}>
+                              {firstSixData[2].name}
                             </span>
                           </Text>
                           <div>

@@ -108,7 +108,8 @@ export default function chatbot() {
             }
           })
           .catch(error => {
-            message.error(error.message)
+            // message.error(error.message)
+            console.log(error.message)
           });
     }
 
