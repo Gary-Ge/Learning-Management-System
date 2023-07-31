@@ -1032,6 +1032,7 @@ export default function StudentCoursePage() {
     });
   
     setfunLists(updatedFunList);
+    setshowChatbot(false)
     setShowStudentRank(true);
 
     let current_course_id = ''
