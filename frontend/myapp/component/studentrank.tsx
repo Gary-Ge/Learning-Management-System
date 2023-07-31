@@ -646,7 +646,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                     {dataAssignmentRank[1] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
-                        <Badge.Ribbon text="2st" placement="start" color='silver'>
+                        <Badge.Ribbon text="2nd" placement="start" color='silver'>
                           <Content
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -704,7 +704,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                     {dataAssignmentRank[2] && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                        <Badge.Ribbon text="3st" placement="start" color='orange'>
+                        <Badge.Ribbon text="3rd" placement="start" color='orange'>
                           <Content
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -874,7 +874,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                       {dataQuizRank[1] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
-                          <Badge.Ribbon text="2st" placement="start" color='silver'>
+                          <Badge.Ribbon text="2nd" placement="start" color='silver'>
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -932,7 +932,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                       {dataQuizRank[2] && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                          <Badge.Ribbon text="3st" placement="start" color='orange'>
+                          <Badge.Ribbon text="3rd" placement="start" color='orange'>
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -989,7 +989,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                   {firstSixData[1] && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                      <Badge.Ribbon text="2st" placement="start" color='silver'>
+                      <Badge.Ribbon text="2nd" placement="start" color='silver'>
                         <Content
                           style={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -1047,7 +1047,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                   {firstSixData[2] && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                      <Badge.Ribbon text="3st" placement="start" color='orange'>
+                      <Badge.Ribbon text="3rd" placement="start" color='orange'>
                         <Content
                           style={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
