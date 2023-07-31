@@ -53,4 +53,11 @@ public interface PostMapper extends BaseMapper<Post> {
 
     @Select("SELECT * from USERS where user_id=#{userId}")
     Map<String, Object> selectUserById(@Param("userId") String userId);
+
+    @Select("SELECT title from COURSES where course_id=#{courseId}")
+    String selectCourseNameByCourseId(@Param("courseId") String courseId);
+
+    @Select("select email from STUDENTS left join COURSES on STUDENTS.course_id=COURSES.course_id left join USERS on " +
+            "STUDENTS.user_id=USERS.user_id where COURSES.course_id=#{courseId}")
+    List<String> selectStudentEmailListByCourseId(@Param("courseId") String courseId);
 }

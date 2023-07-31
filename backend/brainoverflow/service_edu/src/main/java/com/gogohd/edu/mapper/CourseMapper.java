@@ -49,4 +49,8 @@ public interface CourseMapper extends BaseMapper<Course> {
             "WHERE S.course_id = #{courseId} AND S.end > #{currentDate} " +
             "ORDER BY S.end")
     List<Map<String, Object>> selectStreamDueByCourseId(@Param("courseId") String courseId, @Param("currentDate") LocalDateTime currentDate);
+
+    @Select("select email from STUDENTS left join COURSES on STUDENTS.course_id=COURSES.course_id left join USERS on " +
+            "STUDENTS.user_id=USERS.user_id where COURSES.course_id=#{courseId}")
+    List<String> selectStudentEmailListByCourseId(@Param("courseId") String courseId);
 }

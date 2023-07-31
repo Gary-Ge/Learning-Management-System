@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
 import com.gogohd.base.utils.ResultCode;
+import com.gogohd.base.utils.SendEmailUtils;
 import com.gogohd.forum.entity.Category;
 import com.gogohd.forum.entity.Post;
 import com.gogohd.forum.entity.Reply;
@@ -72,6 +73,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         if (baseMapper.insert(post) != 1) {
             throw new BrainException(ResultCode.ERROR, "Create post failed");
         }
+
+        // Send email
+        String courseName = baseMapper.selectCourseNameByCourseId(courseId);
+        List<String> emails = baseMapper.selectStudentEmailListByCourseId(courseId);
+        String emailContent = "A new post: " + title + " has been posted on the forum of course: " + courseName;
+        SendEmailUtils.sendForumPostUpdate(emails, emailContent);
 
         return post.getPostId();
     }

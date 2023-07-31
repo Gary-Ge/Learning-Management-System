@@ -3,22 +3,13 @@ package com.gogohd.edu.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gogohd.base.exception.BrainException;
-import com.gogohd.base.utils.ArgsValidator;
-import com.gogohd.base.utils.OssUtils;
-import com.gogohd.base.utils.RandomUtils;
-import com.gogohd.base.utils.ResultCode;
-import com.gogohd.edu.entity.Resource;
-import com.gogohd.edu.entity.Section;
-import com.gogohd.edu.entity.Staff;
-import com.gogohd.edu.entity.Student;
+import com.gogohd.base.utils.*;
+import com.gogohd.edu.entity.*;
 import com.gogohd.edu.entity.vo.CreateTextSectionVo;
 import com.gogohd.edu.entity.vo.CreateVideoSectionVo;
 import com.gogohd.edu.entity.vo.UpdateTextSectionVo;
 import com.gogohd.edu.entity.vo.UpdateVideoSectionVo;
-import com.gogohd.edu.mapper.ResourceMapper;
-import com.gogohd.edu.mapper.SectionMapper;
-import com.gogohd.edu.mapper.StaffMapper;
-import com.gogohd.edu.mapper.StudentMapper;
+import com.gogohd.edu.mapper.*;
 import com.gogohd.edu.service.SectionService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +32,9 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
 
     @Autowired
     private StudentMapper studentMapper;
+
+    @Autowired
+    private CourseMapper courseMapper;
 
     private final String NO_AUTHORITY_CREATE = "You have no authority to create section for this course";
     private final String NO_AUTHORITY_UPDATE = "You have no authority to update this section";
@@ -90,6 +84,13 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
         if (!save(section)) {
             throw new BrainException(ResultCode.ERROR, "Create text lesson failed");
         }
+
+        // Send email
+        String courseName = courseMapper.selectById(courseId).getTitle();
+        List<String> emails = courseMapper.selectStudentEmailListByCourseId(courseId);
+        String content = "A new material: " + title + " has been created for course: " + courseName;
+        SendEmailUtils.sendCourseMaterialUpdate(emails, content);
+
         return section.getSectionId();
     }
 
@@ -194,6 +195,13 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
         if (!save(section)) {
             throw new BrainException(ResultCode.ERROR, "Create video section failed");
         }
+
+        // Send email
+        String courseName = courseMapper.selectById(courseId).getTitle();
+        List<String> emails = courseMapper.selectStudentEmailListByCourseId(courseId);
+        String content = "A new material: " + title + " has been created for course: " + courseName;
+        SendEmailUtils.sendCourseMaterialUpdate(emails, content);
+
         return section.getSectionId();
     }
 
