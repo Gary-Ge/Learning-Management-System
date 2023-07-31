@@ -554,8 +554,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
         footer={null}
         onOk={() => setOpen(false)}
         onCancel={() => setOpen(false)}
-        width={1000}
-        style={{fontFamily: 'Comic Sans MS'}}
+        style={{fontFamily: 'Comic Sans MS',paddingTop: '40px',paddingBottom: '40px'}}
       >
         <List
           itemLayout="horizontal"
@@ -566,7 +565,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                 title={item.title}
                 description={
                   item.medals && item.medals.length > 0 ? (
-                    <div style={{ display: 'flex',alignItems: 'center',justifyContent:'flex-start' }}>
+                    <div style={{ display: 'flex',alignItems: 'center',justifyContent:'flex-start',flexWrap: 'wrap' }}>
                       {item.medals.map((medal, index) => (
                         <div key={index} style={{ marginRight: '20px' }}>
                           <div style={{display: 'flex',flexDirection: 'column',alignItems: 'center'}}>
