@@ -624,7 +624,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
               <>
               <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
               
-              <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+              <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '0' }}>
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                   {dataAssignmentRank[0] ? <img src={crown} width={'10%'}/> : 'No data'}
                 </div>
@@ -667,8 +667,8 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                           <Content
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                              width: '200px', height: '120px',
+                              padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '50px',
+                              width: '200px', height: '170px',
                               border: '1px solid black'
                             }}
                           >
@@ -852,7 +852,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
               <>
                 <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
                 
-                <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+                <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '0' }}>
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     {dataQuizRank[0] ? <img src={crown} width={'10%'}/> : 'No data'}
                   </div>
@@ -895,8 +895,8 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                             <Content
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                                width: '200px', height: '120px',
+                                padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '50px',
+                                width: '200px', height: '170px',
                                 border: '1px solid black'
                               }}
                             >
@@ -967,7 +967,7 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
           <Form.Item>
             <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} >Ranking</Text>
             
-            <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '10px' }}>
+            <div style={{ height: 'auto', display: 'flex', flexDirection: 'column', marginBottom: '0' }}>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {firstSixData[0] ? <img src={crown} width={'10%'}/> : 'No data'}
               </div>
@@ -1010,8 +1010,8 @@ const StudentRank: React.FC<{ quizes: any; course: any; assInfor: any; courseid:
                         <Content
                           style={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '0',
-                            width: '200px', height: '120px',
+                            padding: '10px', borderRadius: '10px', background: '#FFFFFF', marginBottom: '50px',
+                            width: '200px', height: '170px',
                             border: '1px solid black'
                           }}
                         >

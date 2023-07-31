@@ -97,7 +97,7 @@ const VideoLesson: React.FC<{ onCancel: () => void; onSubmit: () => void; course
 
       const formData = new FormData();
       formData.append('file', fileList[0]);
-
+      message.info('The video is uploading,please wait for a second')
       fetch(`${HOST_RESOURCE}/video/${sectionId}`, {
         method: 'POST',
         headers: {
