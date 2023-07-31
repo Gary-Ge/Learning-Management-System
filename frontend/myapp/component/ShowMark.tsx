@@ -141,6 +141,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           }
         }
         results.push({
+          key: student.email,
           id: student.email,
           name: student.username,
           grade: [student.mark, student.userId],
@@ -148,12 +149,14 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         });
         if (student.mark === -1) {
           rankResults.push({
+            key: student.email,
             avatar: student.avatar,
             name: student.username,
             grade: '-',
           });
         } else {
           rankResults.push({
+            key: student.email,
             avatar: student.avatar,
             name: student.username,
             grade: student.mark,
@@ -231,6 +234,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
       title: 'Students Grade',
       dataIndex: 'grade',
       key: 'grade',
+      // sorter: (a, b) => a.grade - b.grade,
       render: (record: any) => {
         const foundValue = (values || []).find((value: any) => {
           return value.url === `${HOST_ASSIGNMENT}/assignment/${selectedAssignmentId}/mark/${record[1]}`;
@@ -360,6 +364,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         if (infor.question.questionId === selectedQuestionId) {
           if (infor.question.type === 0 || infor.question.type === 1) {
             results.push({
+              key: infor.user.email,
               id: infor.user.email,
               name: infor.user.username,
               answer: infor.answer.optionIds,
@@ -368,6 +373,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
           }
           else if (infor.question.type === 2) {
             results.push({
+              key: infor.user.email,
               id: infor.user.email,
               name: infor.user.username,
               answer: infor.answer.content,
@@ -416,11 +422,13 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
         }
       }
       results.push({
+        key:user.email,
         id: user.email,
         name: user.name,
         grade: user.grade,
       });
       rankResults.push({
+        key:user.email,
         avatar: user.avatar,
         name: user.name,
         grade: user.grade,
@@ -551,10 +559,20 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
     const fetchData = async () => {
       if (selectedType === "total") {
         const results = await fetchGradeData();
-        setDataSource(results[0].sort((a, b) => b.grade - a.grade));
+        // console.log('results', results)
+        const results_list:any = []
+        results[0].map((item, index) => {
+          results_list.push({
+            ...item,
+            key: index
+          })
+        })
+        // console.log('results_list', results_list)
+        setDataSource(results_list.sort((a, b) => b.grade - a.grade));
         const users: any[] = [];
         for (const user of results[1].sort((a, b) => b.grade - a.grade) || []) {
           users.push({
+            key: user.name,
             avatar: user.avatar,
             name: user.name,
             grade: user.grade,
@@ -900,7 +918,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                   </div>
                   {(allQuestions || []).map((question: any) => {
                     if (question.questionId === selectedQuestionId) {
-                      return <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }}>{question.content}</Text>;
+                      return <Text style={{ width: '100%', fontFamily: 'Comic Sans MS' }} key={question.content}>{question.content}</Text>;
                     }
                   })}
                 </Form.Item>
