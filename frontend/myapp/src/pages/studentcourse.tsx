@@ -897,6 +897,7 @@ export default function StudentCoursePage() {
           }
       }
   }
+  setTimeLeft(null);
   setIsSubmitted(true);
   message.success("quiz submit successfully")
 };  
@@ -917,14 +918,17 @@ export default function StudentCoursePage() {
       return;
     }
 
-    if (now > end) {
+    else if (now > end) {
       message.error('Quiz is finished.');
       return;
     }
+    else {
     localStorage.setItem("quizStarted", "true");
     localStorage.setItem("startedQuiz", _item.quizid);
+    setIsSubmitted(false);
     setStartedQuiz(_item.quizid);
-    setTimeLeft(_item.limitation * 60); 
+    setTimeLeft(_item.limitation * 60);
+  } 
   };
   const formatTime = (time:any) => {
     const minutes = Math.floor(time / 60);
