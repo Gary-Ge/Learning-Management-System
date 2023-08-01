@@ -220,9 +220,10 @@ public class StreamServiceImpl extends ServiceImpl<StreamMapper, Stream> impleme
             throw new BrainException(ResultCode.NO_AUTHORITY, "You have no authority to start this stream lesson");
         }
 
-//        if (!StreamUtils.isPushing(streamId)) {
-//            throw new BrainException(ResultCode.ERROR, "The pushing has not started");
-//        }
+        if (!StreamUtils.isPushing(streamId)) {
+            throw new BrainException(ResultCode.ERROR, "The pushing has not started");
+        }
+
         if (stringRedisTemplate.opsForValue().get("stream://" + streamId) != null) {
             throw new BrainException(ResultCode.ERROR, "This stream lesson is already started");
         }

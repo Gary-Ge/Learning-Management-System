@@ -143,6 +143,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             throw new BrainException(ResultCode.NOT_FOUND, "Assignment not exist");
         }
 
+        if (LocalDateTime.now().isAfter(assignment.getEnd())) {
+            throw new BrainException(ResultCode.ERROR, "You cannot submit assignment after due date");
+        }
+
         // Assuming we have a function to check if a user is enrolled in the course of the assignment
         if (!isStudentEnrolledInCourse(userId, assignment.getCourseId())) {
             throw new BrainException(ResultCode.NO_AUTHORITY, "You are not enrolled in this course");
