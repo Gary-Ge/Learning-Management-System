@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a3d9c95-25fd-443a-9e5f-9eab7d9e6da9" name="Default Changelist" comment="config changed">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="1a3d9c95-25fd-443a-9e5f-9eab7d9e6da9" name="Default Changelist" comment="config changed" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -58,6 +56,7 @@
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
     "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/liweilin/Desktop/COMP9900/Project/capstone-project-9900h09agogohd",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -132,6 +131,7 @@
       <workItem from="1688285664014" duration="526000" />
       <workItem from="1688690527258" duration="13519000" />
       <workItem from="1688711477977" duration="249000" />
+      <workItem from="1690107014141" duration="6000" />
     </task>
     <task id="LOCAL-00001" summary="Synchronize">
       <created>1687390494929</created>
