@@ -813,7 +813,7 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     columns={rankColumns} 
                   />
                 </div>
-                <Text style={{ fontFamily: 'Comic Sans MS', color: 'red' }} >Please press the key "Enter" to update grade</Text>
+                <br></br>
                 <div style={{ overflowX: 'auto', width: '100%' }}>
                   <Table 
                     style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
@@ -922,10 +922,10 @@ const ShowMark: React.FC<{ quizes: any; course: any; assInfor: any; onCancel: ()
                     }
                   })}
                 </Form.Item>
+                <br></br>
                 <div>
                   <Text style={{ width: '100%', fontFamily: 'Comic Sans MS', fontWeight: 'bold' }} >Grade List:</Text>
                 </div>
-                <Text style={{ fontFamily: 'Comic Sans MS', color: 'red' }} >Please press the key "Enter" to update grade</Text>
                 <div style={{ overflowX: 'auto', width: '100%' }}>
                   <Table 
                     style={{ border: '1px solid grey', width: '100%', fontFamily: 'Comic Sans MS' }} 
