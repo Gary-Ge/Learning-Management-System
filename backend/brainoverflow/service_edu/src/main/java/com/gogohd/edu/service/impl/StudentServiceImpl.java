@@ -686,6 +686,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         questionWrapper.eq(Question::getQuizId, quizId);
         List<Question> questions = questionMapper.selectList(questionWrapper);
 
+        if (questions.size() == 0) {
+            return new ArrayList<>();
+        }
+
         LambdaQueryWrapper<Answer> answerWrapper = new LambdaQueryWrapper<>();
         answerWrapper.in(Answer::getQuestionId, questions.stream().map(Question::getQuestionId).collect(Collectors.toList()));
         List<Answer> answers = answerMapper.selectList(answerWrapper);

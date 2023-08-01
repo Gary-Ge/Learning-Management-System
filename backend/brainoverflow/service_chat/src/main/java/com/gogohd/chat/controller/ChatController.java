@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("chat-bot")
+@RequestMapping(value = "chat-bot", produces = {"application/json"})
 @Tag(name = "ChatBot related apis")
 public class ChatController {
 

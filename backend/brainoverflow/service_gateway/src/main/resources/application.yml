@@ -25,21 +25,27 @@ spring:
         - id: service-edu
           uri: lb://service-edu
           predicates:
-              - Path=/service-edu/**
+            - Path=/service-edu/**
           filters:
-              - StripPrefix=1
+            - StripPrefix=1
         - id: service-stream
           uri: lb://service-stream
           predicates:
-              - Path=/service-stream/**
+            - Path=/service-stream/**
           filters:
-              - StripPrefix=1
+            - StripPrefix=1
         - id: service-forum
           uri: lb://service-forum
           predicates:
-              - Path=/service-forum/**
+            - Path=/service-forum/**
           filters:
-              - StripPrefix=1
+            - StripPrefix=1
+        - id: service-chat
+          uri: lb://service-chat
+          predicates:
+            - Path=/service-chat/**
+          filters:
+            - StripPrefix=1
 
 knife4j:
   gateway:
