@@ -1,0 +1,69 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.6.13)
+
+2023-08-02 22:22:20.360  INFO 24531 --- [           main] com.gogohd.forum.ForumApplication        : Starting ForumApplication v0.0.1-SNAPSHOT using Java 11.0.19 on BohandeMacBook-Pro.local with PID 24531 (/Users/bohanzhang/COMP9900/backend/brainoverflow/service_forum/target/service_forum-0.0.1-SNAPSHOT.jar started by bohanzhang in /Users/bohanzhang/COMP9900/backend)
+2023-08-02 22:22:20.363  INFO 24531 --- [           main] com.gogohd.forum.ForumApplication        : The following 1 profile is active: "dev"
+2023-08-02 22:22:21.495  INFO 24531 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=b06c4e60-d020-3f32-871e-e13b49601704
+2023-08-02 22:22:21.839  INFO 24531 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-08-02 22:22:21.840  INFO 24531 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-08-02 22:22:21.843  INFO 24531 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-08-02 22:22:22.104  INFO 24531 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 10930 (http)
+2023-08-02 22:22:22.117  INFO 24531 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-08-02 22:22:22.117  INFO 24531 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.68]
+2023-08-02 22:22:22.193  INFO 24531 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-08-02 22:22:22.193  INFO 24531 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1757 ms
+Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
+2023-08-02 22:22:22.368  INFO 24531 --- [           main] c.a.d.s.b.a.DruidDataSourceAutoConfigure : Init DruidDataSource
+2023-08-02 22:22:22.568  INFO 24531 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} inited
+Property 'mapperLocations' was not specified.
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.3.1 
+2023-08-02 22:22:24.347  INFO 24531 --- [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2023-08-02 22:22:24.465  WARN 24531 --- [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2023-08-02 22:22:24.490  INFO 24531 --- [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2023-08-02 22:22:24.549  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2023-08-02 22:22:24.558  INFO 24531 --- [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2023-08-02 22:22:24.597  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2023-08-02 22:22:24.597  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2023-08-02 22:22:24.598  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2023-08-02 22:22:24.598  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2023-08-02 22:22:24.598  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2023-08-02 22:22:24.598  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2023-08-02 22:22:24.598  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2023-08-02 22:22:25.113  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2023-08-02 22:22:25.115  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2023-08-02 22:22:25.117  INFO 24531 --- [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2023-08-02 22:22:25.122  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1690978945121 with initial instances count: 0
+2023-08-02 22:22:25.123  INFO 24531 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application SERVICE-FORUM with eureka with status UP
+2023-08-02 22:22:25.124  INFO 24531 --- [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1690978945124, current=UP, previous=STARTING]
+2023-08-02 22:22:25.125  INFO 24531 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-FORUM/service-forum:192.168.1.106:10930: registering service...
+2023-08-02 22:22:25.147  INFO 24531 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 10930 (http) with context path ''
+2023-08-02 22:22:25.147  INFO 24531 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 10930
+2023-08-02 22:22:25.163  INFO 24531 --- [           main] com.gogohd.forum.ForumApplication        : Started ForumApplication in 5.351 seconds (JVM running for 5.883)
+2023-08-02 22:22:25.233  INFO 24531 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-FORUM/service-forum:192.168.1.106:10930 - registration status: 204
+2023-08-02 22:22:55.116  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2023-08-02 22:22:55.117  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2023-08-02 22:22:55.117  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2023-08-02 22:22:55.117  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2023-08-02 22:22:55.117  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2023-08-02 22:22:55.117  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Application version is -1: false
+2023-08-02 22:22:55.117  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2023-08-02 22:22:55.130  INFO 24531 --- [freshExecutor-0] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2023-08-02 22:23:15.030  INFO 24531 --- [ionShutdownHook] o.s.c.n.e.s.EurekaServiceRegistry        : Unregistering application SERVICE-FORUM with eureka with status DOWN
+2023-08-02 22:23:15.030  INFO 24531 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1690978995030, current=DOWN, previous=UP]
+2023-08-02 22:23:15.030  INFO 24531 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-FORUM/service-forum:192.168.1.106:10930: registering service...
+2023-08-02 22:23:15.036  INFO 24531 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-FORUM/service-forum:192.168.1.106:10930 - registration status: 204
+2023-08-02 22:23:15.055  INFO 24531 --- [ionShutdownHook] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} closing ...
+2023-08-02 22:23:15.056  INFO 24531 --- [ionShutdownHook] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} closed
+2023-08-02 22:23:15.057  INFO 24531 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Shutting down DiscoveryClient ...
+2023-08-02 22:23:18.063  INFO 24531 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Unregistering ...
+2023-08-02 22:23:18.070  INFO 24531 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-FORUM/service-forum:192.168.1.106:10930 - deregister  status: 200
+2023-08-02 22:23:18.074  INFO 24531 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Completed shut down of DiscoveryClient

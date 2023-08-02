@@ -1,0 +1,75 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.6.13)
+
+2023-08-02 22:21:48.115  INFO 22209 --- [           main] com.gogohd.eureka.EurekaApplication      : Starting EurekaApplication v0.0.1-SNAPSHOT using Java 11.0.19 on BohandeMacBook-Pro.local with PID 22209 (/Users/bohanzhang/COMP9900/backend/brainoverflow/service_eureka/target/service_eureka-0.0.1-SNAPSHOT.jar started by bohanzhang in /Users/bohanzhang/COMP9900/backend)
+2023-08-02 22:21:48.118  INFO 22209 --- [           main] com.gogohd.eureka.EurekaApplication      : No active profile set, falling back to 1 default profile: "default"
+2023-08-02 22:21:49.197  INFO 22209 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=7dd1f776-f6d4-3e41-90e5-df830c5059c7
+2023-08-02 22:21:49.527  INFO 22209 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8761 (http)
+2023-08-02 22:21:49.538  INFO 22209 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-08-02 22:21:49.539  INFO 22209 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.68]
+2023-08-02 22:21:49.604  INFO 22209 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-08-02 22:21:49.604  INFO 22209 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1431 ms
+2023-08-02 22:21:50.052  INFO 22209 --- [           main] c.s.j.s.i.a.WebApplicationImpl           : Initiating Jersey application, version 'Jersey: 1.19.4 05/24/2017 03:20 PM'
+2023-08-02 22:21:50.122  INFO 22209 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON encoding codec LegacyJacksonJson
+2023-08-02 22:21:50.124  INFO 22209 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using JSON decoding codec LegacyJacksonJson
+2023-08-02 22:21:50.288  INFO 22209 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using XML encoding codec XStreamXml
+2023-08-02 22:21:50.288  INFO 22209 --- [           main] c.n.d.provider.DiscoveryJerseyProvider   : Using XML decoding codec XStreamXml
+2023-08-02 22:21:50.803  INFO 22209 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4afd21c6, org.springframework.security.web.context.SecurityContextPersistenceFilter@65b66b08, org.springframework.security.web.header.HeaderWriterFilter@3d7b1f1c, org.springframework.security.web.authentication.logout.LogoutFilter@571a9686, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@6ab7ce48, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@10ef5fa0, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@4d0753c9, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@2e5ee2c9, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7eb6b6b6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5b275174, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1416a80a, org.springframework.security.web.session.SessionManagementFilter@1f44ddab, org.springframework.security.web.access.ExceptionTranslationFilter@77e7246b, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@2acbc859]
+2023-08-02 22:21:51.472  INFO 22209 --- [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses Jersey
+2023-08-02 22:21:51.547  WARN 22209 --- [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2023-08-02 22:21:51.566  INFO 22209 --- [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2023-08-02 22:21:51.601  INFO 22209 --- [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2023-08-02 22:21:51.601  INFO 22209 --- [           main] com.netflix.discovery.DiscoveryClient    : Client configured to neither register nor query for data.
+2023-08-02 22:21:51.614  INFO 22209 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1690978911613 with initial instances count: 0
+2023-08-02 22:21:51.648  INFO 22209 --- [           main] c.n.eureka.DefaultEurekaServerContext    : Initializing ...
+2023-08-02 22:21:51.649  WARN 22209 --- [           main] c.n.eureka.cluster.PeerEurekaNodes       : The replica size seems to be empty. Check the route 53 DNS Registry
+2023-08-02 22:21:51.696  INFO 22209 --- [           main] c.n.e.registry.AbstractInstanceRegistry  : Finished initializing remote region registries. All known remote regions: []
+2023-08-02 22:21:51.697  INFO 22209 --- [           main] c.n.eureka.DefaultEurekaServerContext    : Initialized
+2023-08-02 22:21:51.705  INFO 22209 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2023-08-02 22:21:51.730  INFO 22209 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application UNKNOWN with eureka with status UP
+2023-08-02 22:21:51.743  INFO 22209 --- [       Thread-9] o.s.c.n.e.server.EurekaServerBootstrap   : isAws returned false
+2023-08-02 22:21:51.744  INFO 22209 --- [       Thread-9] o.s.c.n.e.server.EurekaServerBootstrap   : Initialized server context
+2023-08-02 22:21:51.744  INFO 22209 --- [       Thread-9] c.n.e.r.PeerAwareInstanceRegistryImpl    : Got 1 instances from neighboring DS node
+2023-08-02 22:21:51.744  INFO 22209 --- [       Thread-9] c.n.e.r.PeerAwareInstanceRegistryImpl    : Renew threshold is: 1
+2023-08-02 22:21:51.744  INFO 22209 --- [       Thread-9] c.n.e.r.PeerAwareInstanceRegistryImpl    : Changing status to UP
+2023-08-02 22:21:51.753  INFO 22209 --- [       Thread-9] e.s.EurekaServerInitializerConfiguration : Started Eureka Server
+2023-08-02 22:21:51.758  INFO 22209 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8761 (http) with context path ''
+2023-08-02 22:21:51.759  INFO 22209 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8761
+2023-08-02 22:21:51.789  INFO 22209 --- [           main] com.gogohd.eureka.EurekaApplication      : Started EurekaApplication in 4.478 seconds (JVM running for 4.968)
+2023-08-02 22:22:05.494  INFO 22209 --- [nio-8761-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-08-02 22:22:05.494  INFO 22209 --- [nio-8761-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-08-02 22:22:05.495  INFO 22209 --- [nio-8761-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2023-08-02 22:22:06.003  INFO 22209 --- [nio-8761-exec-2] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-GATEWAY/service-gateway:192.168.1.106:10900 with status UP (replication=false)
+2023-08-02 22:22:12.661  INFO 22209 --- [nio-8761-exec-4] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-UCENTER/service-ucenter:192.168.1.106:10910 with status UP (replication=false)
+2023-08-02 22:22:19.314  INFO 22209 --- [nio-8761-exec-6] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-EDU/service-edu:192.168.1.106:10920 with status UP (replication=false)
+2023-08-02 22:22:25.232  INFO 22209 --- [nio-8761-exec-8] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-FORUM/service-forum:192.168.1.106:10930 with status UP (replication=false)
+2023-08-02 22:22:33.065  INFO 22209 --- [io-8761-exec-10] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-STREAM/service-stream:192.168.1.106:10940 with status UP (replication=false)
+2023-08-02 22:22:40.478  INFO 22209 --- [nio-8761-exec-4] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-CHAT/service-chat:192.168.1.106:10950 with status UP (replication=false)
+2023-08-02 22:22:51.748  INFO 22209 --- [a-EvictionTimer] c.n.e.registry.AbstractInstanceRegistry  : Running the evict task with compensationTime 0ms
+2023-08-02 22:23:14.871  INFO 22209 --- [nio-8761-exec-8] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-CHAT/service-chat:192.168.1.106:10950 with status DOWN (replication=false)
+2023-08-02 22:23:14.960  INFO 22209 --- [nio-8761-exec-9] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-STREAM/service-stream:192.168.1.106:10940 with status DOWN (replication=false)
+2023-08-02 22:23:15.035  INFO 22209 --- [io-8761-exec-10] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-FORUM/service-forum:192.168.1.106:10930 with status DOWN (replication=false)
+2023-08-02 22:23:15.112  INFO 22209 --- [nio-8761-exec-2] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-EDU/service-edu:192.168.1.106:10920 with status DOWN (replication=false)
+2023-08-02 22:23:15.196  INFO 22209 --- [nio-8761-exec-1] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-UCENTER/service-ucenter:192.168.1.106:10910 with status DOWN (replication=false)
+2023-08-02 22:23:15.292  INFO 22209 --- [nio-8761-exec-3] c.n.e.registry.AbstractInstanceRegistry  : Registered instance SERVICE-GATEWAY/service-gateway:192.168.1.106:10900 with status DOWN (replication=false)
+2023-08-02 22:23:17.928  INFO 22209 --- [nio-8761-exec-4] c.n.e.registry.AbstractInstanceRegistry  : Cancelled instance SERVICE-CHAT/service-chat:192.168.1.106:10950 (replication=false)
+2023-08-02 22:23:18.069  INFO 22209 --- [nio-8761-exec-6] c.n.e.registry.AbstractInstanceRegistry  : Cancelled instance SERVICE-FORUM/service-forum:192.168.1.106:10930 (replication=false)
+2023-08-02 22:23:18.150  INFO 22209 --- [io-8761-exec-10] c.n.e.registry.AbstractInstanceRegistry  : Cancelled instance SERVICE-EDU/service-edu:192.168.1.106:10920 (replication=false)
+2023-08-02 22:23:18.252  INFO 22209 --- [nio-8761-exec-3] c.n.e.registry.AbstractInstanceRegistry  : Cancelled instance SERVICE-UCENTER/service-ucenter:192.168.1.106:10910 (replication=false)
+2023-08-02 22:23:18.605  INFO 22209 --- [nio-8761-exec-5] c.n.e.registry.AbstractInstanceRegistry  : Cancelled instance SERVICE-STREAM/service-stream:192.168.1.106:10940 (replication=false)
+2023-08-02 22:23:20.373  INFO 22209 --- [nio-8761-exec-8] c.n.e.registry.AbstractInstanceRegistry  : Cancelled instance SERVICE-GATEWAY/service-gateway:192.168.1.106:10900 (replication=false)
+2023-08-02 22:23:25.377  INFO 22209 --- [ionShutdownHook] o.s.c.n.e.s.EurekaServiceRegistry        : Unregistering application UNKNOWN with eureka with status DOWN
+2023-08-02 22:23:25.392  INFO 22209 --- [ionShutdownHook] o.s.c.n.e.server.EurekaServerBootstrap   : Shutting down Eureka Server..
+2023-08-02 22:23:25.396  INFO 22209 --- [ionShutdownHook] c.n.eureka.DefaultEurekaServerContext    : Shutting down ...
+2023-08-02 22:23:25.403  INFO 22209 --- [ionShutdownHook] c.n.eureka.DefaultEurekaServerContext    : Shut down
+2023-08-02 22:23:25.403  INFO 22209 --- [ionShutdownHook] o.s.c.n.e.server.EurekaServerBootstrap   : Eureka Service is now shutdown...
+2023-08-02 22:23:25.404  INFO 22209 --- [ionShutdownHook] c.n.eureka.DefaultEurekaServerContext    : Shutting down ...
+2023-08-02 22:23:25.408  INFO 22209 --- [ionShutdownHook] c.n.eureka.DefaultEurekaServerContext    : Shut down
+2023-08-02 22:23:25.413  INFO 22209 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Shutting down DiscoveryClient ...
+2023-08-02 22:23:25.413  INFO 22209 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Completed shut down of DiscoveryClient

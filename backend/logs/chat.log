@@ -1,0 +1,71 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.6.13)
+
+2023-08-02 22:22:34.323  INFO 25888 --- [           main] com.gogohd.chat.ChatApplication          : Starting ChatApplication v0.0.1-SNAPSHOT using Java 11.0.19 on BohandeMacBook-Pro.local with PID 25888 (/Users/bohanzhang/COMP9900/backend/brainoverflow/service_chat/target/service_chat-0.0.1-SNAPSHOT.jar started by bohanzhang in /Users/bohanzhang/COMP9900/backend)
+2023-08-02 22:22:34.326  INFO 25888 --- [           main] com.gogohd.chat.ChatApplication          : The following 1 profile is active: "dev"
+2023-08-02 22:22:35.296  INFO 25888 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2023-08-02 22:22:35.301  INFO 25888 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2023-08-02 22:22:35.331  INFO 25888 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 7 ms. Found 0 Redis repository interfaces.
+2023-08-02 22:22:35.669  INFO 25888 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=a29a607b-cf69-3729-8e28-c73545b297eb
+2023-08-02 22:22:36.365  INFO 25888 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-08-02 22:22:36.366  INFO 25888 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-08-02 22:22:36.367  INFO 25888 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-08-02 22:22:36.635  INFO 25888 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 10950 (http)
+2023-08-02 22:22:36.651  INFO 25888 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-08-02 22:22:36.651  INFO 25888 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.68]
+2023-08-02 22:22:36.743  INFO 25888 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-08-02 22:22:36.743  INFO 25888 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2348 ms
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by retrofit2.Platform (jar:file:/Users/bohanzhang/COMP9900/backend/brainoverflow/service_chat/target/service_chat-0.0.1-SNAPSHOT.jar!/BOOT-INF/lib/retrofit-2.9.0.jar!/) to constructor java.lang.invoke.MethodHandles$Lookup(java.lang.Class,int)
+WARNING: Please consider reporting this to the maintainers of retrofit2.Platform
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
+2023-08-02 22:22:37.070  INFO 25888 --- [           main] c.a.d.s.b.a.DruidDataSourceAutoConfigure : Init DruidDataSource
+2023-08-02 22:22:37.286  INFO 25888 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} inited
+Property 'mapperLocations' was not specified.
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.3.1 
+Can not find table primary key in Class: "java.lang.Void".
+2023-08-02 22:22:37.385  WARN 25888 --- [           main] c.b.m.core.injector.DefaultSqlInjector   : class java.lang.Void ,Not found @TableId annotation, Cannot use Mybatis-Plus 'xxById' Method.
+2023-08-02 22:22:39.686  INFO 25888 --- [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2023-08-02 22:22:39.809  WARN 25888 --- [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2023-08-02 22:22:39.837  INFO 25888 --- [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2023-08-02 22:22:39.896  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2023-08-02 22:22:39.904  INFO 25888 --- [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2023-08-02 22:22:39.937  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2023-08-02 22:22:39.937  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2023-08-02 22:22:39.937  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2023-08-02 22:22:39.937  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2023-08-02 22:22:39.937  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2023-08-02 22:22:39.938  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2023-08-02 22:22:39.938  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2023-08-02 22:22:40.349  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2023-08-02 22:22:40.351  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2023-08-02 22:22:40.353  INFO 25888 --- [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2023-08-02 22:22:40.358  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1690978960357 with initial instances count: 4
+2023-08-02 22:22:40.359  INFO 25888 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application SERVICE-CHAT with eureka with status UP
+2023-08-02 22:22:40.360  INFO 25888 --- [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1690978960360, current=UP, previous=STARTING]
+2023-08-02 22:22:40.362  INFO 25888 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-CHAT/service-chat:192.168.1.106:10950: registering service...
+2023-08-02 22:22:40.388  INFO 25888 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 10950 (http) with context path ''
+2023-08-02 22:22:40.389  INFO 25888 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 10950
+2023-08-02 22:22:40.413  INFO 25888 --- [           main] com.gogohd.chat.ChatApplication          : Started ChatApplication in 6.683 seconds (JVM running for 7.351)
+2023-08-02 22:22:40.479  INFO 25888 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-CHAT/service-chat:192.168.1.106:10950 - registration status: 204
+2023-08-02 22:23:14.866  INFO 25888 --- [ionShutdownHook] o.s.c.n.e.s.EurekaServiceRegistry        : Unregistering application SERVICE-CHAT with eureka with status DOWN
+2023-08-02 22:23:14.866  INFO 25888 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1690978994866, current=DOWN, previous=UP]
+2023-08-02 22:23:14.866  INFO 25888 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-CHAT/service-chat:192.168.1.106:10950: registering service...
+2023-08-02 22:23:14.873  INFO 25888 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-CHAT/service-chat:192.168.1.106:10950 - registration status: 204
+2023-08-02 22:23:14.916  INFO 25888 --- [ionShutdownHook] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} closing ...
+2023-08-02 22:23:14.917  INFO 25888 --- [ionShutdownHook] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} closed
+2023-08-02 22:23:14.917  INFO 25888 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Shutting down DiscoveryClient ...
+2023-08-02 22:23:17.923  INFO 25888 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Unregistering ...
+2023-08-02 22:23:17.929  INFO 25888 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_SERVICE-CHAT/service-chat:192.168.1.106:10950 - deregister  status: 200
+2023-08-02 22:23:17.935  INFO 25888 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Completed shut down of DiscoveryClient
