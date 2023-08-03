@@ -116,6 +116,7 @@ export default function StudentCoursePage() {
   const [showStudentRank, setShowStudentRank] = useState(false);
   const [showChatbot, setshowChatbot] = useState(false);
   const [rankcourseid, setrankcourseid] = useState('');
+  const [isLoading, setLoading] = useState(false);
 
   const props = (key:number, id:string) => {
     return {
@@ -487,9 +488,11 @@ export default function StudentCoursePage() {
         });
       });
       setstreamLists([...stream_list]);
+      setLoading(false);
     })
     .catch(error => {
       message.error(error.message);
+      setLoading(false);
     }); 
   };
 
@@ -696,6 +699,7 @@ export default function StudentCoursePage() {
   // onclick to show stream content
   const [isStreamOpen, setIsStreamOpen] = useState(false);
   const showstreamcontent = (e:any) => {
+    setLoading(true);
     setIsStreamOpen(true);
     let current_course_id = ''
     datalist.map((item:any) => {
@@ -1357,19 +1361,19 @@ export default function StudentCoursePage() {
                   )
                 }
               </div>
-              <div className={funlist[4].is_selected ? '': 'display_non'}>
-                {
-                  streamlist.length == 0 ? <div className='stu_right_content'>There is no stream now.</div> : ''
-                }
-                {isStreamOpen && 
-                  streamlist.map(_item =>
-                    <div key={_item.key} id={_item.streamId} className={_item.is_selected ? '' : 'display_non'}>
-                      <>
-                      <LinkBoardStu stream={_item}/>
-                      </>
-                    </div>
-                  )
-                }
+              <div className={funlist[4].is_selected ? '' : 'display_non'}>
+                {isLoading ? (
+                  <div className='stu_right_content'>Loading the stream...</div>
+                ) : streamlist.length === 0 ? (
+                  <div className='stu_right_content'>There is no stream now.</div>
+                ) : (
+                  isStreamOpen && 
+                    streamlist.map(_item =>
+                      <div key={_item.key} id={_item.streamId} className={_item.is_selected ? '' : 'display_non'}>
+                        <LinkBoardStu stream={_item}/>
+                      </div>
+                    )
+                )}
               </div>
               <div className={showStudentRank ? 'stu_right_content': 'display_non'}>
               {showStudentRank && (
