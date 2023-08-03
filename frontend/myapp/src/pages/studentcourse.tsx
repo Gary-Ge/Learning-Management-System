@@ -579,6 +579,7 @@ export default function StudentCoursePage() {
       set_ass_left_list_show(false);
     }
     if(e.target.id == '4'){ // stream show
+      getallstreams(current_course_id, '0');
       set_stream_left_list_show(!stream_left_list_show);
     } else {
       set_stream_left_list_show(false);
