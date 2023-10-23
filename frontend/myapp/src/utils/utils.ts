@@ -53,4 +53,4 @@ export const HOST_STREAM_QUIZ = '/service-stream/stream-quiz'
 export const HOST_STREAM_CHAT = '/service-stream/stream-chat'
 export const HOST_STREAM = '/service-stream/stream-basic'
 export const HOST_QUESTION = '/service-edu/edu-question'
-export const target_stream = 'http://localhost:10940/';
+export const target_stream = 'http://175.45.180.201:10940/';
